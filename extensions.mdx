@@ -1,0 +1,188 @@
+---
+title: "扩展"
+description: "给任务页的工作区面板加一个自己的标签页。一个文件夹加一份 manifest.json 就是一个扩展。"
+---
+
+桌面版侧栏的「任务」打开任务页，右半边是工作区面板。内置的标签页有审阅、终端、浏览器、文件、侧边聊天。扩展往这一排里加自己的标签页，点开就是你写的网页。
+
+页面跑在只属于它的沙箱里，有自己的地址、自己的 localStorage、自己的缓存。它能读到咕咕的主题色，能感知工作副本（这个任务在磁盘上干活的那个目录）里的文件变化，能看到 agent 在忙什么，也能把用户在你页面里选中的东西转达进左边的对话。每一项都要在安装的时候单独获得同意。
+
+完整的字段与方法清单见 [扩展 API](/extension-api)。
+
+## 最小的一个
+
+一个扩展就是一个文件夹：
+
+```
+sticky-notes/
+  manifest.json
+  index.html
+  notes.js
+```
+
+`manifest.json`：
+
+```json
+{
+  "id": "sticky-notes",
+  "name": "便签",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "entry": "index.html",
+  "contributes": {
+    "tabs": [
+      {
+        "name": "notes",
+        "title": "便签",
+        "toolbar": [{ "id": "clear", "title": "清空" }]
+      }
+    ]
+  }
+}
+```
+
+`index.html`。样式可以写在页面里，脚本必须单独成文件，理由见下面的[沙箱](#沙箱)：
+
+```html
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>便签</title>
+<style>
+  body {
+    margin: 0; height: 100vh; display: flex; flex-direction: column;
+    font: 14px/1.6 ui-sans-serif, "PingFang SC", system-ui, sans-serif;
+    background: var(--em-background); color: var(--em-foreground);
+  }
+  #box {
+    flex: 1; padding: 16px; border: 0; outline: none; resize: none;
+    background: transparent; color: inherit; font: inherit;
+  }
+  #status {
+    flex: none; padding: 6px 16px; font-size: 12px;
+    color: var(--em-foreground-muted);
+    border-top: 1px solid var(--em-border);
+  }
+</style>
+</head>
+<body>
+  <textarea id="box" placeholder="随手写点什么"></textarea>
+  <div id="status"></div>
+  <script src="notes.js"></script>
+</body>
+</html>
+```
+
+`notes.js`：
+
+```js
+const box = document.getElementById('box');
+const status = document.getElementById('status');
+
+// 切走再切回来，页面会从头重新加载。要留住的东西放进 localStorage，
+// 它跟着这个扩展自己的地址走，别的扩展读不到。
+box.value = localStorage.getItem('draft') ?? '';
+
+function save() {
+  localStorage.setItem('draft', box.value);
+  // 角标显示还剩多少字。传 null 清掉它。
+  window.gugu.setTabBadge(box.value.length || null).catch(show);
+}
+
+box.addEventListener('input', save);
+
+// 工具栏那颗按钮回到这里，commandId 就是 manifest 里写的那个 id。
+window.gugu.onCommand((commandId) => {
+  if (commandId === 'clear') {
+    box.value = '';
+    save();
+  }
+});
+
+// 每一次调用都可能被拒。把原话摆到用户看得见的地方。
+function show(error) {
+  status.textContent = error.message;
+  window.gugu.reportError(error.message).catch(() => {
+    // reportError 自己也被拒了，那就只剩上面那行还能让人看见。
+  });
+}
+
+window.gugu.getContext().then((context) => {
+  status.textContent = `任务 ${context.taskId.slice(0, 8)}`;
+}, show);
+```
+
+这个扩展一项权限都不申请，装上就能用。
+
+## 装
+
+设置 → 扩展 → 安装，选中那个文件夹。
+
+咕咕会先把 `permissions` 里申请的每一项摆出来给用户看，点头才装。上面这个扩展什么都没申请，用户看到的是「除了显示自己的标签页，不需要其他权限」。申请了的会逐条列出来，比如「读取这个任务工作副本里的文件，碰不到电脑上别的地方」。
+
+装完之后，那个标签页出现在每个任务的工作区面板里。
+
+## 主题
+
+页面在自己的文档里渲染，继承不到咕咕的样式。咕咕把自己那套 `--em-` 开头的 CSS 变量注进你的文档，并且在用户切换明暗的时候换掉里面的值。用它们取色，你的页面就跟着咕咕走，代码里不需要出现任何一个色值。
+
+```css
+body { background: var(--em-background); color: var(--em-foreground); }
+```
+
+常用的几个：
+
+| 变量 | 用在哪 |
+| --- | --- |
+| `--em-background` | 页面底色 |
+| `--em-background-2` / `--em-background-3` | 分层的面板与工具条 |
+| `--em-foreground` | 正文字色 |
+| `--em-foreground-muted` | 次要文字 |
+| `--em-border` | 分隔线与边框 |
+| `--em-accent-11` | 强调色，链接与选中态 |
+| `--em-foreground-success` / `--em-foreground-warning` / `--em-foreground-destructive` | 成功、警告、危险 |
+
+注进来的是解析后的色值，所以你的代码里不需要出现 light 和 dark 的分支。变量有三百多个，还有整套色阶（`--em-blue-1` 到 `--em-blue-12` 这一类）。想知道当下都有哪些，在页面里读一遍 `document.documentElement.computedStyleMap()`，取以 `--em-` 开头的那些。
+
+## 沙箱
+
+限制由 Content-Security-Policy 和 Electron 的 webview 设置共同强制，页面掀不掉。下面几条最容易撞上：
+
+**代码只能来自这个文件夹。** `script-src 'self'`，所以 CDN 链接不行，页面里直接写 `<script>` 也不行。写在 HTML 里的脚本会被静默拒绝执行，页面照样画得出来，只有交互全没了，很容易误判成自己写错了。把脚本放进单独的 `.js` 文件，用 `<script src="...">` 引。
+
+**没有字符串转代码。** 没有 `unsafe-eval`，所以 `eval`、`new Function` 以及走它们的库都跑不起来。
+
+**样式可以内联。** `style-src` 留了 `unsafe-inline`，页面里的 `<style>` 和 `style` 属性都正常，主流 UI 库也就都能用。
+
+**图片、字体、音视频可以来自声明过的域名。** 这几类和代码分开管。只要域名写进了 `permissions.network`，`<img>`、`@font-face`、`<video>` 都能直接引它。图片另外接受 `data:` 和 `blob:`。
+
+**没有 iframe，没有新窗口。** `frame-src 'none'`，`object-src 'none'`，表单提交也被 `form-action 'none'` 挡住。
+
+**没有 Node。** 没有 `require`，没有 Electron 的 IPC，没有嵌套 webview，没有 File System Access API，碰不到咕咕自己的页面，也看不到别的标签页。要碰工作副本里的文件，走 `window.gugu.readFile` 那条路。
+
+**页面不保留视图状态。** 切走再切回来，从入口重新加载，滚动位置和筛选条件都会没。真数据写进文件，临时状态放 localStorage。
+
+## 联网
+
+`permissions.network` 是一份裸主机名清单，最多 16 条，可以带前导 `*.`。清单之外的地方一律去不了。
+
+- 只有 `https:` 和 `wss:`。声明过的域名走 `http:` 照样拒
+- 本机和内网一律拒：`localhost`、`*.local`、`*.internal`，以及任何 IP 字面量
+- `*.example.com` 同时覆盖它的子域和 `example.com` 本身
+- 跨域取数由咕咕代为放行，对方站点不需要为你配 CORS
+
+真正拦住请求的是会话层，页面改不动它。响应头里的 CSP 写的是同一份清单，所以控制台里报的和实际拦的对得上。
+
+## 升版与撤销
+
+装同一个 `id` 的新版本会替换旧的。只有新增的去处才会再问一次用户，没变的部分不打扰他。声明过 `*.example.com` 之后再点名 `api.example.com`，不算新增；反过来 `example.com` 变成 `*.example.com` 算。装更旧的版本不会被拦，但确认框会说清楚是在往回退。
+
+用户可以在设置页单独关掉某一项权限，而不必卸载你。关掉之后扩展照常运行，只是那一项够不到了。所以代码要为「声明过、当下没有」留出路径。`getContext()` 返回的 `capabilities` 是撤销之后的实际清单，照它画界面，别照你申请的那份。
+
+## 目前还没有的
+
+- **让 app 切到某个 agent，或者打开某个标签页。** `getAppState()` 是只读的状态面，写是另一件事
+- **agent 被删除时的通知。** `onAgentsChanged` 只报状态变化
+- **在当前任务里起终端**
+- **工作副本之外的文件。** 得由用户当场用咕咕的文件选择器指定，这条通道还没有

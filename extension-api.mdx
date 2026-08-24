@@ -1,0 +1,243 @@
+---
+title: "扩展 API"
+description: "manifest.json 的全部字段，window.gugu 的全部方法与事件，以及每一项各自需要哪个权限。"
+---
+
+扩展能碰到的东西只有两处。**声明面**是 `manifest.json`，安装的时候就定死，用户当场看得到。**运行面**是页面里的 `window.gugu`，随时可以调。这一页是完整清单，不在表里的都不存在。
+
+上手和沙箱限制见[扩展](/extensions)。
+
+## manifest.json
+
+顶层字段：
+
+| 字段 | 必填 | 约束 |
+| --- | --- | --- |
+| `id` | 是 | `^[a-z0-9][a-z0-9-]{1,63}$`。不可以含点，因为标签页类型是 `<id>.<tabName>`，得能拆回来 |
+| `name` | 是 | 给人看的名字，1 到 64 字 |
+| `version` | 是 | `x.y.z`，三段纯数字 |
+| `apiVersion` | 是 | 目前只接受 `1` |
+| `entry` | 是 | 包内相对路径的 HTML。不可以有 `..`，不可以是绝对路径，不可以软链到包外 |
+| `permissions.capabilities[]` | 否 | 下面那张能力表里的词，最多 8 个 |
+| `permissions.network[]` | 否 | 裸主机名，可带前导 `*.`，最多 16 条。不接受端口、路径、协议，不接受 IP 字面量，不接受本机与内网名 |
+| `contributes.tabs[]` | 是 | 1 到 8 个标签页 |
+
+`manifest.json` 自己也不可以是软链。软链过去的那份不归这个包管，用户同意过的清单会在装完之后被包外改掉。
+
+每个标签页：
+
+| 字段 | 必填 | 约束 |
+| --- | --- | --- |
+| `name` | 是 | `^[a-z0-9][a-z0-9-]{0,31}$`，同一个扩展内不重名 |
+| `title` | 是 | 给人看的标题，1 到 48 字 |
+| `entry` | 否 | 这个标签页自己的 HTML。省略就用顶层的 `entry`。声明多个标签页的时候，每个都该有自己的一份，否则它们画出来是同一个页面 |
+| `icon` | 否 | 包内相对路径的位图。咕咕解码之后重新编码再画。SVG 会被拒，它是一种带脚本和外链的文档格式 |
+| `opensFiles[]` | 否 | 点号开头的小写后缀，例如 `[".csv", ".tsv"]`，最多 16 个 |
+| `menu[]` | 否 | 这个标签页的右键菜单项 `{ id, title }`，最多 8 条 |
+| `toolbar[]` | 否 | 这个标签页头部的按钮 `{ id, title }`，最多 6 条 |
+
+`opensFiles` 是认领，用户打开这类文件时多一个去处。内置编辑器始终可达，用户自己的选择永远优先，所以装一个扩展不会让某类文件打不开。后缀按大小写不敏感匹配，磁盘上是什么写法轮不到作者预测。
+
+`menu` 和 `toolbar` 是**声明**的。咕咕把它们画在自己的位置上，用户点了哪一条，就把你写的那个 `id` 通过 `onCommand` 送回来。没有「给我一个菜单对象」这种命令式接口。
+
+## 能力
+
+每一项单独同意，也单独可撤。用户可以只关掉其中一项而不卸载你，所以代码要为「声明过、当下没有」留出路径。`workspace:write` 不含 `workspace:read`，两个都要就都声明。
+
+| 能力 | 解锁什么 | 用户在安装时看到的原话 |
+| --- | --- | --- |
+| `workspace:read` | `listFiles`、`readFile`、`onFilesChanged`，`getContext().workspaceRoot`，以及 app 状态里每个 pane 的 `filePath` | 读取这个任务工作副本里的文件，碰不到电脑上别的地方 |
+| `workspace:write` | `writeFile` | 修改这个任务工作副本里的文件，碰不到电脑上别的地方 |
+| `conversation:relay` | `relaySelection` | 把你在这里选中的内容交给咕咕，由咕咕替你放进对话 |
+| `agents:read` | `listAgents`、`onAgentsChanged`，以及 app 状态里每个 pane 的 `agentId` | 看到这个任务里的 agent，它们是谁，以及各自在忙、在等你、还是已结束 |
+| `agents:history` | `readAgentHistory` | 读这个任务里 agent 说过的话，整段对话，包括你贴进去的东西 |
+| `agents:control` | `spawnAgent`、`stopAgent`、`sendToAgent` | 在这个任务里起 agent、停 agent、给 agent 派活，起一个和派一次活都会消耗你的额度 |
+
+三档 agent 能力**各自独立**。`agents:history` 不搭 `agents:read` 的车，`agents:control` 也不含前两者。
+
+每档默认只看得见**本任务**。要够到这台电脑上所有项目和所有任务，声明加 `:all` 的那个词（`agents:read:all`、`agents:history:all`、`agents:control:all`）。同一个动词，更宽的答案。同时声明这两个词会被 schema 当场拒掉。范围在安装那一刻定死，运行时没有挑范围的参数。
+
+`agents:control` 含**启动引擎进程**。`spawnAgent` 起新的，`sendToAgent` 唤醒冷的，两者都会把引擎拉起来跑，那要花用户的钱。调用的时候没有第二道确认框，用户是在安装那一刻同意的，所以别循环调它。
+
+反过来，`agents:read` 和 `agents:history` **不启动任何引擎**。这就是为什么 `listAgents` 的活状态字段对没开着的会话是 `null`，以及 `readAgentHistory` 对冷会话直接拒。让读权限顺手唤醒会话，等于把用户同意的「读」就地换成「控制」。
+
+## window.gugu
+
+| 成员 | 需要 | 说明 |
+| --- | --- | --- |
+| `apiVersion` | 无 | 数字属性，当前是 `1` |
+| `getContext()` | 无 | 你这个标签页坐在哪。字段见[下面](#getcontext) |
+| `onContextChanged(fn)` | 无 | 主题、语言、显隐、尺寸一变就推。返回取消订阅的函数 |
+| `onCommand(fn)` | 无 | 用户点了你声明的菜单或按钮，回你自己写的那个 `id`，咕咕不改写 |
+| `getAppState()` | 无 | app 此刻在显示什么。字段见[下面](#getappstate) |
+| `onAppStateChanged(fn)` | 无 | 上面那份一变就推。一模一样的状态不重推，所以这不等于轮询 |
+| `setTabTitle(title)` | 无 | 改自己这个标签页的标题，超过 48 字会被截 |
+| `setTabBadge(badge)` | 无 | 数字画计数，大于 99 显示 `99+`，小于等于 0 不画。字符串画一个点，截 8 字。`null` 清掉 |
+| `openBrowserTab(url)` | 无 | 只接受 `http(s)`，怎么开由咕咕定 |
+| `reportError(message)` | 无 | 把错误摆到用户看得见的地方，截 500 字 |
+| `listFiles(dir = '.')` | `workspace:read` | 列工作副本里的一层目录，返回 `{ path, kind }`，`path` 是相对路径，`kind` 是 `file` 或 `directory` |
+| `readFile(path)` | `workspace:read` | 按 UTF-8 读 |
+| `writeFile(path, content)` | `workspace:write` | 按 UTF-8 写，父目录会自动建 |
+| `onFilesChanged(fn)` | `workspace:read` | 工作副本落盘变化。见[下面](#onfileschanged) |
+| `relaySelection(text, source?)` | `conversation:relay` | 「用户在这里选中了这段」。见[下面](#relayselection) |
+| `listAgents()` | `agents:read` | 范围内每个 agent 的身份与活状态。字段见[下面](#listagents) |
+| `onAgentsChanged(fn)` | `agents:read` | 哪些 agent 动了，**只给 id**。见[下面](#onagentschanged) |
+| `readAgentHistory(agentId, before?)` | `agents:history` | 一页对话。见[下面](#readagenthistory) |
+| `spawnAgent(prompt, title?)` | `agents:control` | 在本标签页所属的任务里起一个新 agent，返回 `{ agentId }`。见[下面](#agents-control) |
+| `stopAgent(agentId)` | `agents:control` | 停一个你看得见的 agent |
+| `sendToAgent(agentId, text)` | `agents:control` | 给一个面板 agent 投一轮 |
+
+所有方法都返回 Promise。所有 `on*` 订阅都返回一个取消订阅的函数。
+
+## 每一次调用都可能被拒 [#rejections]
+
+`window.gugu.*` 上写 `.catch(() => {})` 是这套接口里代价最高的习惯。一个自己画 HTML 的页面，即便每一次调用都被拒，看上去也照样正常；而「这个工作副本里没有 .sql 文件」这样的空态，和这套接口整个失灵长得一模一样。吞掉错误，等于把这两种情形永久混在一起。
+
+所以被拒的时候，把消息摆到用户看得见的地方。页面里的一行字，一个带原因的禁用控件，或者 `reportError(message)`，都行。真要忽略某一次，在注释里写清楚为什么。
+
+失败带三种 `code`，挂在抛出的 Error 上：
+
+| `code` | 含义 | 该怎么办 |
+| --- | --- | --- |
+| `denied` | 用户没给这项权限，或者事后撤了 | 别重试。把那块界面收起来或者禁用掉，并说明原因 |
+| `invalid` | 参数不对，比如路径越出工作副本 | 修代码 |
+| `failed` | 真的失败了，比如文件读不出来 | 可以重试，也要告诉用户 |
+
+「这里什么都没有」和「这次调用失败了」要画成两个样子。把它们画成同一个空态，就是上面那个 bug 的成因。
+
+## getContext() [#getcontext]
+
+说的是**你这个标签页坐在哪**。它的一生里这些基本不动。
+
+| 字段 | 说明 |
+| --- | --- |
+| `apiVersion` | 咕咕这一侧的接口版本 |
+| `taskId` | 这个标签页属于哪个任务，一生不变 |
+| `tabId` | 同一类型开了好几个标签页时，靠它认出自己是哪一个 |
+| `filePath?` | 只有被认领的文件打开的那个标签页才有，工作副本相对路径。从标签栏开的没有。当成 `""` 处理会去开工作副本的根目录 |
+| `locale` | BCP-47 标签，用户正在读的界面语言 |
+| `themeMode` | `light` 或 `dark` |
+| `workspaceRoot?` | 工作副本的绝对路径，只有拿到 workspace 权限才有。缺席的意思是没授权给你，别读成「这个任务没有工作副本」 |
+| `capabilities[]` | 撤销之后的实际能力，别拿它当你申请的那份 |
+| `layout` | `{ visible, fullscreen, width, height }`。`visible` 说的是你这个标签页在不在屏上 |
+
+被告知是哪个文件，和可以读它，是两件事。`filePath` 白给，读还是要 `workspace:read`。
+
+## getAppState() [#getappstate]
+
+说的是**用户此刻在干什么**。用户每点一下就变。
+
+```js
+{
+  windowFocused: true,
+  activeTaskId: 'a1b2...',
+  activeProjectId: '0000...',
+  panes: [
+    { paneId: 'p1', focused: true,  activeTab: { tabId: 't1', kind: 'acp-chat', agentId: 'af87...' } },
+    { paneId: 'p2', focused: false, activeTab: { tabId: 't2', kind: 'file', filePath: 'src/main.ts' } }
+  ]
+}
+```
+
+| 字段 | 是什么 |
+| --- | --- |
+| `windowFocused` | 咕咕这扇窗在不在前台。想弹提醒的先看这个 |
+| `activeTaskId` | 用户正在看的那个任务。屏上没有任务视图时是 `null` |
+| `activeProjectId` | 那个任务属于哪个项目。同上，没有时是 `null`。和 `activeTaskId` 同级，同样不设闸 |
+| `panes[]` | 那个任务视图的每个 pane，按屏幕顺序 |
+| `panes[].paneId` | 这个 pane 的 id |
+| `panes[].focused` | 键盘在不在这个 pane 里。有 pane 的时候有且只有一个为 `true` |
+| `panes[].activeTab` | 它当前显示的标签页。空 pane 是 `null` |
+| `…activeTab.tabId` | 那个标签页的 id |
+| `…activeTab.kind` | 咕咕自己的类型词，原样给 |
+| `…activeTab.agentId?` | 这个标签页开着的 agent。要 `agents:read` |
+| `…activeTab.filePath?` | 这个标签页开着的文件，工作副本相对路径。要 `workspace:read` |
+
+五件事值得单独说。
+
+**「用户打开的那个 agent」是复数。** 工作区面板可以分屏，分出来的每一格就是一个 pane，各有自己当前显示的标签页。要问「用户在看哪个 agent」，答案是遍历 `panes`，取 `focused` 的那个，或者把开着的都收下。写 `panes[0]` 会在用户分屏的那一刻开始骗人。
+
+**`kind` 是一份开放清单。** 内置的有 `conversation`、`acp-chat`、`side-chat`、`file`、`file-browser`、`review`、`diff`、`browser`、`terminal`，扩展也会注册自己的（形如 `<扩展 id>.<标签页 name>`）。认不出来的忽略掉就好，那多半是别人装了个新扩展。
+
+**`agentId` 和 `filePath` 缺席的意思是没授权给你。** 这个标签页属于哪一类，`kind` 已经答了。和 `getContext().workspaceRoot` 同一条规矩。
+
+**`panes` 说的是「开着什么」，而非「画出来了什么」。** 一个 pane 可以宽度为零，整个工作区面板也可以被折叠，它的标签页仍然开着，仍然在这份清单里。这正是「用户打开的哪个 agent」要的答案。你这个标签页在不在屏上，读 `getContext().layout.visible`。逐个 pane 的可见性还没有暴露。
+
+**`panes` 只描述你自己那个任务的视图。** 用户切到别的任务时，`activeTaskId` 会告诉你切到哪去了，而 `panes` 给空数组，那个任务的界面布局不归你管。这时候你自己的标签页也不在屏上，正是停掉动画和轮询的时候。
+
+## onFilesChanged(fn) [#onfileschanged]
+
+工作副本落盘变化时触发，回调拿到 `{ kind: 'changes', changes: [{ kind, path }] }`，其中 `kind` 是 `create`、`update` 或 `delete`，`path` 是工作副本相对路径，POSIX 分隔符，和 `listFiles` 返回的形状一致。
+
+`{ kind: 'resync' }` 表示监听丢了位置（事件太多，或者目录被整个搬走）。它不带路径，你自己重读关心的那部分。报一个猜出来的集合，会比说「重读一下」更糟。
+
+它只说文件动了，从不说是谁动的。agent、用户的编辑器和一个脚本，三者到达的样子完全一样，所以作者永远不用去建模「现在轮到谁」。想知道 agent 本身动没动，用 `onAgentsChanged`，别拿文件变化去猜。
+
+## relaySelection(text, source?) [#relayselection]
+
+告诉咕咕「用户在这里选中了这段」，并把内容交出去。`text` 是选中的文本，`source` 可选，说这段来自你页面里的什么地方（一个文件路径，一个行标签）。
+
+这不等于「发消息」。署名取自已安装的清单，用户读到的那句话由咕咕写，形如「在『你的扩展名』里选中」，后面跟着你交出去的内容。所以一个扩展没法刷屏，也没法冒充别人说话。
+
+投递的目标是左边那个面板对话。任务里开着的只有终端 agent 的时候，这次调用会被拒，因为终端 agent 没有可以投进去的输入框。
+
+## listAgents() [#listagents]
+
+没有参数。答案有多宽，在用户安装的时候就定了。
+
+| 字段 | 说明 |
+| --- | --- |
+| `agentId` | 这个 agent 的 id |
+| `taskId` / `projectId` | 它在哪个任务和哪个项目里 |
+| `title` | 给人看的标题 |
+| `providerId` | 底下是哪个引擎，咕咕没记下来时为 `null` |
+| `transport` | `panel` 或 `terminal`。面板对话，或者跑在终端里 |
+| `parentAgentId` | 是被哪个 agent 起起来的，没有则为 `null` |
+| `status` | 状态词 |
+| `isGenerating` | 正在生成。只有面板会话有 |
+| `lastStopReason` | 上一次停下来的原因 |
+| `pendingPermissionCount` | 有多少件事在等人批。只有面板会话有 |
+| `queuedPromptCount` | 有多少轮排着还没发。只有面板会话有 |
+| `updatedAt` | 最后一次交互的时间，ISO-8601 文本 |
+
+**活状态字段只有当下开着的面板会话才有。** `isGenerating`、`lastStopReason`、`pendingPermissionCount`、`queuedPromptCount` 这四个，对每一个终端 agent 都是 `null`，对没人打开过的面板 agent 也是 `null`。
+
+`null` 的意思是问不出来，与 0 是两回事。拿一个 `null` 画出「0 件待批」的角标，用户会当真。
+
+`pendingPermissionCount > 0` 表示那个 agent 卡在等人。这一项加上一个很旧的 `updatedAt`，「谁卡住了」这个问题就答完了，一句对话都不用读。
+
+## onAgentsChanged(fn) [#onagentschanged]
+
+有 agent 动了就触发。起来了，停了，开始生成，讲完了，开始等人批。
+
+**只给 id**，回调拿到的是一个 id 数组。它说有东西动了，关不关心你自己定，和 `onFilesChanged` 对工作副本是同一套做法。关心的那几个，自己调 `listAgents()` 取细节。
+
+id 按你声明的范围过滤，所以光有 `agents:read` 永远听不到别的任务里的 agent。
+
+agent 被删除**不会**从这里到达。这条通道还没有做，而非做了不响。
+
+## readAgentHistory(agentId, before?) [#readagenthistory]
+
+返回 `{ messages, nextCursor }`。`messages` 里最旧的在前，每条是 `{ messageId, sender, text, turnId, seq, startedAt }`，`sender` 是 `user` 或 `assistant`，`startedAt` 是那一轮开始的时间，引擎没说的时候为 `null`。
+
+每次最多一百轮。`nextCursor` 为 `null` 表示已经到对话开头，其余情况把它原样传回 `before` 就能往前翻。
+
+**判断翻完了只看 `nextCursor`，别看 `messages.length`。** 翻页按轮，过滤按消息，所以完全可能返回一个空页而 `nextCursor` 还在，那说明那一百轮全是思考和工具调用，没人开口。一直翻到 `nextCursor` 为 `null` 为止。
+
+**只能读当下开着的 agent。** 咕咕不留对话副本，内容在正跑着的引擎里。没开着的会被响亮地拒，绝不回一个空数组，所以一个空页永远不会读成「它没说过话」。读取本身不会把 agent 打开，否则一项读权限就变成了启动引擎的能力。
+
+终端 agent 没有可读的对话，会被拒。你看不见的 agent，和一个不存在的 agent，用同一句话拒绝，因为它存不存在本身也在你没被授权的范围里。
+
+`text` 是说出来的话。思考过程和工具调用有意不在这里，它们的形状会因为和你的标签页毫无关系的原因而改变。
+
+这是用户的对话，包括他贴进去的东西。因为你的标签页确实需要才读它。
+
+## agents:control 的三个动词 [#agents-control]
+
+`spawnAgent(prompt, title?)` 在**本标签页所属的任务**里起一个新 agent，返回 `{ agentId }`。引擎、模型和自动批准，都继承那个任务里最新的一条会话，也就是用户最近一次选的那个。任务里一个 agent 都没有的时候，它会响亮地拒，绝不替用户挑一个引擎。会话一建好就返回，不等第一轮讲完。
+
+`sendToAgent(agentId, text)` 给一个面板 agent 投一轮。没开着的会先被唤醒。终端 agent 会被拒。这个 Promise 要等**那一轮讲完**才 resolve，和 `spawnAgent` 相反。
+
+`stopAgent(agentId)` 停一个你看得见的 agent，面板和终端都行。它不撤销已经做过的事。它是幂等的，停一个本来就没在跑的照样成功，所以「成功」并不表示刚才它在跑。
+
+你起的 agent 会被记为由你起的，用户把你卸载之后这个标记还在。
