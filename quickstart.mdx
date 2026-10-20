@@ -1,70 +1,82 @@
 ---
-title: "快速开始"
-description: "下载安装，用邮箱验证码登录，创建第一个 agent，发出第一条消息。"
+title: "做一份会议纪要"
+sidebarTitle: "快速开始"
+description: "复制一段记录，拿到文件，再检查和修改。"
 ---
 
+用下面的现成记录，让 Agent 写出 `meeting-summary.md`，再打开检查和修改一次。只需要桌面版和一个可用模型。
+
+<Note>教程界面对应当前 Beta，正式版可能有所不同。[查看版本差异](/settings#更新与版本)。</Note>
+
+## 开始前
+
+从[官网](https://gugu.nextmind.space/zh/)下载安装桌面版，用邮箱验证码登录。新账号按引导选好称呼、身份和智能体；安装进度可以收起，等到显示安装完成再发送第一条要求。已有账号可在「资源库」检查安装。
+
+输入框右下角应有可用模型。使用自己的订阅，先完成厂商登录；使用咕咕模型，先确认账号有可用积分。[两种来源怎么选](/models)。
+
+## 先看会得到什么
+
+<video controls playsInline preload="none" poster="/videos/quickstart-native.jpg" aria-label="真实界面步骤：新建会话、输入记录、打开并修改纪要" style={{width: '100%', borderRadius: '12px'}}>
+  <source src="/videos/quickstart-native.mp4" type="video/mp4" />
+</video>
+
+这段图解由 **Beta 0.2.57-beta.125.1 的真实操作截图**串联，使用虚构会议记录；停留时间经过编排。下面的输入和检查点可直接照着做。
+
+## 完成第一份纪要
+
 <Steps>
-  <Step title="下载安装">
-    | 平台 | 系统要求 | 安装包 |
-    |---|---|---|
-    | macOS（Apple 芯片） | macOS 13 及以上 | [gugu-mac-arm64.dmg](https://download.gugu.nextmind.space/releases/mac/latest/gugu-mac-arm64.dmg) |
-    | macOS（Intel） | macOS 13 及以上 | [gugu-mac-x64.dmg](https://download.gugu.nextmind.space/releases/mac/latest/gugu-mac-x64.dmg) |
-    | Windows | Windows 10 及以上 | [gugu-windows-x64.exe](https://download.gugu.nextmind.space/releases/windows/latest/gugu-windows-x64.exe) |
-    | Android | Android 10 及以上 | [gugu-android.apk](https://download.gugu.nextmind.space/releases/android/latest/gugu-android.apk) |
+  <Step title="打开新任务">
+    桌面最左栏进入「项目」，点「新建会话」。设备选择「本机」，项目保留「未选择项目」。选择已安装的 Agent，有模式选项时用「通用」。
 
-    这几个链接始终指向最新版本。[官网](https://gugu.nextmind.space)上的下载按钮指向同一批安装包。
+    此时应看到可输入的编辑框。不需要先给任务起名或创建项目。
   </Step>
+  <Step title="复制材料并发送">
+    把下面整段放进输入框，再发送：
 
-  <Step title="用邮箱登录">
-    咕咕只有一种登录方式。填邮箱，收验证码，填验证码。没有密码，也没有第三方账号登录。
+    ```text
+    整理下面的示例会议记录。
+    保存为 meeting-summary.md。
+    给我可打开的文件链接。
+    分为结论、待办、待确认三部分。
+    待办写负责人和时间，缺失项写“待确认”。
+    不要补充未提供的日期或数字。
 
-    填的邮箱如果没注册过，会直接建号。昵称取邮箱 @ 前面那一段，之后可以改。
+    示例记录：
+    本周完成了三个基线实验，结果表还没发来。
+    林夏在下周三前补失败样本分析。
+    周宁联系数据提供方，完成时间未定。
+    下次组会讨论可视化方案，时间未定。
+    ```
 
-    <Note>
-      收不到验证码先看垃圾箱，然后回登录页重新发一次。
-    </Note>
+    发送后，这段要求应出现在会话里，下方显示处理过程。出现登录或权限提示时，按提示处理；还没有文件前，不算完成。
+
+    <Accordion title="如果这一步失败了">
+      「积分不足」时核对右下角的模型来源和对应账号额度；「服务不可用」或模型繁忙时稍后重试，也可以换当前可用的模型。
+
+      界面若提供「取回指令」，它只把要求放回输入框，需自己再发送。重试前先看有没有生成文件，避免重复处理已有结果。
+    </Accordion>
   </Step>
+  <Step title="打开文件，检查事实">
+    点回复里的 `meeting-summary.md` 链接查看文件。对照四项：
 
-  <Step title="创建第一个 agent">
-    名下还没有 agent 的时候，登录后会先走一段引导。它先问你是谁，想做什么，再让你给 agent 起个名字，最后带到创建界面。每一步都可以跳过。
+    - 结论保留「完成三个基线实验」，没有编造实验结果。
+    - 林夏的待办是失败样本分析，期限保留「下周三」。
+    - 周宁负责联系数据方，期限写待确认。
+    - 缺少结果表、具体日期和下次会议时间的地方有说明。
 
-    创建界面上要填的东西有三项。
-
-    - **名字和头像**。头像可以从预设里挑，也可以传本地图片。
-    - **引擎**。决定底下跑哪个 CLI，前置条件见下一节。
-    - **运行设备**。咕咕云，或者自己的一台在线电脑，详见[设备](/devices)。本地 agent 用的是那台电脑的文件系统，所以要处理的文件在哪台电脑上，就选哪台。
-
-    提交之后，咕咕在那台设备上把进程拉起来。握手成功才显示在线。失败会报错并且可以重试，不会假装建好了。
+    文案可以不同，事实和未知项应对得上。没有收到文件链接时，继续说「请实际保存文件，并给我打开链接」。
   </Step>
+  <Step title="对着结果再改一次">
+    在同一会话里发送：
 
-  <Step title="发第一条消息">
-    创建完直接进单聊。里面已经有一条消息，那是创建流程写进去的，agent 本身还没开口。**第一句话由你说。**
+    > 把待办按负责人分组，每项保留时间；其他内容保持原意。更新同一份 meeting-summary.md。
 
-    要做什么直接讲。它开始干活时，输入框上方有一条状态提示，写着它在想还是在调工具。
+    再打开结果确认修改。原会话保留着上下文，可以接着补要求。
   </Step>
 </Steps>
 
-## 引擎的前置条件
+## 做完之后
 
-**Claude Code 和 Codex** 不用手动装。那台机器上如果已经装了，咕咕直接用装好的那个，连它的配置和登录状态一起用。没装的话，咕咕第一次用到时自己下载一份运行时，右下角有进度，下载失败可以重试。所以第一次创建这两种 agent 需要联网。
+想持续整理同一课题的材料，进入[项目与文件夹](/projects)。想把工作交给助理跟进，试试[让助理分派一项工作](/guides/assistant-follow-up)。
 
-**Gemini、opencode、Hermes、openclaw** 是外部 CLI，得先在那台机器上装好，并且能从 PATH 找到。没装的话创建会明确失败，不会自动改用别的引擎。
-
-**云端 Agent** 跑在咕咕的服务器上。本机不用装任何东西，也不占用本机。
-
-## 手机版
-
-手机版和桌面版是同一个账号，同一批会话。电脑上派完活，人离开电脑，用手机接着看进度和回消息。
-
-手机版底部有四个 tab，分别是对话、联系人、发现、我的。桌面版侧栏多一个「任务」，手机上没有。
-
-## 相关页面
-
-<CardGroup cols={2}>
-  <Card title="Agent" icon="robot" href="/agents">
-    引擎怎么选。在线状态怎么读。agent 设置里有什么。
-  </Card>
-  <Card title="群" icon="users" href="/groups">
-    把几个 agent 拉进一个群，用倾听模式决定谁什么时候开口。
-  </Card>
-</CardGroup>
+不确定 Agent、模型和任务分别是什么，看[几个基本概念](/concepts)。登录、安装或文件打不开时，按[遇到问题](/troubleshooting)排查。
