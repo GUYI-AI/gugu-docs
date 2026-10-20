@@ -1,70 +1,43 @@
 ---
-title: "快速开始"
-description: "下载安装，用邮箱验证码登录，创建第一个 agent，发出第一条消息。"
+title: "交给 Agent 第一件事"
+sidebarTitle: "快速开始"
+description: "下载安装，选好 Agent、设备和模型，发出一个有明确结果的任务。"
 ---
 
+<Note>
+这份入门对应当前 Beta。已有账号升级后直接进入主界面，首次引导只对新账号出现。
+</Note>
+
 <Steps>
-  <Step title="下载安装">
-    | 平台 | 系统要求 | 安装包 |
-    |---|---|---|
-    | macOS（Apple 芯片） | macOS 13 及以上 | [gugu-mac-arm64.dmg](https://download.gugu.nextmind.space/releases/mac/latest/gugu-mac-arm64.dmg) |
-    | macOS（Intel） | macOS 13 及以上 | [gugu-mac-x64.dmg](https://download.gugu.nextmind.space/releases/mac/latest/gugu-mac-x64.dmg) |
-    | Windows | Windows 10 及以上 | [gugu-windows-x64.exe](https://download.gugu.nextmind.space/releases/windows/latest/gugu-windows-x64.exe) |
-    | Android | Android 10 及以上 | [gugu-android.apk](https://download.gugu.nextmind.space/releases/android/latest/gugu-android.apk) |
+  <Step title="下载并登录">
+    在[官网](https://gugu.nextmind.space/zh/)选择系统下载安装包。桌面版有 macOS、Windows、Linux，手机使用 Android。
 
-    这几个链接始终指向最新版本。[官网](https://gugu.nextmind.space)上的下载按钮指向同一批安装包。
+    用邮箱接收验证码登录。新账号先填写称呼和身份，再跟随引导认识咕咕。桌面引导可选择安装 Codex、Claude Code；安装进度会显示在界面里。
   </Step>
+  <Step title="选一件小事">
+    在「任务」里新建会话，或从「对话」新建 Agent。选择 Agent、运行设备和工作文件夹，再选择模型。
 
-  <Step title="用邮箱登录">
-    咕咕只有一种登录方式。填邮箱，收验证码，填验证码。没有密码，也没有第三方账号登录。
-
-    填的邮箱如果没注册过，会直接建号。昵称取邮箱 @ 前面那一段，之后可以改。
-
-    <Note>
-      收不到验证码先看垃圾箱，然后回登录页重新发一次。
-    </Note>
+    已有订阅可选择自己的模型；选择「咕咕提供的模型」按积分计费。没有装好的 Agent 时，先按选择器提示安装。详见 [Agent 与模型](/agents)。
   </Step>
+  <Step title="说清希望拿到什么">
+    可以从这句开始，把文件夹换成自己的：
 
-  <Step title="创建第一个 agent">
-    名下还没有 agent 的时候，登录后会先走一段引导。它先问你是谁，想做什么，再让你给 agent 起个名字，最后带到创建界面。每一步都可以跳过。
+    > 读一下这个文件夹，列出文件各自的用途，写成一页 Markdown。先只读，遇到不确定的地方标出来。
 
-    创建界面上要填的东西有三项。
-
-    - **名字和头像**。头像可以从预设里挑，也可以传本地图片。
-    - **引擎**。决定底下跑哪个 CLI，前置条件见下一节。
-    - **运行设备**。咕咕云，或者自己的一台在线电脑，详见[设备](/devices)。本地 agent 用的是那台电脑的文件系统，所以要处理的文件在哪台电脑上，就选哪台。
-
-    提交之后，咕咕在那台设备上把进程拉起来。握手成功才显示在线。失败会报错并且可以重试，不会假装建好了。
+    文件在另一台电脑上时，先选那台[设备](/devices)。把附件发到消息里，也要说明希望怎么处理。
   </Step>
+  <Step title="打开结果，再补要求">
+    Agent 会逐步显示回复和工具操作。点文件链接打开结果，可以在聊天旁边查看，再继续说「第二段再短一点」「把来源加上」。
 
-  <Step title="发第一条消息">
-    创建完直接进单聊。里面已经有一条消息，那是创建流程写进去的，agent 本身还没开口。**第一句话由你说。**
-
-    要做什么直接讲。它开始干活时，输入框上方有一条状态提示，写着它在想还是在调工具。
+    「正在思考」只表示它还在工作。任务完成后，打开交付的文件或页面确认结果。
   </Step>
 </Steps>
 
-## 引擎的前置条件
-
-**Claude Code 和 Codex** 不用手动装。那台机器上如果已经装了，咕咕直接用装好的那个，连它的配置和登录状态一起用。没装的话，咕咕第一次用到时自己下载一份运行时，右下角有进度，下载失败可以重试。所以第一次创建这两种 agent 需要联网。
-
-**Gemini、opencode、Hermes、openclaw** 是外部 CLI，得先在那台机器上装好，并且能从 PATH 找到。没装的话创建会明确失败，不会自动改用别的引擎。
-
-**云端 Agent** 跑在咕咕的服务器上。本机不用装任何东西，也不占用本机。
-
-## 手机版
-
-手机版和桌面版是同一个账号，同一批会话。电脑上派完活，人离开电脑，用手机接着看进度和回消息。
-
-手机版底部有四个 tab，分别是对话、联系人、发现、我的。桌面版侧栏多一个「任务」，手机上没有。
-
-## 相关页面
+## 接下来试什么
 
 <CardGroup cols={2}>
-  <Card title="Agent" icon="robot" href="/agents">
-    引擎怎么选。在线状态怎么读。agent 设置里有什么。
-  </Card>
-  <Card title="群" icon="users" href="/groups">
-    把几个 agent 拉进一个群，用倾听模式决定谁什么时候开口。
-  </Card>
+  <Card title="让个人助理跟进" icon="feather" href="/assistant">问日常问题、准备简报，把长任务交给执行者。</Card>
+  <Card title="把一件事做成项目" icon="folder" href="/projects">把文件夹、任务和协作群放在一起。</Card>
+  <Card title="在群里分工" icon="users" href="/groups">点名交代工作，开话题集中讨论。</Card>
+  <Card title="先看示例视频" icon="circle-play" href="/examples">从实际场景理解几个常用操作。</Card>
 </CardGroup>

@@ -2,13 +2,13 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "luma",
   "name": "咕咕",
-  "description": "咕咕（Gugu）的用户文档。咕咕是一个聊天客户端，通讯录里除了人还有 AI agent。",
+  "description": "咕咕使用指南：个人助理、任务、项目、App 与多人协作。短教程、可改用的示例和演示视频。",
   "colors": {
-    "primary": "#6C47FF",
-    "light": "#8B6FFF",
-    "dark": "#4F2FE0"
+    "primary": "#40434A",
+    "light": "#737780",
+    "dark": "#24262B"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/gugu.png",
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
@@ -32,23 +32,36 @@
         "group": "开始",
         "pages": [
           "index",
-          "quickstart"
+          "quickstart",
+          "examples"
         ]
       },
       {
-        "group": "用法",
+        "group": "把事情做完",
         "pages": [
+          "assistant",
+          "tasks",
+          "projects",
           "agents",
-          "devices",
+          "apps",
+          "schedules"
+        ]
+      },
+      {
+        "group": "一起协作",
+        "pages": [
           "chat",
           "groups",
-          "contacts",
-          "settings"
+          "contacts"
         ]
       },
       {
-        "group": "帮助",
+        "group": "配置与帮助",
         "pages": [
+          "devices",
+          "integrations",
+          "models",
+          "settings",
           "troubleshooting"
         ]
       }
