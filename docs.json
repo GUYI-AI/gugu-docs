@@ -33,6 +33,14 @@
         "pages": [
           "index",
           "quickstart",
+          "concepts"
+        ]
+      },
+      {
+        "group": "照着做",
+        "pages": [
+          "guides/research",
+          "guides/assistant-follow-up",
           "examples"
         ]
       },
