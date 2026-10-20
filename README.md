@@ -14,6 +14,8 @@ npx mint@4.2.1072 broken-links
 
 `docs.json` 管导航、站点名称与品牌。页面源在根目录，媒体在 `videos/`，原始产品截图在 `images/walkthrough/`，可下载的练习包在 `samples/`。预览或验证时使用满足 Mintlify 要求的 Node 版本。
 
+练习包下载链接指向公开 GitHub 仓库中的固定提交，避免文档托管站未提供 ZIP 静态文件时返回 404。修改练习材料时同步生成 ZIP，并把两篇指南的下载链接更新到对应素材提交。
+
 ## 内容
 
 - 开始：`index`、`quickstart`、`concepts`。
