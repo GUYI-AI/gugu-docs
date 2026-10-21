@@ -1,0 +1,112 @@
+---
+title: "贡献咕咕 Apps"
+description: "做出第一个 App，测试它，再把固定版本提交到市场索引。"
+---
+
+App 是一个文件夹里的清单、页面和可选程序。它可以给任务加工作页面、在群里共同编辑文件，也可以给 Agent 提供工具和技能。普通 App 由用户选择安装。
+
+这一章按起步、接口、调试、提交和维护组织。先做一个能保存草稿的便签，再按需要加入共享文件或 Agent 工具。使用者的安装与权限说明见 [App](/apps)。
+
+<Note>本章按 2026-10-21 的开发版本整理，App API 当前为 9，支持下限为 3。正式版与 Beta 的接口可能不同；安装前核对目标客户端，发布时填写兼容要求。</Note>
+
+## 准备
+
+需要一台装有咕咕桌面版的电脑和文本编辑器。这个示例没有构建步骤，也不需要先安装 Node。提交市场时才需要 Git、Node.js 和 GitHub 账号。
+
+如果让咕咕里的 Agent 帮你写，先让它阅读 `guide_read` 的 `apps` 和 `apps-ui`。后续按功能读 [API 导览](/extension-api) 列出的专题。外部编辑器也能制作包，完成后由人在咕咕中安装。
+
+## 做一个便签
+
+新建 `notes-starter` 文件夹，放入以下三份文件。完整可复制目录在[文档仓库的起步示例](https://github.com/shuxueshuxue/gugu-docs/tree/4ac2879596e275ee2334551808f338904344be54/samples/app-starter)。
+
+```text
+notes-starter/
+  manifest.json
+  main.html
+  main.js
+```
+
+`manifest.json` 声明名字、版本和页面，不申请额外权限。
+
+```json
+{
+  "id": "notes-starter",
+  "name": "便签起步",
+  "description": "在 App 页面里保存一份本机草稿。",
+  "version": "1.0.0",
+  "apiVersion": 9,
+  "engines": { "gugu": ">=0.2.57" },
+  "entry": "main.html",
+  "contributes": {
+    "tabs": [{ "name": "notes", "title": "便签", "entry": "main.html" }]
+  }
+}
+```
+
+`main.html` 使用咕咕提供的页面样式。脚本放在单独文件里。
+
+```html
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>便签起步</title></head>
+<body>
+  <main>
+    <h1>便签</h1>
+    <label for="draft">本机草稿</label>
+    <textarea id="draft" rows="8"></textarea>
+    <button id="save" type="button">保存</button>
+    <p id="status" role="status"></p>
+  </main>
+  <script src="main.js"></script>
+</body>
+</html>
+```
+
+`main.js` 保存草稿，并把读取或写入失败显示出来。
+
+```js
+const draft = document.getElementById('draft');
+const statusLine = document.getElementById('status');
+
+try {
+  draft.value = localStorage.getItem('draft') ?? '';
+} catch (error) {
+  statusLine.textContent = `读取失败：${error.message}`;
+}
+
+document.getElementById('save').addEventListener('click', () => {
+  try {
+    localStorage.setItem('draft', draft.value);
+    statusLine.textContent = '已保存到这个 App 的本机存储';
+  } catch (error) {
+    statusLine.textContent = `保存失败：${error.message}`;
+  }
+});
+
+window.gugu.getContext().then((context) => {
+  document.documentElement.lang = context.locale || 'zh-CN';
+}).catch((error) => {
+  statusLine.textContent = `读取 App 环境失败：${error.message}`;
+});
+```
+
+## 安装并检查
+
+1. 在咕咕的 App 管理中选择从文件夹安装，选 `notes-starter`。
+2. 打开「便签」，输入「明天整理文献」，点保存，确认出现保存结果。
+3. 退出这个 App 后重新打开，确认同一句文字仍在。草稿保存在本机，不跨设备或群成员同步。
+4. 切换明暗主题、缩窄页面，检查标签、输入框和按钮仍可使用。
+
+有权限的包会显示确认单，由使用者同意。咕咕内的 Agent 可用 `app_create`、`app_install` 和 `app_check` 制作、安装并检验；声明权限不等于批准权限。具体步骤见[开发与调试](/apps/development)。
+
+## 从示例继续
+
+| 想做的事 | 下一步 |
+| --- | --- |
+| 改名字、入口、权限或最低版本 | [manifest](/apps/manifest) |
+| 读文件、给 Agent 工具、多人协作 | [API 导览](/extension-api) |
+| 看实际项目怎样组织 | [论文共读](https://github.com/shuxueshuxue/gugu-apps/tree/main/sources/paper-club)、[看板](https://github.com/shuxueshuxue/gugu-apps/tree/main/sources/kanban)、[论坛](https://github.com/shuxueshuxue/gugu-apps/tree/main/sources/forum) |
+| 发布一个可安装版本 | [提交到市场](/apps/publishing) |
+| 发新版、撤回或停止维护 | [维护与更新](/apps/maintenance) |
+
+目前没有查到独立的官方 App 模板仓；这里给出可复制目录，真实 App 在市场索引仓的 `sources/` 中。复制时保留所用代码和依赖要求的许可证，并换成自己的标识。

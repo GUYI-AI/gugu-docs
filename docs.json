@@ -60,13 +60,28 @@
         "pages": [
           "chat",
           "groups",
-          "contacts"
+          "contacts",
+          "forum"
+        ]
+      },
+      {
+        "group": "贡献咕咕 Apps",
+        "pages": [
+          "extensions",
+          "apps/manifest",
+          "extension-api",
+          "apps/development",
+          "apps/publishing",
+          "apps/policies",
+          "apps/maintenance"
         ]
       },
       {
         "group": "配置与帮助",
         "pages": [
           "devices",
+          "mobile",
+          "resource-monitor",
           "integrations",
           "models",
           "settings",

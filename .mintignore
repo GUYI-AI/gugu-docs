@@ -19,3 +19,7 @@ maintenance/
 
 # Editable sources for the downloadable exercise archive
 samples/research-starter/
+
+# Downloadable App starter: its JS must not become a site-wide script.
+samples/app-starter/
+STATUS.md

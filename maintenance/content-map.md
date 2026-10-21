@@ -58,3 +58,26 @@
 教程须给输入、步骤、每步可见结果及最后检查点。操作指南按一个真实目标组织，参考页保留必要区别与后果；概念说明解释关系，不重复菜单目录。
 
 更新前先查本表中对应产品资料，再核对当前代码。更新后运行 Mintlify 构建和内链检查，查看桌面、手机以及相关媒体。涉及新的用户任务路径，应另做匹配版本的产品走查；页面渲染通过不能写成任务执行通过。
+
+## 2026-10-21 补充核对
+
+本次参照产品 dev `101e2d3f07c9dd126e5526bd2b4daa25df44b07d` 与市场索引 `a395ebe1eb6aff1d7d78af699f34f6971c3b9c56`。本轮是源码核对与文档页面渲染；不新增声称产品全链实测的结论。此前官方 Beta 的入门截图和操作证据保留，截图内的旧称呼与本轮正文「任务」命名区分。
+
+| 正文 | 产品预期 / 合同 | 核对的实现或原文 |
+| --- | --- | --- |
+| agents、models、concepts | behavior/model-access.md；harness-vendor-account spec | packages/session-plugins/src/agents/registry.ts 与 impl/{codex,claude,qwen,copilot,opencode,hermes,mimocode,codebuddy,pi}；harness-model-field.tsx；platform-protocols.ts |
+| tasks 与既有页面术语 | behavior/session-page.md、session-page-flows.md | features/tabs/pane-store.ts、pane-layout-store.ts；创建入口采用操作描述，不捏造已全面改名的按钮文本 |
+| apps 的首启/预装/更新 | behavior/tab-extensions.md | extensions/first-run.ts、market.ts；gugu-apps README 的 firstRun 约束 |
+| extensions、apps/manifest | gugu-extension skill；behavior/tab-extensions.md | extensions/authoring-guide.ts；manifest.ts 的 strict schema、API 下限、能力数、perSession；bridge-protocol.ts API=9 |
+| extension-api | 产品内 App 指南（实际现有11篇专题） | authoring-guide.ts 各 EXTENSION_GUIDE 与 TOPICS；bridge-protocol.ts BRIDGE_VERBS；文件与 Agent 的各自范围 |
+| apps/development | gugu-extension skill；App 沙箱合同 | app-csp.ts、app-csp.test.ts；authoring-guide.ts 的 app_check、页面存活、工具程序；安装确认路径 |
+| apps/publishing、apps/policies、apps/maintenance | docs/publishing-an-extension.md；behavior/tab-extensions.md | gugu-apps README、scripts/add-version.mjs、verify.mjs、lib.mjs；apps/*.json；sources/paper-club/app、kanban/app、forum 的 manifest/README |
+| forum、models 的社区积分区别 | behavior/forum.md | extensions/app-forum-core.ts；authoring-guide.ts apps-forum；gugu-apps sources/forum 的 manifest/README/页面 |
+| resource-monitor、settings | .spec/project/apps/resource-monitor/spec.md | SettingsPage.tsx 的 InterfaceSettingsPage；ResourceMonitorSettingsCard.tsx；command-palette/resource-monitor-view.tsx；resource-monitor-store.ts |
+| mobile、devices | behavior/mobile-session-view.md；gugu-server.md、gugu-server-multi-device.md | mobile/agent-watch/ProjectsPage.tsx（项目与机器同页分组）；SessionTimelinePage.tsx、opened-output-open.ts；mobile/phone-device/PhoneDeviceActionsPage.tsx；useMobileShell.ts；server install.sh |
+
+App 贡献章节的组织参照 Obsidian 官方 developer-docs：Build a plugin、Manifest、Submit your plugin、Plugin guidelines、Developer policies 与 Submission requirements for plugins。已读取其官方仓库原文，只采用起步到维护的组织顺序；没有移植其发布资产、提交入口或审核承诺。
+
+PR #2 的有效结构并入 extensions 和 extension-api：外置脚本、完整最小示例、主题、隔离、网络、授权和错误可见。旧 API 1、taskId、切页重载、无 Agent 控制等已以当前接口重写。当前 authoring-guide 仍有“禁止远程图片/字体”旧句，实际 app-csp.ts 及测试允许已声明域名；本轮采用实际 CSP，并将这个冲突报告维护者。skill 的“八篇”也已落后于11篇实际专题。
+
+公开章节不要求外部作者访问私有产品仓。必要契约在正文给出，完整运行时指引可通过产品 guide_read 取得；公开索引仓与示例提供可访问的源码入口。未查到独立开发者政策、审核时限或申诉制度，不从其他平台补造要求。

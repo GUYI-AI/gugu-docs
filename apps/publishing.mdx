@@ -1,0 +1,76 @@
+---
+title: "提交到 App 市场"
+description: "准备固定源码提交，生成登记记录，通过 CI 后由官方审阅合并。"
+---
+
+市场索引是公开仓库 [shuxueshuxue/gugu-apps](https://github.com/shuxueshuxue/gugu-apps)。每个 App 一份 `apps/<id>.json`。App 源码保存在自己的仓库，索引记录仓库、提交、目录和包的校验值。
+
+现有提交流程是向索引仓提 PR，官方逐版审阅代码并决定合并。客户端从下载站取已登记的包；发布依据是源码提交，不要求采用 GitHub Release 附件。
+
+## 准备一版
+
+发布前完成以下检查：
+
+- App 可安装并完成主要工作，错误与权限拒绝可见。
+- manifest 的 id、version 与登记版本一致；写好 `engines.gugu` 和实际需要的 `apiVersion`。
+- 源码放在公开 GitHub 仓，选定的完整 40 位提交必须在该仓默认分支历史中。
+- 包含 `CHANGELOG.md`，有 `## 1.0.0` 这样的本版标题和非空说明。
+- 建议包含用途、操作、权限和数据说明的 README，标明源码和依赖许可证。
+- 如有图标，使用 PNG，最多 32 KiB、宽高最多 512px；README 中的包内截图每张最多 1 MiB。
+- 包不超过 25 MiB、2000 个文件，不含符号链接。把构建后的文件提交到登记目录；发布脚本打包该目录，不替作者运行构建。
+
+给 Agent 的介绍行由名字、id 和 description 的第一句组成，整行不超过 120 字符。把完整说明放 README。
+
+## 生成登记
+
+Fork 并克隆索引仓，在自己的工作分支执行。将示例中的仓库、完整提交和目录换成已发布到默认分支的真实值。
+
+```sh
+npm ci
+node scripts/add-version.mjs your-name/your-app FULL_40_CHARACTER_COMMIT app
+node scripts/verify.mjs --base origin/main
+```
+
+仓根就是整个包时，最后一个参数写 `.`。脚本按指定提交取源码，打包并计算 sha256、字节数，追加 `apps/<id>.json`。不要手填猜测的校验值。
+
+登记结构如下，尖括号处由真实值替换：
+
+```json
+{
+  "id": "notes-starter",
+  "unlisted": false,
+  "deprecated": null,
+  "versions": [{
+    "version": "1.0.0",
+    "repo": "your-name/your-app",
+    "path": "app",
+    "commit": "<完整40位提交>",
+    "sha256": "<64位小写十六进制>",
+    "bytes": 12345,
+    "yanked": null
+  }]
+}
+```
+
+提交 PR，说明用途、源码位置、权限原因、兼容版本和做过的检查。这个提交说明清单帮助审阅，不是目前不存在的专用提交表单。
+
+## CI 和人工审阅
+
+[verify.mjs](https://github.com/shuxueshuxue/gugu-apps/blob/main/scripts/verify.mjs) 会检查登记格式、旧版本不可变、新版本重新打包后的 sha256 和字节数、清单身份和版本、最低客户端要求、更新说明与媒体限制。仓库有自身测试；放在 `sources/` 下且声明测试脚本的 App 也按仓库流程运行测试。
+
+官方审阅后合并到 `main`，同步流程把包、说明和图片发布到下载站，最后更新 `market/index.json`。客户端安装前再次比对 sha256。包和版本资料写入后不覆盖，同版本修改必须发新版本。
+
+目前没有独立公开的审核评分表、处理时限或申诉流程。CI 通过不代表自动上架；以 PR 中的官方审阅结果为准。现有政策边界见[开发者政策](/apps/policies)。
+
+## 哪些 App 会出现
+
+| 索引字段 | 含义 |
+| --- | --- |
+| `unlisted: false` | 在市场目录中列出，普通正式 App 使用这一状态 |
+| `unlisted: true` | 从目录移走；已装版本仍可用，但不再收到市场更新 |
+| `featured: true` | 官方精选标记，由市场配置决定 |
+| `firstRun: true` | 新用户首启静默安装组，仅允许源码就在官方索引仓自己的 App |
+
+普通第三方 App 不预装，也不能借 firstRun 静默安装。firstRun App 安装后仍可停用、卸载；老用户不追装，卸载后不自动装回。唯一随产品预装的是群文件夹。
+
+这些规则来自索引仓 [README](https://github.com/shuxueshuxue/gugu-apps#readme)、[add-version.mjs](https://github.com/shuxueshuxue/gugu-apps/blob/main/scripts/add-version.mjs) 和 verify，更新提交流程前应重新核对。
