@@ -1,0 +1,79 @@
+---
+title: "manifest 参考"
+description: "声明 App 的页面、程序、权限和兼容要求。"
+---
+
+`manifest.json` 放在包根目录。清单使用严格字段校验，不认识的字段会报错。字段合法只说明清单成立，安装授权另行处理。
+
+## 身份与兼容
+
+| 字段 | 要求 |
+| --- | --- |
+| `id` | 必填，2–64 个小写字母、数字或连字符；首位为字母或数字，不能含点 |
+| `name` | 必填，1–64 字符，显示给人看的名字 |
+| `version` | 必填，`x.y.z` 三段纯数字；发布后不复用 |
+| `apiVersion` | 必填，整数；当前客户端支持 3–9，按实际接口需求声明 |
+| `engines.gugu` | 市场必填；只接受 `>=x.y.z` 或 `^x.y.z`，表示最低版本要求 |
+| `description` | 可选，最多 280 字符；第一句说明用途，市场检查给 Agent 的整行描述不超过 120 字符 |
+| `subtitle` | 可选，最多 30 字符；使用时要求 API 8 或以上 |
+| `author` | 可选，最多 64 字符；作者文本不会被当作身份验证 |
+| `icon` | 可选，包内位图路径；市场图标须 PNG，最多 32 KiB、宽高最多 512px |
+| `homepage` / `repository` | 可选，HTTPS 链接 |
+| `license` | 可选，许可证标识或简短名字，最多 64 字符 |
+| `categories` | 可选，1–4 个分类标识 |
+| `localized` | 可选，按语言标记提供 name、description、subtitle、examples |
+| `examples` | 可选，1–3 句示例要求，每句最多 80 字符 |
+
+`apiVersion` 与 `engines.gugu` 都参与市场兼容选择。同一版本号的咕咕 Beta 也可能支持不同 API，不能只看 `0.2.57`。使用 `chat:read` 至少声明 API 6，文件定位链接使用 API 7，`subtitle` 使用 API 8，`gugu.forum` 使用 API 9。
+
+## 页面、后台和工具
+
+| 字段 | 用途 |
+| --- | --- |
+| `entry` | 包内相对 HTML 路径；有页面的 App 需要入口 |
+| `background.entry` | 可选，启用时启动的后台页面，每个 App 一份 |
+| `contributes.tabs` | 页面清单，存在时 1–8 项 |
+| `contributes.mcpServers` | 可选，1–4 个程序；`{"tools":"tools.js"}` 或 `{"name":"server","command":"node","args":["server.mjs"]}` |
+| `contributes.skills` | 可选，包含各个 `SKILL.md` 的技能目录 |
+| `contributes.toolsListed` | 可选，首次安装时建议将程序工具直接列给 Agent；用户可以改回目录调用 |
+| `settings` | 可选，最多 32 个配置项，类型为 string、boolean 或 select；由咕咕绘制配置页 |
+
+路径必须在包内，不能有绝对路径、反斜杠、`.` 或 `..` 路径段。工具类 App 从 API 5 起可省略 HTML 和 tabs，点击后打开咕咕的配置与状态页。声明程序或技能时必须申请 `agents:tools`。
+
+每个普通页面有以下字段：
+
+| 字段 | 要求 |
+| --- | --- |
+| `name` | 1–32 个小写字母、数字或连字符，App 内唯一，首位为字母或数字 |
+| `title` | 1–48 字符 |
+| `entry` | 可选，省略时使用顶层 entry；手写多页面时各写自己的入口 |
+| `icon` | 可选，包内位图 |
+| `opensFiles` | 可选，按 `session` 和 `chat` 声明文件后缀或文件名，如 `{"chat":[".json"],"session":["TODO.md"]}` |
+| `fileIcons` | 可选，键必须来自本页 opensFiles 的声明 |
+| `menu` / `toolbar` | 可选，分别最多 8 项 / 6 项，每项包含 id、title；点击触发 onCommand |
+| `perSession` | 可选，为每条任务各留一份页面；不能同时用 opensFiles 或 hostPage |
+| `hostPage` | 可选，`"settings"` 使用咕咕配置页，不能再提供普通 HTML 入口或页面命令 |
+
+`opensFiles` 是候选打开方式。用户选择优先；多个 App 声明同一文件时由人选择。
+
+## 权限
+
+`permissions.capabilities` 最多 12 项，`permissions.network` 最多 16 个裸主机名。
+
+| 能力 | 允许的工作 |
+| --- | --- |
+| `files:read` / `files:read:all-machines` | 读取文件，后者扩至其他设备的任务文件 |
+| `files:write` | 修改文件；不自动包含读取权限 |
+| `chat:relay` | 以操作者身份、标明 App 来源发送私下通知 |
+| `chat:read` | 读取有权访问的聊天、成员和消息 |
+| `agents:read` / `agents:read:all` / `agents:read:all-machines` | 查看自己启动的 Agent、本机全部 Agent 或其他设备的 Agent |
+| `agents:history` / `agents:history:all` | 读取自己启动的或本机全部 Agent 的对话记录 |
+| `agents:control` / `agents:control:all` / `agents:control:all-machines` | 启动、联系或停止相应范围的 Agent，跨设备支持范围见接口说明 |
+| `agents:tools` | 向 Agent 提供 App 的程序和技能 |
+| `notifications` | 发送系统通知 |
+
+同一家族只能声明一个范围，例如不要同时写 `agents:read` 和 `agents:read:all`。权限可单独撤销，运行时读 `getContext().capabilities`。
+
+`network` 只写主机名，如 `api.example.com`、`*.example.com`，不带协议、端口或路径。仅 HTTPS/WSS 可用；IP 字面量、本机和内网名称被拒绝。声明域名不会放开远程脚本，详细限制见[开发与调试](/apps/development)。
+
+`firstRun`、`featured`、`unlisted` 属于[市场登记](/apps/publishing)的索引字段，不能写进 manifest。

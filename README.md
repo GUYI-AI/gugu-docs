@@ -2,7 +2,7 @@
 
 [线上文档](https://gugu.mintlify.site/) · [官网](https://gugu.nextmind.space/zh/)
 
-中文用户指南，使用 Mintlify 和 MDX。已有九篇页面的地址保持不变；导航覆盖全部二十篇正文。
+中文用户指南，使用 Mintlify 和 MDX。已有九篇页面的地址保持不变；导航覆盖全部三十篇正文。
 
 ## 本地预览与检查
 
@@ -12,7 +12,7 @@ npx mint@4.2.1072 validate
 npx mint@4.2.1072 broken-links
 ```
 
-`docs.json` 管导航、站点名称与品牌。页面源在根目录，媒体在 `videos/`，原始产品截图在 `images/walkthrough/`，可下载的练习包在 `samples/`。预览或验证时使用满足 Mintlify 要求的 Node 版本。
+`docs.json` 管导航、站点名称与品牌。页面源在根目录，媒体在 `videos/`，原始产品截图在 `images/walkthrough/`，可下载的练习包在 `samples/`。本轮用 Node 22 完成本地预览；Node 24 的网络检测依赖在此环境出现过异常。预览或验证时使用满足 Mintlify 要求的 Node 版本。
 
 练习包下载链接指向公开 GitHub 仓库中的固定提交，避免文档托管站未提供 ZIP 静态文件时返回 404。修改练习材料时同步生成 ZIP，并把两篇指南的下载链接更新到对应素材提交。
 
@@ -55,3 +55,11 @@ npx mint@4.2.1072 broken-links
 用户问题、产品 behavior、.spec 和实现查证入口的对应关系见 [内容依据](maintenance/content-map.md)。维护资料不进入公开站点。
 
 写入门时使用可复制材料、明确产物与检查点；菜单解释放参考页。对产品内部设计作取舍：有助于预测操作后果的信息写给用户，实现沿革留在原资料中。
+
+## App 贡献与新增参考
+
+「贡献咕咕 Apps」从 `extensions` 开始，包括 manifest、API 导览、开发调试、市场提交、政策与维护，共七页。`samples/app-starter` 是可复制的三文件便签起步包，另带 README 和 CHANGELOG。论坛、手机与资源监视器分别位于 `forum`、`mobile`、`resource-monitor`。
+
+本次维护范围见 [2026-10 维护表](maintenance/product-delta-2026-10.md)，逐页依据见 [内容依据](maintenance/content-map.md)。正文统一使用「任务」，执行工具称「引擎」；已有版本截图可能仍显示旧文案。当前导航30页。
+
+`.mintignore` 排除起步包源码与维护资料，避免示例 JavaScript 被 Mintlify 当作全站脚本。源码仍在 GitHub 可复制；教程内也给出完整三文件代码。
