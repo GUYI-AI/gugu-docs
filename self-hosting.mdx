@@ -24,7 +24,7 @@ description: "用自己的 Supabase 项目当后端，从源码运行客户端�
 
 1. 一个 Supabase 账号，并为咕咕新建一个**空项目**。不要和其他数据共用。
 2. 一个 Supabase 个人访问令牌。在 Access Tokens 页面生成，范围只选这个项目。令牌只放在自己电脑上，不要提交到代码仓库。
-3. 一个 SMTP 发信服务，例如 Resend、Brevo、AWS SES。咕咕用邮件里的 6 位验证码登录。Supabase 自带的发信每小时只发 2 封，只发给组织成员，邮件里也没有验证码，所以**必须使用自己的 SMTP**。
+3. 一个 SMTP 发信服务，例如 Resend、Brevo、AWS SES。咕咕用邮件里的 6 位验证码登录。Supabase 自带的发信每小时只发 2 封，只发给组织成员，所以**必须使用自己的 SMTP**。邮件里的验证码由 `pnpm run setup` 写进邮件模板；免费版用自带发信时不允许改模板，所以这一步也要先配好 SMTP。
 4. 电脑上的 Git、Node 24 和 pnpm 10.28.2。Mac 还需要 Xcode 命令行工具。
 
 ## 大致步骤

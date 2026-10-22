@@ -24,7 +24,7 @@ This page covers what to prepare and the overall steps. Step-by-step commands an
 
 1. A Supabase account, with a new **empty project** for gugu. Do not share it with other data.
 2. A Supabase personal access token. Generate it on the Access Tokens page and limit its scope to this project. Keep the token on your own computer. Do not commit it to a code repository.
-3. An SMTP email service, such as Resend, Brevo, or AWS SES. gugu signs in with a 6-digit verification code sent by email. Supabase's built-in email sends only 2 emails per hour, only to organization members, and its emails contain no verification code. So you **must use your own SMTP**.
+3. An SMTP email service, such as Resend, Brevo, or AWS SES. gugu signs in with a 6-digit verification code sent by email. Supabase's built-in email sends only 2 emails per hour, and only to organization members, so you **must use your own SMTP**. The code itself comes from the email template, which `pnpm run setup` updates. Free projects cannot edit templates while they use the built-in email, so set up SMTP first.
 4. Git, Node 24, and pnpm 10.28.2 on your computer. On a Mac you also need the Xcode Command Line Tools.
 
 ## Overall steps
