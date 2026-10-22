@@ -27,66 +27,150 @@
     }
   },
   "navigation": {
-    "groups": [
+    "languages": [
       {
-        "group": "开始",
-        "pages": [
-          "index",
-          "quickstart",
-          "concepts"
+        "language": "zh",
+        "groups": [
+          {
+            "group": "开始",
+            "pages": [
+              "index",
+              "quickstart",
+              "concepts"
+            ]
+          },
+          {
+            "group": "照着做",
+            "pages": [
+              "guides/research",
+              "guides/assistant-follow-up",
+              "examples"
+            ]
+          },
+          {
+            "group": "把事情做完",
+            "pages": [
+              "assistant",
+              "tasks",
+              "projects",
+              "agents",
+              "apps",
+              "schedules"
+            ]
+          },
+          {
+            "group": "一起协作",
+            "pages": [
+              "chat",
+              "groups",
+              "contacts",
+              "forum"
+            ]
+          },
+          {
+            "group": "贡献咕咕 Apps",
+            "pages": [
+              "extensions",
+              "apps/manifest",
+              "extension-api",
+              "apps/development",
+              "apps/publishing",
+              "apps/policies",
+              "apps/maintenance"
+            ]
+          },
+          {
+            "group": "配置与帮助",
+            "pages": [
+              "devices",
+              "mobile",
+              "resource-monitor",
+              "integrations",
+              "models",
+              "settings",
+              "self-hosting",
+              "troubleshooting"
+            ]
+          }
         ]
       },
       {
-        "group": "照着做",
-        "pages": [
-          "guides/research",
-          "guides/assistant-follow-up",
-          "examples"
-        ]
-      },
-      {
-        "group": "把事情做完",
-        "pages": [
-          "assistant",
-          "tasks",
-          "projects",
-          "agents",
-          "apps",
-          "schedules"
-        ]
-      },
-      {
-        "group": "一起协作",
-        "pages": [
-          "chat",
-          "groups",
-          "contacts",
-          "forum"
-        ]
-      },
-      {
-        "group": "贡献咕咕 Apps",
-        "pages": [
-          "extensions",
-          "apps/manifest",
-          "extension-api",
-          "apps/development",
-          "apps/publishing",
-          "apps/policies",
-          "apps/maintenance"
-        ]
-      },
-      {
-        "group": "配置与帮助",
-        "pages": [
-          "devices",
-          "mobile",
-          "resource-monitor",
-          "integrations",
-          "models",
-          "settings",
-          "self-hosting",
-          "troubleshooting"
+        "language": "en",
+        "navbar": {
+          "links": [
+            {
+              "label": "Website",
+              "href": "https://gugu.nextmind.space"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "Download",
+            "href": "https://gugu.nextmind.space"
+          }
+        },
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "en/index",
+              "en/quickstart",
+              "en/concepts"
+            ]
+          },
+          {
+            "group": "Walkthroughs",
+            "pages": [
+              "en/guides/research",
+              "en/guides/assistant-follow-up",
+              "en/examples"
+            ]
+          },
+          {
+            "group": "Get things done",
+            "pages": [
+              "en/assistant",
+              "en/tasks",
+              "en/projects",
+              "en/agents",
+              "en/apps",
+              "en/schedules"
+            ]
+          },
+          {
+            "group": "Work together",
+            "pages": [
+              "en/chat",
+              "en/groups",
+              "en/contacts",
+              "en/forum"
+            ]
+          },
+          {
+            "group": "Build Gugu Apps",
+            "pages": [
+              "en/extensions",
+              "en/apps/manifest",
+              "en/extension-api",
+              "en/apps/development",
+              "en/apps/publishing",
+              "en/apps/policies",
+              "en/apps/maintenance"
+            ]
+          },
+          {
+            "group": "Setup and help",
+            "pages": [
+              "en/devices",
+              "en/mobile",
+              "en/resource-monitor",
+              "en/integrations",
+              "en/models",
+              "en/settings",
+              "en/self-hosting",
+              "en/troubleshooting"
+            ]
+          }
         ]
       }
     ]

@@ -1,0 +1,62 @@
+---
+title: "Turn literature into a group meeting outline"
+description: "Start from a few existing documents: check the evidence first, then write the outline, and finally deliver it to the collaboration group."
+---
+
+Prepare two or three papers or notes the Agent can read, in one folder. You will end up with `literature-table.md` and `meeting-outline.md`.
+
+If you have no material yet, [download the practice pack](https://raw.githubusercontent.com/shuxueshuxue/gugu-docs/4a7afce72d77b8dc17468539a65f6684d92869ea/samples/research-starter.zip) and unzip it into its own folder. It contains three reading cards written from paper abstracts, each with its source, reading scope and the information not provided. For the exercise, only process the files starting with `01`, `02` and `03`.
+
+If the material includes PDFs or other formats, first make sure the current Agent or App can read them. If reading fails, switch to a readable format or add the capability as prompted. Check every cited source in the result against the original.
+
+<Note>Screenshots on this page show the Chinese interface.</Note>
+
+## 1. Start from the folder with the material
+
+In **Projects**, click **+** and choose **Use an existing folder**, then select the material folder. Open the project, click the folder, and choose the Agent, model and the device it actually runs on.
+
+**Check the path on the card before sending.** The current Beta may treat a subfolder inside a Git repository as the repository root. Keeping the practice pack outside any repository avoids this.
+
+If you already have a matching project, add the material folder to it. Different folders for the same research topic can live in one project.
+
+## 2. Make the literature table first
+
+The prompt below uses the practice pack's file names. With your own material, replace the first line.
+
+```text
+Read the three reading cards starting with 01, 02 and 03.
+Based only on these files, organize:
+research question, method, main findings, information not provided.
+Save as literature-table.md.
+Cite the file name and section for each item, and keep the original paper links.
+State that the material only covers the paper abstracts.
+Do not rank the three papers against each other across their different evaluation tasks.
+For this step, deliver only the literature table.
+Wait for my confirmation before writing the meeting outline.
+```
+
+Open the table and spot-check one finding and one source per paper. If a number does not match the original, point to the specific row in the original task and have the Agent check it again.
+
+With the practice pack, you should see each paper organized separately, sources that lead back to the matching reading card, and missing items such as metrics clearly kept. The three papers study different tasks, so they cannot be ranked by performance from these abstracts alone.
+
+## 3. Write the outline after confirming
+
+> Based on the literature table just confirmed, write a group meeting outline to meeting-outline.md. Order: research question, evidence from each paper, common ground and disagreements, questions we can discuss. Keep the source for each item, and keep my ideas separate from the papers' findings.
+
+Open the outline from the reply, next to the chat. You can ask directly for "make part two shorter" or "mark the claims that still lack evidence".
+
+<Frame caption="Actual result with the practice pack: the literature table is confirmed first, then the meeting outline is generated and opened in the same task.">
+  <img src="/images/walkthrough/08-research-result.png" alt="The chat shows the literature table confirmed, with the meeting outline, including sources and discussion questions, open on the right" />
+</Frame>
+
+To try two presentation orders, fork the task and continue each separately. Give files you want to keep different names, so two tasks do not edit the same file.
+
+## 4. Deliver to the people you work with
+
+Add the people or existing Agents who will take over to the project group. Have the current Agent send the final literature table and outline to the group folder, then mention actual members and say who checks which part. The name below is an example of dividing the work.
+
+> Put both finished files in the group folder. @Writing Assistant please check only the argument order of the outline, and reply with comments under the outline message.
+
+Checkpoints: the material opens, the original sources match, unknowns are still marked, and the person taking over knows what to check. Archive the task after it is done; archiving stops any Agent still running.
+
+To discuss a particular figure, [open a topic](/en/chat#topics) from that message. For how to organize material across devices, see [Projects and folders](/en/projects).

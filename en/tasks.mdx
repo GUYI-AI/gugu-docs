@@ -1,0 +1,59 @@
+---
+title: "Task workspace"
+description: "Give instructions in a task, watch the process, open files, and keep revising."
+---
+
+The task workspace is for work that needs doing. Each task is run by one Agent. The chat, files, terminal and web pages can share one screen.
+
+<Note>The video on this page shows the Chinese interface.</Note>
+
+## Start and continue
+
+On desktop, go to **Projects** to create a task. Choose the engine, model and device, and send it with your first request. For a one-off task you can leave **No project selected**. To work on existing material, go to the matching [project](/en/projects) and start from a specific folder.
+
+> Turn these experiment results into a table and mark missing items. Don't modify the raw data yet. Save the result separately as Markdown.
+
+To add to an existing task, go back to it in the sidebar and send more requests. A new task starts working as soon as you send the first message. A forked task inherits the context and continues only after you give it a new request.
+
+Among the modes for a new task, **Work** communicates through chat and process summaries, and **Code** shows the Agent's terminal interface. Both can do the work. Which modes are available depends on the current engine and device.
+
+## Watch the process, open the results
+
+Thinking and runs of tool actions are collapsed into a one-line summary. Click it to see each step. File links open at the relevant location. Files that support preview can be viewed as finished output.
+
+While the Agent is working, you can add your next message. Queued messages appear near the input box. Edit, delete or reorder them with the actions the interface offers.
+
+## Revise requests, fork, and side tasks
+
+| Action | When to use it, and what happens |
+|---|---|
+| Send in the original task | Continue or add requirements, keeping the current context |
+| Edit an earlier request | Click **Edit** under a supported message and send again. The conversation goes back to just before that message, and later messages leave the active context. Files and external actions are not undone |
+| Fork task | Keep the original approach and try another path. Both inherit the context and continue separately; they may still share a working directory |
+| + → Side task | Branch off briefly to look something up. It branches from the current context and disappears when you quit the app |
+
+Message editing is available only when the current Agent and its history support it. It may be unavailable while the Agent is working or messages are queued. Save any result you need to keep first. Forking the context does not copy a running terminal.
+
+## Files beside the chat
+
+<video controls playsInline preload="none" poster="/videos/split.jpg" aria-label="Demo: viewing a file side by side with the task chat" style={{width: '100%', borderRadius: '12px'}}>
+  <source src="/videos/split.mp4" type="video/mp4" />
+</video>
+
+*Interface demo animation: open the result beside the task, then keep asking for changes. The video has no sound.*
+
+Click **+** to add a file, terminal, browser or an App you have turned on. To view two pages at once, choose split right or split down in the tab menu, or drag a tab to the edge of the content area.
+
+Side-by-side view within a task always shows two pages. When you open another page, the chat stays and the new page replaces the other side. **Unsplit** between the tabs ends the side-by-side view, and it will not split automatically again. If you only close one of the pages, it can still split automatically next time.
+
+## Several workspaces on one screen
+
+Drag another task, or an App from the left column, to the edge of the main area to create a separate work block. Each block has its own task or App, and you view and operate them separately. Drag the divider to give your current work enough room.
+
+A layout made of several tasks is kept as a group, so you can switch to another task and come back. The two-page view inside a task is still managed by its own tab bar, separately from the independent work blocks. Closing an App tab only hides the page. To turn off a capability, use [App management](/en/apps).
+
+## Finish and archive
+
+When done, you can archive the task. It is hidden from the list, a running Agent stops, and nothing is deleted. You can undo right after, and later restore it from task **History**.
+
+To interrupt only the current turn, use **Stop**. If you want it to keep working later, keep the task.

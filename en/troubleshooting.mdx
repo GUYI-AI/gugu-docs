@@ -1,0 +1,78 @@
+---
+title: "Troubleshooting"
+description: "Check the device, Agent, model, and App based on the actual message, and keep the original work going."
+---
+
+First decide whether the message concerns the device, the Agent, the model, or an App, then fix it in the matching place. If a task already has results, check its files and the previous turn before retrying.
+
+If you are unsure where each is set up, see the [connection checklist](/en/integrations#first-find-which-part-is-not-connected).
+
+<AccordionGroup>
+  <Accordion title="The model is busy or unavailable, but the file was already created">
+    Open the existing file first and see how far the work got. The model may fail after writing the file but before reporting the result. Do not assume the file is missing just because of the failure label.
+
+    Retry later, or choose a model that is currently available. When continuing, say clearly: "Check the existing files first and finish only the remaining steps." Retrieving an instruction only puts it back in the input box. It is not resent automatically.
+  </Accordion>
+  <Accordion title="I chose a material subfolder, but the card shows the parent repository">
+    The current Beta may treat a subfolder inside a Git repository as the repository root. Before sending, check the actual path on the card and in the input box. For practice, unzip materials into a separate folder outside any repository.
+  </Accordion>
+  <Accordion title="Why did the Agent stop after I archived the task?">
+    Archiving hides the task from the list and stops it. Its record stays in task **History**. To continue, restore the original task. To pause just one turn, use **Stop**.
+  </Accordion>
+  <Accordion title="I edited an old message in a task. Why weren't the files restored?">
+    In general tasks that support message editing, editing rolls the conversation context back to before that message. File changes, sent messages, and other external actions remain. Handle them separately through the files or the relevant service.
+  </Accordion>
+  <Accordion title="I can see a topic in the group, but I get no notifications">
+    A regular topic inherits the visibility of its source group, but later only notifies participants. Post in the topic, or join the discussion after someone mentions you.
+  </Accordion>
+  <Accordion title="With more Agents, they only answer when mentioned">
+    Check the group or topic for a system message that switched all Agents to **Passive**. This happens when the number of Agents exceeds the set threshold. You can undo it at that message, or change an Agent's **Listen mode** individually. Mentions still work.
+  </Accordion>
+  <Accordion title="I closed the App tab. Why is it still working?">
+    Closing the tab only hides the page. To stop its background work, use **Quit**. To pause the capabilities it gives Agents, switch it off on the **App** page.
+  </Accordion>
+  <Accordion title="The Agent doesn't reply">
+    First check whether the device is online and whether the task has work running. Then look for sign-in, network, or quota messages.
+
+    A **Passive** Agent in a group needs to be mentioned or replied to. A **Proactive** Agent may also decide a message needs no answer. To make it act, `@` it explicitly and state the task clearly.
+  </Accordion>
+  <Accordion title="I can't choose an Agent when creating a task">
+    Check the install status in the **Library** and install as prompted. If a provider sign-in is required, sign in on the **Subscriptions** page, or choose a Gugu model that is currently available.
+
+    For a task on another machine, that machine needs the Agent. Having it installed locally does not mean it is installed remotely.
+  </Accordion>
+  <Accordion title="The model says quota is insufficient or an upgrade is needed">
+    Check whether you chose your own model or a model provided by Gugu. For your own model, check the provider account. For a Gugu model, check your Gugu membership entitlements and credits.
+
+    Quotas from different sources are counted separately. If usage fails to load, refresh or repair the connection first. Do not treat an unknown reading as zero.
+  </Accordion>
+  <Accordion title="The App is installed, but the Agent still can't use it">
+    On the **App** page, check that it is enabled, that this Agent is allowed to use it, and that the app's configuration is complete.
+
+    Controlling the computer also needs Computer Use enabled and system permissions. Accessing external services needs valid account authorization. If a connection just changed, reopen the regular task and try again.
+  </Accordion>
+  <Accordion title="I can't open a file from another device">
+    Check which machine the file is actually on and whether that device is online. Gugu shares projects and conversations. Folder contents do not sync automatically.
+
+    To deliver to other people or another device, use an attachment, a group folder, or an accessible repository. Do not give only a local path.
+  </Accordion>
+  <Accordion title="The personal assistant can't read tasks or memory">
+    Retry according to the connection or read error on the page, and check the device the assistant runs on. Failing to read does not mean the data was deleted.
+
+    Restore the connection first, then look at the original tasks. Do not turn off and set up the assistant again to fix a read problem. Turning it off clears what the page's confirmation dialog lists.
+  </Accordion>
+  <Accordion title="I don't receive the email verification code">
+    Check the spelling of your email and your spam folder. Resend when the page allows it. If you already have an account, keep signing in with the original email.
+  </Accordion>
+  <Accordion title="The interface doesn't match the guide">
+    Check the version on the **About** page in Settings. These docs follow the current Beta. The stable release may not include some new features yet.
+
+    If differences remain after updating, send feedback from the **About** page in Settings. Include the version, device, short reproduction steps, and screenshots. Do not include verification codes or keys.
+  </Accordion>
+</AccordionGroup>
+
+## When retrying, say where to continue from
+
+> Last time the results table was already generated, but the charts weren't made. Check the existing files first, continue only with the charts, and keep the original data.
+
+If a turn already performed an external action, confirm its result before retrying. A tool succeeding, running, and the task being delivered are different stages.
