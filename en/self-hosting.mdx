@@ -1,9 +1,9 @@
 ---
-title: "Self-host Gugu"
+title: "Self-host gugu"
 description: "Use your own Supabase project as the backend and run the client from source."
 ---
 
-Gugu's client and community backend are both open source. The backend runs on your own Supabase project, so accounts, messages, and files are stored with you. The Supabase free plan is enough for a small team.
+gugu's client and community backend are both open source. The backend runs on your own Supabase project, so accounts, messages, and files are stored in your project. The Supabase Free plan is enough for a small team.
 
 This page covers what to prepare and the overall steps. Step-by-step commands and troubleshooting are in the English guides in the open-source repository:
 
@@ -16,25 +16,25 @@ This page covers what to prepare and the overall steps. Step-by-step commands an
 | Included | Not included |
 |---|---|
 | Email verification code sign-in, contacts, friend requests | Official cloud computer |
-| Direct messages, group chats, Agents in groups, real-time message delivery | Gugu models, membership, and credits |
+| Direct messages, group chats, Agents in groups, real-time message delivery | gugu models, membership, and credits |
 | Attachments, stored in your own Supabase Storage | Remote tunnel (opening this machine's terminal or browser from another computer) |
 | Local tasks, using the sign-ins of Claude Code, Codex, and similar tools on your computer | Multi-person collaborative file editing, unless you also deploy the file service from the backend repository |
 
 ## What to prepare
 
-1. A Supabase account, with a new **empty project** for Gugu. Do not share it with other data.
+1. A Supabase account, with a new **empty project** for gugu. Do not share it with other data.
 2. A Supabase personal access token. Generate it on the Access Tokens page and limit its scope to this project. Keep the token on your own computer. Do not commit it to a code repository.
-3. An SMTP email service, such as Resend, Brevo, or AWS SES. Gugu signs in with a 6-digit verification code sent by email. Supabase's built-in email sends only 2 emails per hour, only to organization members, and its emails contain no verification code. So you **must use your own SMTP**.
+3. An SMTP email service, such as Resend, Brevo, or AWS SES. gugu signs in with a 6-digit verification code sent by email. Supabase's built-in email sends only 2 emails per hour, only to organization members, and its emails contain no verification code. So you **must use your own SMTP**.
 4. Git, Node 24, and pnpm 10.28.2 on your computer. On a Mac you also need the Xcode Command Line Tools.
 
 ## Overall steps
 
 1. In the Supabase dashboard, go to **Authentication → Emails → SMTP Settings**, turn on custom SMTP, and enter the address and account from your email service. Raise the hourly sending limit as needed.
-2. Download [OpenDCAI/gugu-supabase](https://github.com/OpenDCAI/gugu-supabase) and [OpenDCAI/gugu](https://github.com/OpenDCAI/gugu). In the backend repository, run `pnpm run setup --client-dir ../gugu`. It sets up the database, cloud functions, storage, and real-time push, and writes the connection details into the client directory. Note that the command is `pnpm run setup`. `pnpm setup` is a different, built-in pnpm command.
+2. Download [OpenDCAI/gugu-supabase](https://github.com/OpenDCAI/gugu-supabase) and [OpenDCAI/gugu](https://github.com/OpenDCAI/gugu). In the backend repository, run `pnpm run setup --client-dir ../gugu`. It sets up the database, Edge Functions, storage, and real-time updates, and writes the connection details into the client directory. Note that the command is `pnpm run setup`. `pnpm setup` is a different, built-in pnpm command.
 3. In the client repository, run `pnpm install --frozen-lockfile`, then `pnpm rebuild:native`, then start the app with `GUGU_DB_TARGET=local bash scripts/dev-app.sh`.
 4. Enter your email and the 6-digit verification code you receive. Click **New Task**, choose an installed Agent, and start working.
 
-To check the result: sign in with a second account, add each other as friends, create a group, and send a message and a file. If the other side sees them without refreshing, real-time push and attachments both work.
+To check the result: sign in with a second account, add each other as friends, create a group, and send a message and a file. If the other side sees them without refreshing, real-time updates and attachments both work.
 
 ## Free plan limits
 

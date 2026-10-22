@@ -147,7 +147,7 @@
             ]
           },
           {
-            "group": "Build Gugu Apps",
+            "group": "Build gugu Apps",
             "pages": [
               "en/extensions",
               "en/apps/manifest",

@@ -1,6 +1,6 @@
 ---
 title: "Maintenance, updates, and withdrawal"
-description: "Release a new version and handle permission growth, withdrawal, end of maintenance, and removal from the market."
+description: "Release a new version and handle new permissions, withdrawal, end of maintenance, and removal from the market."
 ---
 
 To change a published App, first increase the manifest's `version`, write this version's CHANGELOG, and commit the source. Then use `add-version.mjs` to append the new version to the same index record and open a PR. Every version goes through [submission validation and official review](/en/apps/publishing).
@@ -34,6 +34,6 @@ After withdrawal, that version can no longer be installed and its version number
 | End maintenance | Set deprecated with a note and replacedBy (null if there is no replacement) | An end-of-maintenance notice and an optional replacement suggestion. Nothing is uninstalled or migrated automatically |
 | Remove from the market | Set unlisted to true | Disappears from the catalog. Installed versions keep working but no longer get market updates |
 
-Rows for published versions may not have fields changed or be deleted, except to add withdrawal information. A withdrawal cannot be undone. Removing an App from the market also keeps the original index file and the published version data. Test Apps should be set to unlisted once testing is done; Apps listed normally in the market should be ones ready for users.
+Records for published versions cannot be edited or deleted, except to add withdrawal information. A withdrawal cannot be undone. Removing an App from the market also keeps the original index file and the published version data. Test Apps should be set to unlisted once testing is done; Apps listed normally in the market should be ones ready for users.
 
 There is currently no mechanism to move user data to a replacement App automatically, and no public commitment about a takeover process after a maintainer ends maintenance. If migration is needed, first provide a clear method in the source and documentation, and explain the impact in the PR.

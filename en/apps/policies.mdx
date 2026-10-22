@@ -3,13 +3,13 @@ title: "Developer policies and permissions"
 description: "Develop under the rules that exist today, explain data and program behavior, and wait for official code review."
 ---
 
-There is currently no separately published, complete developer policy for Gugu Apps, and no separate CONTRIBUTING guide, review time limit, or appeal process. The existing requirements are spread across product API constraints, the market repository's README, the validation scripts, and official code review. Below, rules enforced today are separated from what you are advised to explain when submitting.
+There is currently no separately published, complete developer policy for gugu Apps, and no separate CONTRIBUTING guide, review time limit, or appeal process. The existing requirements are spread across product API constraints, the market repository's README, the validation scripts, and official code review. Below, rules enforced today are separated from what you are advised to explain when submitting.
 
 ## Rules enforced today
 
 - Market records are packaged from a pinned source commit. The source must be available for review; you cannot submit only an archive of unknown origin.
 - Published versions cannot be changed, deleted, or reused. Withdrawals, end of maintenance, and removal from the market are handled through index fields.
-- Pages are bound by isolation and network rules. Request extra capabilities in the manifest; the user agrees on Gugu's confirmation sheet and can later revoke them one by one.
+- Pages are bound by isolation and network rules. Request extra capabilities in the manifest; the user agrees on gugu's confirmation sheet and can later revoke them one by one.
 - An App that ships a local program or skill needs `agents:tools`. The program runs with the user's local permissions, and the install details show the actual command.
 - firstRun is only allowed for Apps in the official index repository itself. Ordinary Apps cannot ask to be silently installed on first launch.
 - The official team reviews and merges every version's record. Passing CI does not automatically qualify an App for listing.
@@ -24,7 +24,7 @@ Agent control consumes the user's quota. Explain clearly when the App starts or 
 
 ## Data and interaction boundaries
 
-All participants in a shared file may be able to read its contents. Identity cards, secrets, or content meant for one person cannot rely on the page hiding them; design data boundaries following the `apps-together` guide.
+All participants in a shared file may be able to read its contents. Identity documents, secrets, or content meant for one person cannot rely on the page hiding them; design data boundaries following the `apps-together` guide.
 
 When displaying text written by others, use textContent or a rendering method that escapes it. When a file call fails, show the reason; a failed read must not be shown as having no data. Revoked permissions and being offline also need actionable explanations.
 

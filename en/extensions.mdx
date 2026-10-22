@@ -1,5 +1,5 @@
 ---
-title: "Contribute Gugu Apps"
+title: "Contribute gugu Apps"
 description: "Build your first App, test it, then submit a pinned version to the market index."
 ---
 
@@ -11,9 +11,9 @@ This chapter covers getting started, the API, debugging, submission, and mainten
 
 ## Prerequisites
 
-You need a computer with the Gugu desktop app and a text editor. This example has no build step and does not need Node. Git, Node.js, and a GitHub account are only needed when you submit to the market.
+You need a computer with the gugu desktop app and a text editor. This example has no build step and does not need Node. Git, Node.js, and a GitHub account are only needed when you submit to the market.
 
-If you want an Agent in Gugu to write it for you, first have it read the `apps` and `apps-ui` topics with `guide_read`. Then have it read the topics listed in the [API overview](/en/extension-api) for the features you need. You can also build the package in an external editor; a person then installs it in Gugu.
+If you want an Agent in gugu to write it for you, first have it read the `apps` and `apps-ui` topics with `guide_read`. Then have it read the topics listed in the [API overview](/en/extension-api) for the features you need. You can also build the package in an external editor; a person then installs it in gugu.
 
 ## Build a notes App
 
@@ -43,7 +43,7 @@ notes-starter/
 }
 ```
 
-`main.html` uses the page styles Gugu provides. The script lives in a separate file.
+`main.html` uses the page styles gugu provides. The script lives in a separate file.
 
 ```html
 <!doctype html>
@@ -92,12 +92,12 @@ window.gugu.getContext().then((context) => {
 
 ## Install and check
 
-1. In Gugu's App management, choose to install from a folder and select `notes-starter`.
+1. In gugu's App management, choose to install from a folder and select `notes-starter`.
 2. Open the **便签** (Notes) tab, type "Organize the literature tomorrow", click **保存** (Save), and confirm the save result appears.
 3. Close the App and reopen it. Confirm the same text is still there. The draft is stored on this device and does not sync across devices or group members.
 4. Switch between light and dark themes and narrow the page. Check that the label, text box, and button still work.
 
-A package that requests permissions shows a confirmation sheet, and the user decides whether to grant them. An Agent in Gugu can use `app_create`, `app_install`, and `app_check` to build, install, and check an App. Declaring a permission does not grant it. For detailed steps, see [Development and debugging](/en/apps/development).
+A package that requests permissions shows a confirmation sheet, and the user decides whether to grant them. An Agent in gugu can use `app_create`, `app_install`, and `app_check` to build, install, and check an App. Declaring a permission does not grant it. For detailed steps, see [Development and debugging](/en/apps/development).
 
 ## Next steps from the sample
 

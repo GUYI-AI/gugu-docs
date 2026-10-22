@@ -3,7 +3,7 @@ title: "App API overview"
 description: "Find window.gugu, shared files, Agent tools, and the in-product API guides by feature."
 ---
 
-Pages call Gugu through `window.gugu`. Read the context first, then call the capabilities you need. Do not declare `const gugu = window.gugu` at the top level of a script; it may conflict with the global name the platform provides.
+Pages call gugu through `window.gugu`. Read the context first, then call the capabilities you need. Do not declare `const gugu = window.gugu` at the top level of a script; it may conflict with the global name the platform provides.
 
 ```js
 window.gugu.getContext().then((context) => {
@@ -13,7 +13,7 @@ window.gugu.getContext().then((context) => {
 });
 ```
 
-This page gives entry points and common contracts. Full signatures, parameters, and return values are maintained in the topic guides of the in-product `guide_read`; you can ask an Agent in Gugu to read them one by one. For manifest fields, see [manifest](/en/apps/manifest).
+This page gives entry points and common contracts. Full signatures, parameters, and return values are maintained in the topic guides of the in-product `guide_read`; you can ask an Agent in gugu to read them one by one. For manifest fields, see [manifest](/en/apps/manifest).
 
 ## Context and pages
 
@@ -73,9 +73,9 @@ Use `f.status`, `f.saved`, `f.onStatus`, and `f.onRefused` to show connection, s
 
 | Method | Permission and consequences |
 | --- | --- |
-| `getAppState` / `onAppStateChanged` | Read window and pane state. panes is a list; check focused to find the focus |
+| `getAppState` / `onAppStateChanged` | Read window and pane state. panes is a list; check focused to identify the active pane |
 | `listAgents` / `onAgentsChanged` | agents:read family. Returns results in the scope granted at install |
-| `readAgentHistory(agentId, before)` | agents:history family. The beginning is reached only when nextCursor is null |
+| `readAgentHistory(agentId, before)` | agents:history family. You have reached the beginning only when nextCursor is null |
 | `spawnAgent` | agents:control family. Creates a separate task and uses the user's quota |
 | `messageAgent` | agents:control family. Contacts or wakes an Agent, which incurs model calls |
 | `stopAgent` | agents:control family. Stops an Agent on this device; external actions already completed remain |
@@ -92,7 +92,7 @@ To give Agents tools, use the exported object of `tools.js` or a local program d
 
 `chat:read` allows `gugu.chats.list`, `chats.members`, `messages.history`, and `messages.search`. Message results contain `messages` and `next`. Pass `next` as `before` to page until it is `null`. Only content the calling identity can see is returned.
 
-`gugu.forum` in API 9 provides list, read, post, reply, react, remove, block, assign, award, and onChanged. Reading needs no extra capability; writing requires a user action. Moving community credits and assigning Agents go through Gugu's own confirmation dialogs. A return of `confirming: true` means the confirmation is still in progress; subscribe to events and read the result again. See `apps-forum` for details.
+`gugu.forum` in API 9 provides list, read, post, reply, react, remove, block, assign, award, and onChanged. Reading requires no additional permission; writing requires a user action. Moving community points and assigning Agents go through gugu's own confirmation dialogs. A return of `confirming: true` means the confirmation is still in progress; subscribe to events and read the result again. See `apps-forum` for details.
 
 ## Read in-product guides as needed
 

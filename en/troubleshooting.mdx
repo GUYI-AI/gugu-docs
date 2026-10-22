@@ -5,7 +5,7 @@ description: "Check the device, Agent, model, and App based on the actual messag
 
 First decide whether the message concerns the device, the Agent, the model, or an App, then fix it in the matching place. If a task already has results, check its files and the previous turn before retrying.
 
-If you are unsure where each is set up, see the [connection checklist](/en/integrations#first-find-which-part-is-not-connected).
+If you are unsure where each is set up, see the [connection checklist](/en/integrations#find-the-connection-you-need).
 
 <AccordionGroup>
   <Accordion title="The model is busy or unavailable, but the file was already created">
@@ -37,22 +37,22 @@ If you are unsure where each is set up, see the [connection checklist](/en/integ
     A **Passive** Agent in a group needs to be mentioned or replied to. A **Proactive** Agent may also decide a message needs no answer. To make it act, `@` it explicitly and state the task clearly.
   </Accordion>
   <Accordion title="I can't choose an Agent when creating a task">
-    Check the install status in the **Library** and install as prompted. If a provider sign-in is required, sign in on the **Subscriptions** page, or choose a Gugu model that is currently available.
+    Check the install status in the **Library** and install as prompted. If a provider sign-in is required, sign in on the **Subscriptions** page, or choose a gugu model that is currently available.
 
     For a task on another machine, that machine needs the Agent. Having it installed locally does not mean it is installed remotely.
   </Accordion>
   <Accordion title="The model says quota is insufficient or an upgrade is needed">
-    Check whether you chose your own model or a model provided by Gugu. For your own model, check the provider account. For a Gugu model, check your Gugu membership entitlements and credits.
+    Check whether you chose your own model or a model provided by gugu. For your own model, check the provider account. For a gugu model, check your gugu membership entitlements and credits.
 
     Quotas from different sources are counted separately. If usage fails to load, refresh or repair the connection first. Do not treat an unknown reading as zero.
   </Accordion>
   <Accordion title="The App is installed, but the Agent still can't use it">
     On the **App** page, check that it is enabled, that this Agent is allowed to use it, and that the app's configuration is complete.
 
-    Controlling the computer also needs Computer Use enabled and system permissions. Accessing external services needs valid account authorization. If a connection just changed, reopen the regular task and try again.
+    Controlling the computer also needs Computer Use enabled and system permissions. Accessing external services needs valid account authorization. If a connection just changed, reopen the task and try again.
   </Accordion>
   <Accordion title="I can't open a file from another device">
-    Check which machine the file is actually on and whether that device is online. Gugu shares projects and conversations. Folder contents do not sync automatically.
+    Check which machine the file is actually on and whether that device is online. gugu shares projects and conversations. Folder contents do not sync automatically.
 
     To deliver to other people or another device, use an attachment, a group folder, or an accessible repository. Do not give only a local path.
   </Accordion>
@@ -75,4 +75,4 @@ If you are unsure where each is set up, see the [connection checklist](/en/integ
 
 > Last time the results table was already generated, but the charts weren't made. Check the existing files first, continue only with the charts, and keep the original data.
 
-If a turn already performed an external action, confirm its result before retrying. A tool succeeding, running, and the task being delivered are different stages.
+If a turn already performed an external action, confirm its result before retrying. A successful tool call completes one step. Check the final deliverable before considering the task finished.

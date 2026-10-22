@@ -7,11 +7,11 @@ First make the App complete one piece of work on your own test material, then pr
 
 ## Two ways to develop
 
-**Write the files by hand**: Build the directory following the [starter example](/en/extensions), then install it from App management in Gugu. After changing code, reinstall so Gugu validates the new manifest and files. Do not copy or symlink files into Gugu's data directory.
+**Write the files by hand**: Build the directory following the [starter example](/en/extensions), then install it from App management in gugu. After changing code, reinstall so gugu validates the new manifest and files. Do not copy or symlink files into gugu's data directory.
 
-**Have an Agent in Gugu build it**: First read `guide_read apps` and the related topics. `app_create` writes the directory, `app_install` installs it, and `app_check` checks loading, errors, page snapshots, and images. Some tools are found through `catalog_list`. External editors do not have Gugu's install tools; once the package is ready, a person installs it.
+**Have an Agent in gugu build it**: First read `guide_read apps` and the related topics. `app_create` writes the directory, `app_install` installs it, and `app_check` checks loading, errors, page snapshots, and images. Some tools are found through `catalog_list`. External editors do not have gugu's install tools; once the package is ready, a person installs it through App management.
 
-A package that requests no permissions installs directly. Reinstalling an App you already installed usually replaces it directly if it adds no permissions. When a package declares permissions for the first time or adds new ones, Gugu shows the person a confirmation sheet. Declining, closing, or timing out does not count as a completed install.
+A package that requests no permissions installs directly. Reinstalling an App you already installed usually replaces it directly if it adds no permissions. When a package declares permissions for the first time or adds new ones, gugu shows the person a confirmation sheet. Declining, closing, or timing out does not count as a completed install.
 
 ## What a page can run
 
@@ -24,13 +24,13 @@ A package that requests no permissions installs directly. Reinstalling an App yo
 | System access from the page | No Node, require, or Electron APIs; cannot access other Apps' pages |
 | Nested content | No iframe, object, form submission, or opening new windows |
 
-Use semantic HTML by default; the page already has Gugu's styles. Custom drawing or editors use variables such as `--em-background`, `--em-foreground`, and `--em-border` to follow the light and dark themes. Give icon buttons readable names and give inputs a label.
+Use semantic HTML by default; the page already has gugu's styles. Custom drawing or editors use variables such as `--em-background`, `--em-foreground`, and `--em-border` to follow the light and dark themes. Give icon buttons readable names and give inputs a label.
 
 A normal page may stay alive after it is hidden or moved. Do not rely on switching tabs to trigger a reload. Restarting, upgrading, or revoking permissions reloads the entry page. Write real data to a shared file or the App's private storage, not only to memory.
 
 ## Check one real operation
 
-1. After installing, confirm the page opens, the error area is clear, and nothing is drawn on screen but impossible to click.
+1. After installing, confirm the page opens, the error area is clear, and every visible control works.
 2. Enter and save one item of data, quit the App, reopen it, and check that the item is still there. For a shared App, have a second member check the same file.
 3. Switch between light and dark themes, narrow the page, and check the keyboard, Chinese input, and button labels.
 4. Revoke one granted permission and check that the feature explains why it failed. Grant it again and retry.
@@ -44,6 +44,6 @@ If a program fails to start, look at its status and last error output in App man
 
 Installing validates the manifest with the client's own schema. Developers who work on the product and have its source environment can also follow the repository's `gugu-extension` skill to call `safeParseExtensionManifest` without starting the interface.
 
-Whichever validation you use, first prepare a manifest that should fail, for example with the id written as `notes.starter` or apiVersion set to 999, and confirm it is rejected. Then confirm the normal example passes.
+With either validation method, first prepare a manifest that should fail, for example with the id written as `notes.starter` or apiVersion set to 999, and confirm it is rejected. Then confirm the normal example passes.
 
 Before listing in the market, also run the [market validation](/en/apps/publishing). Market validation checks the source and the release package. It does not replace acceptance testing of the page's features.

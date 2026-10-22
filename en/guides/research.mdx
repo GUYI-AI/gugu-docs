@@ -1,5 +1,5 @@
 ---
-title: "Turn literature into a group meeting outline"
+title: "Turn research papers into a meeting outline"
 description: "Start from a few existing documents: check the evidence first, then write the outline, and finally deliver it to the collaboration group."
 ---
 
@@ -21,7 +21,7 @@ If you already have a matching project, add the material folder to it. Different
 
 ## 2. Make the literature table first
 
-The prompt below uses the practice pack's file names. With your own material, replace the first line.
+The prompt below refers to the files in the practice pack. With your own material, replace the first line.
 
 ```text
 Read the three reading cards starting with 01, 02 and 03.
@@ -37,25 +37,25 @@ Wait for my confirmation before writing the meeting outline.
 
 Open the table and spot-check one finding and one source per paper. If a number does not match the original, point to the specific row in the original task and have the Agent check it again.
 
-With the practice pack, you should see each paper organized separately, sources that lead back to the matching reading card, and missing items such as metrics clearly kept. The three papers study different tasks, so they cannot be ranked by performance from these abstracts alone.
+With the practice pack, you should see each paper organized separately, sources that lead back to the matching reading card, and any missing information, such as evaluation metrics, marked as not provided. The three papers study different tasks, so they cannot be ranked by performance from these abstracts alone.
 
 ## 3. Write the outline after confirming
 
 > Based on the literature table just confirmed, write a group meeting outline to meeting-outline.md. Order: research question, evidence from each paper, common ground and disagreements, questions we can discuss. Keep the source for each item, and keep my ideas separate from the papers' findings.
 
-Open the outline from the reply, next to the chat. You can ask directly for "make part two shorter" or "mark the claims that still lack evidence".
+Open the outline from the reply, next to the chat. You can ask it to "make part two shorter" or "mark the claims that still lack evidence".
 
 <Frame caption="Actual result with the practice pack: the literature table is confirmed first, then the meeting outline is generated and opened in the same task.">
   <img src="/images/walkthrough/08-research-result.png" alt="The chat shows the literature table confirmed, with the meeting outline, including sources and discussion questions, open on the right" />
 </Frame>
 
-To try two presentation orders, fork the task and continue each separately. Give files you want to keep different names, so two tasks do not edit the same file.
+To try two presentation orders, fork the task and continue each separately. Use different names for the files you want to keep, so two tasks do not edit the same file.
 
 ## 4. Deliver to the people you work with
 
 Add the people or existing Agents who will take over to the project group. Have the current Agent send the final literature table and outline to the group folder, then mention actual members and say who checks which part. The name below is an example of dividing the work.
 
-> Put both finished files in the group folder. @Writing Assistant please check only the argument order of the outline, and reply with comments under the outline message.
+> Put both finished files in the group folder. @Writing Assistant please check only the order of arguments in the outline, and reply with comments under the outline message.
 
 Checkpoints: the material opens, the original sources match, unknowns are still marked, and the person taking over knows what to check. Archive the task after it is done; archiving stops any Agent still running.
 

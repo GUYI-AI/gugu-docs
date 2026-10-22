@@ -1,5 +1,5 @@
 ---
-title: "manifest reference"
+title: "Manifest reference"
 description: "Declare an App's pages, programs, permissions, and compatibility requirements."
 ---
 
@@ -24,7 +24,7 @@ description: "Declare an App's pages, programs, permissions, and compatibility r
 | `localized` | Optional. Provides name, description, subtitle, and examples per language tag |
 | `examples` | Optional. 1–3 example requests, each up to 80 characters |
 
-Both `apiVersion` and `engines.gugu` are used for market compatibility selection. A Gugu Beta with the same version number may support a different API, so `0.2.57` alone is not enough. Using `chat:read` requires at least API 6, file location links use API 7, `subtitle` uses API 8, and `gugu.forum` uses API 9.
+Both `apiVersion` and `engines.gugu` are used for market compatibility selection. A gugu Beta with the same version number may support a different API, so `0.2.57` alone is not enough. Using `chat:read` requires at least API 6, file location links use API 7, `subtitle` uses API 8, and `gugu.forum` uses API 9.
 
 ## Pages, background, and tools
 
@@ -36,9 +36,9 @@ Both `apiVersion` and `engines.gugu` are used for market compatibility selection
 | `contributes.mcpServers` | Optional. 1–4 programs: `{"tools":"tools.js"}` or `{"name":"server","command":"node","args":["server.mjs"]}` |
 | `contributes.skills` | Optional. A skills directory containing each `SKILL.md` |
 | `contributes.toolsListed` | Optional. On first install, suggests listing the program's tools directly to Agents; users can switch back to calling them from the directory |
-| `settings` | Optional. Up to 32 settings of type string, boolean, or select. Gugu draws the settings page |
+| `settings` | Optional. Up to 32 settings of type string, boolean, or select. gugu draws the settings page |
 
-Paths must stay inside the package: no absolute paths, backslashes, or `.` or `..` segments. From API 5, tool-type Apps can omit HTML and tabs; clicking one opens Gugu's settings and status page. Declaring programs or skills requires requesting `agents:tools`.
+Paths must stay inside the package: no absolute paths, backslashes, or `.` or `..` segments. From API 5, tool-only Apps can omit HTML and tabs; clicking one opens gugu's settings and status page. Declaring programs or skills requires requesting `agents:tools`.
 
 Each regular page has these fields:
 
@@ -52,7 +52,7 @@ Each regular page has these fields:
 | `fileIcons` | Optional. Keys must come from this page's opensFiles declaration |
 | `menu` / `toolbar` | Optional. Up to 8 / 6 items respectively. Each item has id and title; clicking triggers onCommand |
 | `perSession` | Optional. Keeps a separate page for each task. Cannot be combined with opensFiles or hostPage |
-| `hostPage` | Optional. `"settings"` uses Gugu's settings page; you then cannot provide a regular HTML entry or page commands |
+| `hostPage` | Optional. `"settings"` uses gugu's settings page; you then cannot provide a regular HTML entry or page commands |
 
 `opensFiles` makes the App a candidate way to open those files. The user's choice takes priority. When several Apps declare the same file, the person chooses.
 
