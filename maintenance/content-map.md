@@ -81,3 +81,11 @@ App 贡献章节的组织参照 Obsidian 官方 developer-docs：Build a plugin�
 PR #2 的有效结构并入 extensions 和 extension-api：外置脚本、完整最小示例、主题、隔离、网络、授权和错误可见。旧 API 1、taskId、切页重载、无 Agent 控制等已以当前接口重写。当前 authoring-guide 仍有“禁止远程图片/字体”旧句，实际 app-csp.ts 及测试允许已声明域名；本轮采用实际 CSP，并将这个冲突报告维护者。skill 的“八篇”也已落后于11篇实际专题。
 
 公开章节不要求外部作者访问私有产品仓。必要契约在正文给出，完整运行时指引可通过产品 guide_read 取得；公开索引仓与示例提供可访问的源码入口。未查到独立开发者政策、审核时限或申诉制度，不从其他平台补造要求。
+
+## 自己部署（self-hosting）
+
+| 用户问题与正文 | 依据 | 查证入口与证据 |
+|---|---|---|
+| 不用官方服务，能不能自己部署：self-hosting | OpenDCAI/gugu-supabase 的 docs/self-hosting.md、self-hosting-smtp.md、self-hosting-free-plan.md（gugu-supabase#12 合入 dev） | scripts/setup.mjs；客户端 README 与 scripts/dev-app.sh |
+
+2026-10-22 在一个新的 Supabase 免费项目上从零实测：setup 安装、两个账号验证码登录、加好友、建群、消息实时到达、附件上传下载、本机 Claude Code 任务。验证码登录测试时用临时发信钩子读取验证码，真实 SMTP 投递未实测。「免费版自带发信改不了模板」来自 Supabase 后台提示与接口返回，免费版数字来自 supabase.com/pricing。

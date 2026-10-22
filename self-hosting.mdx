@@ -1,0 +1,55 @@
+---
+title: "自己部署咕咕"
+description: "用自己的 Supabase 项目当后端，从源码运行客户端。"
+---
+
+咕咕的客户端和社区后端都已开源。后端运行在你自己的 Supabase 项目上，账号、消息和文件都存在你那里。Supabase 免费版足够一个小团队使用。
+
+这一页说明要准备什么、大致怎么做。逐步命令和排错在开源仓库的英文指南里：
+
+- [自部署指南](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting.md)
+- [配置 SMTP 发信](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-smtp.md)
+- [免费版限制与排错](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-free-plan.md)
+
+## 社区版包含什么
+
+| 包含 | 不包含 |
+|---|---|
+| 邮箱验证码登录、通讯录、好友申请 | 官方云电脑 |
+| 私聊、群聊、群里的 Agent，消息实时到达 | 咕咕模型、会员和积分 |
+| 附件，存在你自己的 Supabase Storage | 远程隧道（从别的电脑打开这台机器的终端、浏览器） |
+| 本机任务，使用你电脑上 Claude Code、Codex 等工具自己的登录 | 多人协同编辑文件，除非另外部署后端仓库里的文件服务 |
+
+## 要准备的
+
+1. 一个 Supabase 账号，并为咕咕新建一个**空项目**。不要和其他数据共用。
+2. 一个 Supabase 个人访问令牌。在 Access Tokens 页面生成，范围只选这个项目。令牌只放在自己电脑上，不要提交到代码仓库。
+3. 一个 SMTP 发信服务，例如 Resend、Brevo、AWS SES。咕咕用邮件里的 6 位验证码登录。Supabase 自带的发信每小时只发 2 封，只发给组织成员，邮件里也没有验证码，所以**必须使用自己的 SMTP**。
+4. 电脑上的 Git、Node 24 和 pnpm 10.28.2。Mac 还需要 Xcode 命令行工具。
+
+## 大致步骤
+
+1. 在 Supabase 后台的 **Authentication → Emails → SMTP Settings** 打开自定义 SMTP，填入发信服务提供的地址和账号，再按需要调高每小时发信上限。
+2. 下载 [OpenDCAI/gugu-supabase](https://github.com/OpenDCAI/gugu-supabase) 和 [OpenDCAI/gugu](https://github.com/OpenDCAI/gugu)。在后端仓库运行 `pnpm run setup --client-dir ../gugu`。它会装好数据库、云函数、存储和实时推送，并把连接信息写进客户端目录。注意命令是 `pnpm run setup`，`pnpm setup` 是 pnpm 自带的另一个命令。
+3. 在客户端仓库依次运行 `pnpm install --frozen-lockfile`、`pnpm rebuild:native`，再运行 `GUGU_DB_TARGET=local bash scripts/dev-app.sh` 启动。
+4. 输入邮箱，填写收到的 6 位验证码。点「新建会话」，选一个已安装的 Agent，就可以开始使用。
+
+完成后可以这样检查：第二个账号登录，互加好友、建群，发一条消息和一个文件。对方不刷新就能看到，说明实时推送和附件都已接通。
+
+## 免费版的限制
+
+- 项目一周没人使用会被暂停，在 Supabase 后台恢复即可。
+- 数据库 500 MB，文件存储 1 GB，单个附件最大 25 MB。
+- 同时在线的实时连接最多 200 个。
+
+数字以 [Supabase 定价页](https://supabase.com/pricing) 为准。
+
+## 常见问题
+
+**收到的邮件只有链接、没有验证码。** 还没有配置自己的 SMTP，或者配置后没有重新运行 `pnpm run setup`。
+
+**登录时提示操作太频繁。** 自带发信每小时只能发 2 封；同一个邮箱 60 秒内也只能请求一次。配置 SMTP 后调高上限。
+
+**启动客户端时报 `pty.node` 不存在。** 安装依赖后还没运行 `pnpm rebuild:native`。
+
+更多情况见[免费版限制与排错](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-free-plan.md)。
