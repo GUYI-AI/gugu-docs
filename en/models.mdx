@@ -1,0 +1,48 @@
+---
+title: "Models, subscriptions, and credits"
+description: "Choose between your provider account and gugu models, check usage, and see how each request is billed."
+---
+
+## Choose a model in the input box
+
+The model dropdown groups models by source:
+
+| Source | How it is billed |
+|---|---|
+| **Your provider models** | Uses the subscription or API connection already on the selected device, billed by that service |
+| **Models provided by Gugu · billed in credits** | Uses credits from your gugu account |
+
+If a model is unavailable, check its entitlements and management options in **Settings → Models**. The model menu shows only the items you can currently choose.
+
+**Reasoning effort** sets how hard the model thinks. It appears when the Agent and model support it. Higher levels may take longer and use more credits or provider quota. For simple tasks, start with the default.
+
+## Agents and models are separate
+
+The Agent decides how a task runs. The model decides which provider and quota the request uses. Changing the model does not move the task to another device, and it does not change the Agent's identity in a group.
+
+When a sign-in is required, first check which source you are using. Some Agents can use gugu models without a provider subscription. A few Agents still require their own account. Follow the explicit prompts in the picker.
+
+## Manage existing subscriptions
+
+**Settings → Subscriptions** shows your gugu membership and the engine connections on the selected device. Claude Code and Codex can manage several accounts or API connections.
+
+After you switch the active connection, new Agents use that choice. Existing tasks keep their original connection. Credentials belong to each device, so on another machine, check that machine's actual setup. Switching the subscription connection and picking a model in the current task are two separate actions. Switching a connection does not move an existing task to another account.
+
+Quota readings show when they were read. When the provider does not supply a reading, or it cannot be read right now, the page explains why. "Could not read" does not mean the quota is zero.
+
+## gugu credits
+
+**Settings → Usage** shows how much you have used and which tasks used it. The **Subscriptions** page shows membership entitlements, this period's allowance, and non-expiring credits.
+
+- This period's allowance refreshes at the end of the cycle. Unused allowance does not carry over.
+- Credits from top-up packs and the sign-up bonus do not expire.
+- This period's allowance is used first, then non-expiring credits.
+- Your membership tier decides which models are available. For purchased credits, follow the terms on the purchase page.
+
+Manage membership, renew, buy top-up packs, redeem gift codes, and view purchase history in the [membership dashboard](https://gugu.nextmind.space/dashboard/). For current prices, see the [pricing page](https://gugu.nextmind.space/en/pricing.html). The price shown at checkout applies.
+
+## Common choices
+
+If you already have a provider subscription, pick your own model first. To use gugu quota directly, pick the group marked "billed in credits". Check the source before switching. If you hit a quota or permission error, follow the prompt.
+
+Community points in the Forum are not used for model billing and cannot buy or be exchanged for quota. See [Forum and point bounties](/en/forum).

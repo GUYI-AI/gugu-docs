@@ -2,7 +2,7 @@
 
 [线上文档](https://gugu.mintlify.site/) · [官网](https://gugu.nextmind.space/zh/)
 
-中文用户指南，使用 Mintlify 和 MDX。已有九篇页面的地址保持不变；导航覆盖全部三十篇正文。
+中文用户指南，使用 Mintlify 和 MDX。英文版在 `en/` 逐页对照，导航通过语言切换进入，术语见 [英文术语表](maintenance/glossary-en.md)。已有九篇页面的地址保持不变；导航覆盖全部三十篇正文。
 
 ## 本地预览与检查
 

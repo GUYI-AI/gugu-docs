@@ -1,0 +1,49 @@
+---
+title: "Development and debugging"
+description: "Install from a folder, then check permissions, pages, narrow layouts, and real interactions."
+---
+
+First make the App complete one piece of work on your own test material, then prepare to submit it to the market. Building the package, granting permissions, and verifying results are three separate steps.
+
+## Two ways to develop
+
+**Write the files by hand**: Build the directory following the [starter example](/en/extensions), then install it from App management in gugu. After changing code, reinstall so gugu validates the new manifest and files. Do not copy or symlink files into gugu's data directory.
+
+**Have an Agent in gugu build it**: First read `guide_read apps` and the related topics. `app_create` writes the directory, `app_install` installs it, and `app_check` checks loading, errors, page snapshots, and images. Some tools are found through `catalog_list`. External editors do not have gugu's install tools; once the package is ready, a person installs it through App management.
+
+A package that requests no permissions installs directly. Reinstalling an App you already installed usually replaces it directly if it adds no permissions. When a package declares permissions for the first time or adds new ones, gugu shows the person a confirmation sheet. Declining, closing, or timing out does not count as a completed install.
+
+## What a page can run
+
+| Content | Current limits |
+| --- | --- |
+| JavaScript | Files inside the package, loaded with script src; inline scripts, CDN scripts, eval, and new Function are rejected |
+| CSS | Inline styles are supported; prefer the platform styles and the --em- theme variables |
+| Images, fonts, audio, video | Can come from the package or from HTTPS domains declared in network; code must still be in the package |
+| Network requests | HTTPS/WSS to declared domains only; localhost, intranet names, and literal IP addresses are rejected |
+| System access from the page | No Node, require, or Electron APIs; cannot access other Apps' pages |
+| Nested content | No iframe, object, form submission, or opening new windows |
+
+Use semantic HTML by default; the page already has gugu's styles. Custom drawing or editors use variables such as `--em-background`, `--em-foreground`, and `--em-border` to follow the light and dark themes. Give icon buttons readable names and give inputs a label.
+
+A normal page may stay alive after it is hidden or moved. Do not rely on switching tabs to trigger a reload. Restarting, upgrading, or revoking permissions reloads the entry page. Write real data to a shared file or the App's private storage, not only to memory.
+
+## Check one real operation
+
+1. After installing, confirm the page opens, the error area is clear, and every visible control works.
+2. Enter and save one item of data, quit the App, reopen it, and check that the item is still there. For a shared App, have a second member check the same file.
+3. Switch between light and dark themes, narrow the page, and check the keyboard, Chinese input, and button labels.
+4. Revoke one granted permission and check that the feature explains why it failed. Grant it again and retry.
+5. Simulate having no data and a read failure, and make sure the two cases look different.
+
+When using `app_check`, locate controls by the role and name in the snapshot. You can pass steps such as click, fill, press, and waitFor; the returned page can be used for further operations. Check narrow, light, and dark layouts in the screenshots, not just `ok`.
+
+If a program fails to start, look at its status and last error output in App management. A tool being installed does not mean the program ran successfully. Pages that call a program must also handle errors.
+
+## Manifest validation
+
+Installing validates the manifest with the client's own schema. Developers who work on the product and have its source environment can also follow the repository's `gugu-extension` skill to call `safeParseExtensionManifest` without starting the interface.
+
+With either validation method, first prepare a manifest that should fail, for example with the id written as `notes.starter` or apiVersion set to 999, and confirm it is rejected. Then confirm the normal example passes.
+
+Before listing in the market, also run the [market validation](/en/apps/publishing). Market validation checks the source and the release package. It does not replace acceptance testing of the page's features.

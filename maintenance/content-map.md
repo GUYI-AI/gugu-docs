@@ -89,3 +89,7 @@ PR #2 的有效结构并入 extensions 和 extension-api：外置脚本、完整
 | 不用官方服务，能不能自己部署：self-hosting | OpenDCAI/gugu-supabase 的 docs/self-hosting.md、self-hosting-smtp.md、self-hosting-free-plan.md（gugu-supabase#12 合入 dev） | scripts/setup.mjs；客户端 README 与 scripts/dev-app.sh |
 
 2026-10-22 在一个新的 Supabase 免费项目上从零实测：setup 安装、两个账号验证码登录、加好友、建群、消息实时到达、附件上传下载、本机 Claude Code 任务。验证码登录测试时用临时发信钩子读取验证码，真实 SMTP 投递未实测。「免费版自带发信改不了模板」来自 Supabase 后台提示与接口返回，免费版数字来自 supabase.com/pricing。
+
+## 英文版（en/）
+
+`en/` 逐页对照中文正文（31 篇），`docs.json` 用 `navigation.languages`：中文 `zh` 为默认、地址不变，英文页在 `/en/...`。中文页改动后同步改对应英文页。界面名称取客户端英文文案（`i18n/locales/en-US/` 与 `localization/`），术语见 [glossary-en.md](glossary-en.md)。截图与视频沿用中文素材，英文页注明界面为中文。英文稿上线前由 owner 或 shuxue 审阅。

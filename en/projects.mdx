@@ -1,0 +1,56 @@
+---
+title: "Projects and folders"
+description: "Keep the material, tasks and group for one long-running piece of work together. Folders can span devices."
+---
+
+A paper's manuscript, experiment code and figure assets can live in different directories and still belong to one project. Each project has a collaboration group, where the project's Agents can hand off results.
+
+<Note>Multi-folder and cross-device projects reflect the current Beta. Devices share the project and its group chat. File contents stay on each device.</Note>
+
+<Note>Screenshots on this page show the Chinese interface.</Note>
+
+## Create a project
+
+On desktop, go to **Projects** in the far-left column. The **+** in the projects section offers three options:
+
+| Option | When to use it, and what it creates |
+|---|---|
+| **New blank project** | You have no material folder yet. Enter a project name; a folder is created under the default project directory set in settings |
+| **Use an existing folder** | You already have papers, material or code. Choose the original folder to add it. It does not need to be a Git repository |
+| Use a remote folder | The material is on another device. Choose an available device first, then a folder on that device |
+
+**Use an existing folder** does not initialize a repository or rewrite contents. To add a folder to an existing project, click **+** on the project card and choose the device and folder, or drag a folder in.
+
+<Note>After adding, check the actual path on the card. In the current Beta, choosing a subfolder inside a Git repository may show the repository root. If you need to start from the material folder only, extract the practice material into a separate folder outside the repository.</Note>
+
+## Which folder to start from
+
+Open the project card and check each folder's device and path. Click one, then send your first request from the input box at the bottom. The task starts in that folder on that device.
+
+A project can cover one or more devices. When you actually send a task, you still choose one folder where it runs.
+
+<Frame caption="Real Beta interface: the card shows devices and paths, and the bottom selects the folder this task starts in.">
+  <img src="/images/walkthrough/06-project.png" alt="A project with a material folder attached; the card and input box both show the actual device and folder" />
+</Frame>
+
+| Folder and device | Tasks it can do |
+|---|---|
+| Paper draft · laptop | Revise the abstract, check citations |
+| Experiment code · Linux server | Run experiments and produce result tables |
+| Figure assets · desktop | Organize images, prepare slides |
+
+A folder belongs to only one project. Switching the working directory inside a task does not switch the project or group.
+
+## Hand off between Agents on two devices
+
+> When the experiments are done, post the parameters, result table and anything still unconfirmed to the project group, put the table in the group folder, then ask the writing Agent to revise the paper based on it.
+
+The other machine does not get your local files automatically. Share deliverables as attachments, in the group folder, or in a reachable repository. When referring to code, name the branch or version.
+
+## What remains after removing a folder
+
+Removing a folder only ends its link to the project. Files on disk and existing tasks stay. Tasks can be restored from history, and the project group's chat history remains. The undo action in the notification restores the folder link.
+
+When a device is offline, its folders are still listed with their status. An offline device or a read error does not mean the material is gone.
+
+For an example from material folder to finished output, see [Turn literature into a group meeting outline](/en/guides/research).

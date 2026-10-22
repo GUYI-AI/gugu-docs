@@ -1,0 +1,76 @@
+---
+title: "Submit to the App market"
+description: "Prepare a pinned source commit, generate the registry record, pass CI, then wait for official review and merge."
+---
+
+The market index is the public repository [shuxueshuxue/gugu-apps](https://github.com/shuxueshuxue/gugu-apps). Each App has one `apps/<id>.json`. App source code lives in its own repository; the index records the repository, commit, directory, and the package checksum.
+
+The current submission process is a PR to the index repository. The official team reviews the code of every version and decides whether to merge. The client fetches registered packages from the download site. Releases are based on source commits; GitHub Release attachments are not required.
+
+## Prepare a version
+
+Complete these checks before releasing:
+
+- The App installs and completes its main work; errors and permission denials are visible.
+- The manifest's id and version match the registered version. Fill in `engines.gugu` and the `apiVersion` you actually need.
+- The source is in a public GitHub repository, and the chosen full 40-character commit must be in the history of that repository's default branch.
+- Include a `CHANGELOG.md` with a heading for this version, such as `## 1.0.0`, and non-empty notes.
+- A README covering purpose, usage, permissions, and data is recommended. State the licenses of the source and its dependencies.
+- If you have an icon, use PNG, at most 32 KiB and at most 512px wide and high. Each in-package screenshot in the README is at most 1 MiB.
+- The package is at most 25 MiB and 2000 files, with no symbolic links. Commit the built files into the registered directory; the release script packages that directory and does not run a build for the author.
+
+The introduction line shown to Agents is made of the name, the id, and the first sentence of the description. The whole line is at most 120 characters. Put the full explanation in the README.
+
+## Generate the registry record
+
+Fork and clone the index repository, and run the following on your own working branch. Replace the repository, full commit, and directory in the example with real values already published to the default branch.
+
+```sh
+npm ci
+node scripts/add-version.mjs your-name/your-app FULL_40_CHARACTER_COMMIT app
+node scripts/verify.mjs --base origin/main
+```
+
+If the repository root is the whole package, write `.` as the last argument. The script fetches the source at the given commit, packages it, computes the sha256 and byte count, and appends to `apps/<id>.json`. Do not fill in guessed checksums by hand.
+
+The record looks like this; replace the angle-bracket placeholders with real values:
+
+```json
+{
+  "id": "notes-starter",
+  "unlisted": false,
+  "deprecated": null,
+  "versions": [{
+    "version": "1.0.0",
+    "repo": "your-name/your-app",
+    "path": "app",
+    "commit": "<full 40-character commit>",
+    "sha256": "<64 lowercase hex characters>",
+    "bytes": 12345,
+    "yanked": null
+  }]
+}
+```
+
+Open a PR describing the purpose, source location, reasons for permissions, compatible versions, and the checks you ran. This checklist helps review. It is not a dedicated submission form; no such form exists today.
+
+## CI and human review
+
+[verify.mjs](https://github.com/shuxueshuxue/gugu-apps/blob/main/scripts/verify.mjs) checks the record format, that old versions are unchanged, the sha256 and byte count of new versions after repackaging, the manifest's identity and version, the minimum client requirement, the release notes, and media limits. The repository has its own tests. Apps placed under `sources/` that declare a test script also run their tests through the repository's process.
+
+After official review, the PR is merged into `main`. A sync process publishes the package, notes, and images to the download site, and finally updates `market/index.json`. The client compares the sha256 again before installing. Packages and version data are never overwritten once written; any change to a version requires a new version.
+
+There is currently no separately published review rubric, processing time, or appeal process. Passing CI does not mean automatic listing; the official review result in the PR decides. For the current policy boundaries, see [Developer policies](/en/apps/policies).
+
+## App visibility in the market
+
+| Index field | Meaning |
+| --- | --- |
+| `unlisted: false` | Listed in the market catalog. Normal released Apps use this state |
+| `unlisted: true` | Removed from the catalog. Installed versions still work but no longer receive market updates |
+| `featured: true` | Official featured mark, decided by the market configuration |
+| `firstRun: true` | Silently installed for new users on first launch. Only allowed for Apps whose source is in the official index repository itself |
+
+Ordinary third-party Apps are not preinstalled and cannot use firstRun to install silently. firstRun Apps can still be disabled or uninstalled after installation. Existing users do not get them installed later, and an uninstalled one is not reinstalled automatically. The only App preinstalled with the product is the group folder.
+
+These rules come from the index repository's [README](https://github.com/shuxueshuxue/gugu-apps#readme), [add-version.mjs](https://github.com/shuxueshuxue/gugu-apps/blob/main/scripts/add-version.mjs), and verify. Check them again before relying on the submission process.

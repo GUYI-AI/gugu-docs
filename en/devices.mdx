@@ -1,0 +1,52 @@
+---
+title: "Devices and remote work"
+sidebarTitle: "Devices"
+description: "Choose where a task runs, connect another computer or Linux server, and follow progress on your phone."
+---
+
+A task runs on the selected device and uses that machine's files and programs. Sending a message from your phone does not turn files on a server into files on your phone.
+
+## Choose where to run
+
+| Work | Which device |
+|---|---|
+| Organize files on your computer, edit local code | The computer where the files are |
+| Run experiments or scripts on a server | A connected Linux server |
+| Check progress or add requests from your phone | The phone is for viewing; the original device keeps running the work |
+| A personal assistant for ongoing questions and follow-up | Your own computer chosen during setup, or the cloud if your plan includes it |
+
+After you sign in to the desktop app with the same account, this computer appears in **Devices**. Choose a device when creating a new task, or pick a folder on that device from a project card.
+
+## Add another machine
+
+Open **Settings → Devices** and choose **Add a machine**. **Remote SSH** and **Remote tunnel** are available. Fill in the connection details, install, and sign in as the page shows.
+
+A Linux server runs gugu server, which has no interface. If you can sign in to the server yourself, you can also run the official installer in the server's terminal:
+
+```sh
+curl -fsSL https://download.gugu.nextmind.space/releases/server/install.sh | sh
+```
+
+After installing, sign in as prompted, confirm the device with the link and short code, then check the device list on the desktop. If the service is already managed by the desktop add flow, connect through that original entry.
+
+<Note>Remote tunnels and cross-device projects reflect the current Beta. The sign-in confirmation page shows the device being connected. Confirm it before continuing.</Note>
+
+Connected machines can be used in the picker. Access to remote terminals, web pages, and ports also depends on how the device is connected. If the picker says only **Work** is supported here and you want **Code**, follow the prompt to set up a Remote SSH connection on this computer. The phone is mainly for conversations and viewing tasks.
+
+## Keep work running
+
+A device being online only means the connection works. To do the work, an Agent also needs an available Agent, a valid account or model quota, and authorization for the required Apps.
+
+When a computer is off, disconnected, or its service has stopped, the interface shows it as offline or a connection error. Once the original device's service is back, return to the original task and continue. First check whether the last turn stopped partway.
+
+## Files do not sync automatically
+
+A project can attach folders from different devices, but file contents stay on each machine. To deliver across devices, use attachments, the group folder, or a repository everyone can access.
+
+Regular tasks run on the selected device. Where the personal assistant runs is managed through the setup and move flows in [Personal assistant](/en/assistant).
+
+## Server and day-to-day management
+
+gugu server is the runtime without a graphical interface on a remote Linux machine. Tasks use that machine's directories and installed engines. To manage connections, rename, or remove machines, go to **Settings → Devices**. Closing the desktop window and stopping the server process are different actions. Whether remote work continues depends on whether the original machine's service and Agent are still running.
+
+For viewing, replying, approving, and previewing attachments on the phone, see [Mobile](/en/mobile). To check this computer's CPU and memory, see [Resource monitor](/en/resource-monitor).

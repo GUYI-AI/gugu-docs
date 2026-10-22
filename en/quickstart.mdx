@@ -1,0 +1,84 @@
+---
+title: "Write meeting minutes"
+sidebarTitle: "Quickstart"
+description: "Copy a set of notes, get a file back, then check and revise it."
+---
+
+Use the ready-made notes below to have an Agent write `meeting-summary.md`, then open it, check it and revise it once. You only need the desktop app and a working model.
+
+<Note>The tutorial matches the current Beta; the stable release may differ. [See version differences](/en/settings#updates-and-versions).</Note>
+
+<Note>The video on this page shows the Chinese interface.</Note>
+
+## Before you start
+
+Download and install the desktop app from the [website](https://gugu.nextmind.space/en/), and sign in with an email verification code. A new account walks you through choosing how you are addressed, your role and your agent. You can collapse the installation progress; wait until it shows installation complete before sending your first request. With an existing account, check the installation in **Library**.
+
+A working model should appear at the bottom right of the input box. To use your own subscription, sign in with the provider first. To use gugu's models, first make sure your account has credits. [How to choose between the two](/en/models).
+
+## See what you will get
+
+<video controls playsInline preload="none" poster="/videos/quickstart-native.jpg" aria-label="Real interface steps: create a task, enter notes, open and revise the minutes" style={{width: '100%', borderRadius: '12px'}}>
+  <source src="/videos/quickstart-native.mp4" type="video/mp4" />
+</video>
+
+This walkthrough is stitched together from **real screenshots of Beta 0.2.57-beta.125.1** and uses fictional meeting notes. The timing is edited. You can follow the inputs and checkpoints below as written.
+
+## Write your first minutes
+
+<Steps>
+  <Step title="Open a new task">
+    In the far-left column of the desktop app, go to **Projects** and create a task. Set the device to **This device** and leave the project as **No project selected**. Choose an installed engine. If there is a mode option, use **Work**.
+
+    You should now see an editable input box. You do not need to name the task or create a project first.
+  </Step>
+  <Step title="Copy the material and send it">
+    Paste the whole block below into the input box and send it:
+
+    ```text
+    Organize the sample meeting notes below.
+    Save them as meeting-summary.md.
+    Give me a link to open the file.
+    Use three sections: Decisions, To-dos, To be confirmed.
+    For each to-do, give the owner and the deadline. Write "To be confirmed" for anything missing.
+    Do not add dates or numbers that were not provided.
+
+    Sample notes:
+    Three baseline experiments were finished this week; the results table has not been sent yet.
+    Lin Xia will add the failure case analysis by next Wednesday.
+    Zhou Ning will contact the data provider; no completion date yet.
+    The next group meeting will discuss the visualization plan; time not set.
+    ```
+
+    After you send it, the request should appear in the task with the process shown below it. If a sign-in or permission prompt appears, follow it. It is not done until there is a file.
+
+    <Accordion title="If this step fails">
+      For "insufficient credits", check the model source at the bottom right and that account's available credits or provider quota. If the service is unavailable or the model is busy, try again later or switch to a model that is available now.
+
+      If the interface offers **Retrieve prompt**, it only puts your request back in the input box; you need to send it again yourself. Before retrying, check whether a file was already created so existing results are not processed twice.
+    </Accordion>
+  </Step>
+  <Step title="Open the file and check the facts">
+    Click the `meeting-summary.md` link in the reply to view the file. Check four things:
+
+    - The decisions state that three baseline experiments are complete, without inventing results.
+    - Lin Xia's to-do is the failure case analysis, with the deadline kept as "next Wednesday".
+    - Zhou Ning is responsible for contacting the data provider, with the deadline marked to be confirmed.
+    - The missing results table, specific dates and next meeting time are noted.
+
+    The wording can differ, but the facts and unknowns should match. If you did not get a file link, say "Please save the file and give me a link to open it."
+  </Step>
+  <Step title="Revise it based on the result">
+    In the same task, send:
+
+    > Group the to-dos by owner and keep the deadline for each. Keep everything else as it is. Update the same meeting-summary.md.
+
+    Open the result again to confirm the change. The original task keeps its context, so you can keep adding requirements.
+  </Step>
+</Steps>
+
+## After you finish
+
+To keep organizing material on the same topic, go to [Projects and folders](/en/projects). To hand work to the assistant to follow up, try [Have the assistant assign a piece of work](/en/guides/assistant-follow-up).
+
+If you are unsure what Agents, models and tasks are, see [Basic concepts](/en/concepts). If sign-in, installation or opening files fails, work through [Troubleshooting](/en/troubleshooting).

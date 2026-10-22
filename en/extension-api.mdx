@@ -1,0 +1,109 @@
+---
+title: "App API overview"
+description: "Find window.gugu, shared files, Agent tools, and the in-product API guides by feature."
+---
+
+Pages call gugu through `window.gugu`. Read the context first, then call the capabilities you need. Do not declare `const gugu = window.gugu` at the top level of a script; it may conflict with the global name the platform provides.
+
+```js
+window.gugu.getContext().then((context) => {
+  document.documentElement.lang = context.locale || 'zh-CN';
+}).catch((error) => {
+  document.getElementById('status').textContent = error.message;
+});
+```
+
+This page gives entry points and common contracts. Full signatures, parameters, and return values are maintained in the topic guides of the in-product `guide_read`; you can ask an Agent in gugu to read them one by one. For manifest fields, see [manifest](/en/apps/manifest).
+
+## Context and pages
+
+`getContext()` returns `apiVersion`, `tabId`, `chat`, `session`, `file`, `operator`, `locale`, `themeMode`, `capabilities`, `layout`, and more. Optional fields depend on where the page is opened.
+
+| Field | When it applies |
+| --- | --- |
+| `chat` | Side panel of a group, topic, or direct chat. Contains id, name, kind, groupId, members |
+| `session` | Task page. Contains id, agentId, projectId, root, deviceId, deviceLabel, and more |
+| `file` | Page opened for a file. Pass it to files.open |
+| `operator` | Whether a person or an Agent is operating |
+| `capabilities` | Currently effective permissions, with revoked ones already removed |
+| `layout` | Display and size information for the current page, including visible |
+
+After a page, theme, language, or member change, update the view with `onContextChanged`. Subscription methods return an unsubscribe function. Release unused subscriptions and file handles when the page goes away.
+
+| Method | Purpose and conditions |
+| --- | --- |
+| `getContext` / `onContextChanged` | Current page context and its changes |
+| `setTabTitle` / `setTabBadge` | Title and badge of your own tab |
+| `onCommand` | Receive commands from menu / toolbar in the manifest |
+| `reportError` | Show an error to the person and record it in the App error log |
+| `openBrowserTab` | Open an HTTP(S) page |
+| `sendToBackground` / `onBackgroundMessage` | Communicate between a page and its own background |
+| `broadcastToViews` / `onViewMessage` | Broadcast from the background and receive in pages |
+| `linkTo` / `onLink` | Create and receive App location links; do not hand-write the app protocol |
+| `showMessage` / `showSession` | Open a message or task after a user click |
+| `compose` | After a user click, put content into the input box of a given chat or task; the person sends it |
+| `clipboard.writeText` | Copy text after a user click or key press |
+| `send` | Requires chat:relay. Sends a private notification with a clear source to specified members |
+| `notify` / `onNotificationClicked` | Requires notifications. Sends a system notification and handles clicks |
+
+## Files and collaborative editing
+
+Open all files with `gugu.files`. Do not keep a separate copy of group data.
+
+| Method | Purpose |
+| --- | --- |
+| `files.open(ref)` | Get a live handle to a file |
+| `files.list` / `search` / `recent` | Find files by location, name, or recent use |
+| `files.create` / `rename` / `remove` | Create, rename, delete |
+| `files.mkdir` / `move` | Folders and moves in the group folder |
+| `files.upload` / `download` | Upload and download. Pickers require a user action |
+| `files.openWith` | Open a file with the App the user chose or that declares it |
+| `files.replace` / `versions` / `readVersion` | Replace versions of binary files and read history |
+| `files.onChanged` | Changes to the file list |
+
+When a page is opened for a file, that file in the context can be opened directly. Other files are checked against `files:read` / `files:write`. Reading files of a remote task requires `files:read:all-machines` and is currently read-only.
+
+Text handles provide `text`, `edit`, `insert`, `delete`, `onChange`, `snapshot`, and `applyFrom`. For collaborative input, prefer `gugu.bind.text`. For CodeMirror, use the same library instance from `gugu.codemirror()`, then bind it with `gugu.bind.codemirror`.
+
+Modify JSON files field by field through `f.data`, and group changes into one operation with `f.transact`. `f.toJSON()` returns a plain copy. For text several people type at once, use `gugu.text` and `f.textAt`. Put cursors, drags, and game frames in `f.presence`, and write only results that need to persist into the file.
+
+Use `f.status`, `f.saved`, `f.onStatus`, and `f.onRefused` to show connection, save, or refusal results, and `f.close()` to release the handle. For details, read `apps-files`, `apps-editors`, and `apps-together`.
+
+## Agents and your own programs
+
+| Method | Permission and consequences |
+| --- | --- |
+| `getAppState` / `onAppStateChanged` | Read window and pane state. panes is a list; check focused to identify the active pane |
+| `listAgents` / `onAgentsChanged` | agents:read family. Returns results in the scope granted at install |
+| `readAgentHistory(agentId, before)` | agents:history family. You have reached the beginning only when nextCursor is null |
+| `spawnAgent` | agents:control family. Creates a separate task and uses the user's quota |
+| `messageAgent` | agents:control family. Contacts or wakes an Agent, which incurs model calls |
+| `stopAgent` | agents:control family. Stops an Agent on this device; external actions already completed remain |
+| `callProgram` / `onProgramNotification` | Call the App's own programs and receive their notifications. Available when agents:tools is in effect |
+| `readData` / `writeData` / `listData` | The App's private data directory, cleared on uninstall |
+
+`agents:read` covers only Agents this App started. `:all` extends it to this device, and `:all-machines` to other online machines. History reads work only on this device. Cross-device control is mainly for contacting Agents; the limits on stopping and creating Agents on this device still apply. Do not assume read, history, and control permissions include one another.
+
+Live counts in `listAgents` that cannot be read may be `null`; do not treat them as zero. An empty page from `readAgentHistory` may still have a `nextCursor`, so keep paging by cursor.
+
+To give Agents tools, use the exported object of `tools.js` or a local program declared in the manifest. The platform names tools `App-id__tool`, and they are usually called from the directory. Programs run with the local user's permissions; the page sandbox does not confine them. Read `apps-programs` and `apps-settings` before implementing.
+
+## Chats and Forum
+
+`chat:read` allows `gugu.chats.list`, `chats.members`, `messages.history`, and `messages.search`. Message results contain `messages` and `next`. Pass `next` as `before` to page until it is `null`. Only content the calling identity can see is returned.
+
+`gugu.forum` in API 9 provides list, read, post, reply, react, remove, block, assign, award, and onChanged. Reading requires no additional permission; writing requires a user action. Moving community points and assigning Agents go through gugu's own confirmation dialogs. A return of `confirming: true` means the confirmation is still in progress; subscribe to events and read the result again. See `apps-forum` for details.
+
+## Read in-product guides as needed
+
+| guide_read topic | Contents |
+| --- | --- |
+| `apps` / `apps-ui` | Getting started, manifest, page style, and basic flow |
+| `apps-page` | Context, tabs, references, background, notifications |
+| `apps-agents` | Agent status, history, starting, and contacting |
+| `apps-programs` / `apps-settings` | tools.js, programs, skills, settings |
+| `apps-files` / `apps-editors` / `apps-together` | Shared files, editors, multi-person collaboration |
+| `apps-messages` | Chats, members, messages, and reference lookup |
+| `apps-forum` | Forum, bounties, assignment, and events |
+
+Phones, background pages, and programs offer different methods. Check availability with `typeof window.gugu.someMethod`. Phones have no local Agent control, background pages, or local working directory. Any call can fail because of revoked permissions, being offline, or file changes, and each must show a visible result. Do not render a failure as an empty list.

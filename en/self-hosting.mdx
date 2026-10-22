@@ -1,0 +1,55 @@
+---
+title: "Self-host gugu"
+description: "Use your own Supabase project as the backend and run the client from source."
+---
+
+gugu's client and community backend are both open source. The backend runs on your own Supabase project, so accounts, messages, and files are stored in your project. The Supabase Free plan is enough for a small team.
+
+This page covers what to prepare and the overall steps. Step-by-step commands and troubleshooting are in the English guides in the open-source repository:
+
+- [Self-hosting guide](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting.md)
+- [Set up SMTP email](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-smtp.md)
+- [Free plan limits and troubleshooting](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-free-plan.md)
+
+## What the community edition includes
+
+| Included | Not included |
+|---|---|
+| Email verification code sign-in, contacts, friend requests | Official cloud computer |
+| Direct messages, group chats, Agents in groups, real-time message delivery | gugu models, membership, and credits |
+| Attachments, stored in your own Supabase Storage | Remote tunnel (opening this machine's terminal or browser from another computer) |
+| Local tasks, using the sign-ins of Claude Code, Codex, and similar tools on your computer | Multi-person collaborative file editing, unless you also deploy the file service from the backend repository |
+
+## What to prepare
+
+1. A Supabase account, with a new **empty project** for gugu. Do not share it with other data.
+2. A Supabase personal access token. Generate it on the Access Tokens page and limit its scope to this project. Keep the token on your own computer. Do not commit it to a code repository.
+3. An SMTP email service, such as Resend, Brevo, or AWS SES. gugu signs in with a 6-digit verification code sent by email. Supabase's built-in email sends only 2 emails per hour, and only to organization members, so you **must use your own SMTP**. The code itself comes from the email template, which `pnpm run setup` updates. Free projects cannot edit templates while they use the built-in email, so set up SMTP first.
+4. Git, Node 24, and pnpm 10.28.2 on your computer. On a Mac you also need the Xcode Command Line Tools.
+
+## Overall steps
+
+1. In the Supabase dashboard, go to **Authentication → Emails → SMTP Settings**, turn on custom SMTP, and enter the address and account from your email service. Raise the hourly sending limit as needed.
+2. Download [OpenDCAI/gugu-supabase](https://github.com/OpenDCAI/gugu-supabase) and [OpenDCAI/gugu](https://github.com/OpenDCAI/gugu). In the backend repository, run `pnpm run setup --client-dir ../gugu`. It sets up the database, Edge Functions, storage, and real-time updates, and writes the connection details into the client directory. Note that the command is `pnpm run setup`. `pnpm setup` is a different, built-in pnpm command.
+3. In the client repository, run `pnpm install --frozen-lockfile`, then `pnpm rebuild:native`, then start the app with `GUGU_DB_TARGET=local bash scripts/dev-app.sh`.
+4. Enter your email and the 6-digit verification code you receive. Click **New Task**, choose an installed Agent, and start working.
+
+To check the result: sign in with a second account, add each other as friends, create a group, and send a message and a file. If the other side sees them without refreshing, real-time updates and attachments both work.
+
+## Free plan limits
+
+- A project unused for a week is paused. Restore it in the Supabase dashboard.
+- 500 MB database, 1 GB file storage, 25 MB maximum per attachment.
+- At most 200 concurrent real-time connections.
+
+The [Supabase pricing page](https://supabase.com/pricing) has the authoritative numbers.
+
+## FAQ
+
+**The email has only a link, no verification code.** You have not set up your own SMTP yet, or you set it up but did not rerun `pnpm run setup`.
+
+**Sign-in says too many requests.** Built-in email sends only 2 emails per hour, and the same email address can request a code only once every 60 seconds. Set up SMTP and raise the limit.
+
+**Starting the client reports that `pty.node` does not exist.** You installed dependencies but have not run `pnpm rebuild:native`.
+
+For more cases, see [Free plan limits and troubleshooting](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-free-plan.md).

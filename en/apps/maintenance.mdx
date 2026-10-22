@@ -1,0 +1,39 @@
+---
+title: "Maintenance, updates, and withdrawal"
+description: "Release a new version and handle new permissions, withdrawal, end of maintenance, and removal from the market."
+---
+
+To change a published App, first increase the manifest's `version`, write this version's CHANGELOG, and commit the source. Then use `add-version.mjs` to append the new version to the same index record and open a PR. Every version goes through [submission validation and official review](/en/apps/publishing).
+
+## Compatibility and data
+
+When you start using a new API, check both apiVersion and engines.gugu. The market picks the newest compatible version this machine can install. Do not change version declarations just to silence a warning without changing the implementation.
+
+When you change a data structure, read the old structure and run any needed migration. A manifest or page that loads does not mean existing users' data has been adapted. App private data is kept on upgrade and cleaned up on uninstall. Shared files follow their own lifecycle.
+
+## How users receive updates
+
+Installed market Apps update automatically to compatible new versions by default. A version that adds permissions or network destinations waits for the user to click **Update**, and the user confirms only the new items. Revoked permissions are not restored automatically. If a user turns off automatic updates or chooses to stay on an older version, that choice is kept.
+
+Test a new version for both a fresh install and an upgrade from the previous version, including old data, revoked permissions, and program configuration. After program settings are saved, calls already running finish first, and later calls use the new values.
+
+## A problematic version
+
+Add `yanked` to that version's row:
+
+```json
+"yanked": { "reason": "This version saves data incorrectly. Please update to the fixed version." }
+```
+
+After withdrawal, that version can no longer be installed and its version number cannot be reused. Copies already installed keep running, and users see the reason and a way to update. Withdrawal does not remotely stop the App.
+
+## End maintenance or remove from the market
+
+| Action | Index change | What users see |
+| --- | --- | --- |
+| End maintenance | Set deprecated with a note and replacedBy (null if there is no replacement) | An end-of-maintenance notice and an optional replacement suggestion. Nothing is uninstalled or migrated automatically |
+| Remove from the market | Set unlisted to true | Disappears from the catalog. Installed versions keep working but no longer get market updates |
+
+Records for published versions cannot be edited or deleted, except to add withdrawal information. A withdrawal cannot be undone. Removing an App from the market also keeps the original index file and the published version data. Test Apps should be set to unlisted once testing is done; Apps listed normally in the market should be ones ready for users.
+
+There is currently no mechanism to move user data to a replacement App automatically, and no public commitment about a takeover process after a maintainer ends maintenance. If migration is needed, first provide a clear method in the source and documentation, and explain the impact in the PR.
