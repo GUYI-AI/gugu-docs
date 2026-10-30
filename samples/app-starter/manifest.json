@@ -3,7 +3,8 @@
   "name": "便签起步",
   "description": "在 App 页面里保存一份本机草稿。",
   "version": "1.0.0",
-  "apiVersion": 9,
+  "apiVersion": 12,
+  "platforms": ["desktop"],
   "engines": { "gugu": ">=0.2.57" },
   "entry": "main.html",
   "contributes": {

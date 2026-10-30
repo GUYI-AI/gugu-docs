@@ -1,49 +1,104 @@
 ---
-title: "Development and debugging"
-description: "Install from a folder, then check permissions, pages, narrow layouts, and real interactions."
+title: "Debug and test locally"
+description: "Iterate by installing from a folder, learn the page sandbox, read the errors, and write automated tests."
 ---
 
-First make the App complete one piece of work on your own test material, then prepare to submit it to the market. Building the package, granting permissions, and verifying results are three separate steps.
+First make the App finish one real piece of work on your own test material, then prepare to publish. This page covers the development loop, what a page can do, the errors a person sees, and how to write tests.
 
-## Two ways to develop
+## The development loop
 
-**Write the files by hand**: Build the directory following the [starter example](/en/extensions), then install it from App management in gugu. After changing code, reinstall so gugu validates the new manifest and files. Do not copy or symlink files into gugu's data directory.
+<Steps>
+  <Step title="Install from a folder">
+    **Apps** in the left column → **Install from folder** → choose the folder containing `manifest.json`. An App with no permissions installs at once; otherwise gugu first shows a confirmation sheet for you to approve.
+  </Step>
+  <Step title="Change the code">
+    Edit in your own folder. gugu copies the folder when installing, so changes take effect only after you reinstall. Do not edit or symlink files inside gugu's data directory.
+  </Step>
+  <Step title="Reinstall">
+    Click **Install from folder** again and choose the same folder. The App with the same id is replaced. With no new permissions it installs at once; new permissions bring the confirmation sheet back.
+  </Step>
+  <Step title="Reopen and check">
+    Reinstalling reloads the page from its entry. Run through the real-use checklist below.
+  </Step>
+</Steps>
 
-**Have an Agent in gugu build it**: First read `guide_read apps` and the related topics. `app_create` writes the directory, `app_install` installs it, and `app_check` checks loading, errors, page snapshots, and images. Some tools are found through `catalog_list`. External editors do not have gugu's install tools; once the package is ready, a person installs it through App management.
+An App installed from a folder shows **Installed from a folder** as its publisher on the product page (or the manifest's `author`, if set). If someone tries to install the same App from a chat card on this computer, they see a line such as "This device has a development copy 1.0.0, installed from a folder", and the card does not replace your copy. A folder install stays on this computer.
 
-A package that requests no permissions installs directly. Reinstalling an App you already installed usually replaces it directly if it adds no permissions. When a package declares permissions for the first time or adds new ones, gugu shows the person a confirmation sheet. Declining, closing, or timing out does not count as a completed install.
+You can also ask an Agent in gugu to build and check the App. It uses the in-product tools `app_create`, `app_install` and `app_check`. `app_check` runs the App as a hidden page and reads back whether it loaded, its errors, a page snapshot and pictures. You still confirm any permissions on this computer.
 
-## What a page can run
+## The page sandbox
 
-| Content | Current limits |
+A page runs on its own origin. gugu enforces these rules; declarations cannot lift them.
+
+| Content | Rule |
 | --- | --- |
-| JavaScript | Files inside the package, loaded with script src; inline scripts, CDN scripts, eval, and new Function are rejected |
-| CSS | Inline styles are supported; prefer the platform styles and the --em- theme variables |
-| Images, fonts, audio, video | Can come from the package or from HTTPS domains declared in network; code must still be in the package |
-| Network requests | HTTPS/WSS to declared domains only; localhost, intranet names, and literal IP addresses are rejected |
-| System access from the page | No Node, require, or Electron APIs; cannot access other Apps' pages |
-| Nested content | No iframe, object, form submission, or opening new windows |
+| Scripts | Only bundle files loaded with `<script src>`; inline scripts, CDN scripts, `eval` and `new Function` do not run |
+| Styles | Bundle CSS and inline styles both work; prefer the platform styles and `--em-*` theme variables |
+| Images, fonts, audio and video | From the bundle, `data:`/`blob:`, or HTTPS hosts declared in `network` |
+| Network requests | HTTPS and WSS to declared hosts only; `http:` is refused even for a declared host; this machine, local network names and IP addresses are always refused |
+| Embedding and forms | No iframe or object; no form submission |
+| System access | No Node, `require`, Electron APIs or File System Access API; no new windows; no access to gugu's or other Apps' pages |
+| Dialogs | No `alert`, `confirm` or `prompt`; use `gugu.modal` |
 
-Use semantic HTML by default; the page already has gugu's styles. Custom drawing or editors use variables such as `--em-background`, `--em-foreground`, and `--em-border` to follow the light and dark themes. Give icon buttons readable names and give inputs a label.
+Tools programs are outside the page sandbox and run with the person's local rights. The install confirmation shows each program's command as written.
 
-A normal page may stay alive after it is hidden or moved. Do not rely on switching tabs to trigger a reload. Restarting, upgrading, or revoking permissions reloads the entry page. Write real data to a shared file or the App's private storage, not only to memory.
+A page that is hidden or moved usually keeps running; switching tabs does not reload it. Restarting gugu, upgrading the App or revoking a permission reloads it from its entry. Keep important data in shared files or the App's private data, never only in memory.
 
-## Check one real operation
+## Errors a person sees
 
-1. After installing, confirm the page opens, the error area is clear, and every visible control works.
-2. Enter and save one item of data, quit the App, reopen it, and check that the item is still there. For a shared App, have a second member check the same file.
-3. Switch between light and dark themes, narrow the page, and check the keyboard, Chinese input, and button labels.
-4. Revoke one granted permission and check that the feature explains why it failed. Grant it again and retry.
-5. Simulate having no data and a read failure, and make sure the two cases look different.
+| Situation | What the person sees | What to do |
+| --- | --- | --- |
+| Invalid manifest | **Install failed**, with the field and the reason | Fix the manifest; field rules are in the [Manifest reference](/en/apps/manifest) |
+| `apiVersion` too high | A message that gugu needs updating, with the highest version this client supports | Update the client, or lower it to what your APIs need |
+| `apiVersion` below 3 | A message that this is an older interface to rewrite for the current one | Rewrite for the current API |
+| `platforms` missing or wrong | **Install failed**, naming the `platforms` problem | Declare `["desktop"]`, `["phone"]` or both, with `apiVersion` 12 or higher |
+| Permission sheet declined or closed | The App is not installed | Explain why the permission is needed and try again |
+| A page call fails | Whatever the App shows; `reportError` also records it in the App's error log | Handle every failure and say why |
+| A tools program fails | The Agent sees the error in its tool result; the person sees it on the App's page | Installed does not mean running; check the command and dependencies |
 
-When using `app_check`, locate controls by the role and name in the snapshot. You can pass steps such as click, fill, press, and waitFor; the returned page can be used for further operations. Check narrow, light, and dark layouts in the screenshots, not just `ok`.
+## Check one real use
 
-If a program fails to start, look at its status and last error output in App management. A tool being installed does not mean the program ran successfully. Pages that call a program must also handle errors.
+1. Open the page after installing. Make sure it responds to clicks and typing, and errors have a clear place to show.
+2. Save one piece of data, close and reopen, and check it is still there. For a shared App, have a second member open the same file.
+3. Switch light and dark themes and narrow the page. Check keyboard use, Chinese input and button names.
+4. Revoke one granted permission and check that the feature explains the failure. Grant it again and retry.
+5. Create both "no data" and "read failed" situations, and check that they look different.
+6. Prepare a manifest that should fail, for example with the id `notes.starter`, and check that it is refused.
 
-## Manifest validation
+## Automated tests
 
-Installing validates the manifest with the client's own schema. Developers who work on the product and have its source environment can also follow the repository's `gugu-extension` skill to call `safeParseExtensionManifest` without starting the interface.
+### What the index CI tests
 
-With either validation method, first prepare a manifest that should fail, for example with the id written as `notes.starter` or apiVersion set to 999, and confirm it is rejected. Then confirm the normal example passes.
+Every PR to the index repository runs:
 
-Before listing in the market, also run the [market validation](/en/apps/publishing). Market validation checks the source and the release package. It does not replace acceptance testing of the page's features.
+1. `npm test`, which is `node --test scripts/*.test.mjs`, testing the index repository's own scripts.
+2. `node scripts/app-tests.mjs`: for every App in `sources/` whose `package.json` has `scripts.test`, it runs `npm ci` and `npm test` in that directory. If `devDependencies` includes `playwright`, Chromium is installed first. One failing App does not stop the others.
+3. `node scripts/verify.mjs --base origin/<target branch>`: repacks and checks new versions, see [Submit to the App market](/en/apps/publishing).
+
+Apps whose code lives in your own repository are not tested by the index CI. Keep the tests in your repository and run them there, for example with GitHub Actions.
+
+### Recommended pattern
+
+Write the logic as modules that do not depend on `window.gugu`, and test them with Node's built-in test runner. The first-party [Teamboard](https://github.com/GUYI-AI/gugu-apps/tree/main/sources/kanban) is organized this way:
+
+```text
+kanban/
+  package.json        "test": "node --test test/*.test.mjs"
+  test/core.test.mjs
+  app/                ← the directory that becomes the package
+    manifest.json
+    lib/core.js
+```
+
+```js
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { emptyBoard } from '../app/lib/core.js';
+
+test('a new board has the four starting columns in order', () => {
+  const board = emptyBoard();
+  // assert the number and order of columns
+});
+```
+
+Tests, build scripts and their `package.json` stay outside the App directory, so they never reach the installed package. Register only the `app/` directory. Packing skips `node_modules` and `.git`, so ship runtime dependencies as built files inside the App directory.

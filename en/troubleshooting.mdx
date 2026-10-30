@@ -17,16 +17,18 @@ If you are unsure where each is set up, see the [connection checklist](/en/integ
     The current Beta may treat a subfolder inside a Git repository as the repository root. Before sending, check the actual path on the card and in the input box. For practice, unzip materials into a separate folder outside any repository.
   </Accordion>
   <Accordion title="Why did the Agent stop after I archived the task?">
-    Archiving hides the task from the list and stops it. Its record stays in task **History**. To continue, restore the original task. To pause just one turn, use **Stop**.
+    Archiving hides the task from the list and stops the running agent. Nothing is deleted. Right after archiving you can click **Undo**; later, find it again under **Task history**. To pause just one turn, use **Stop**.
   </Accordion>
   <Accordion title="I edited an old message in a task. Why weren't the files restored?">
-    In general tasks that support message editing, editing rolls the conversation context back to before that message. File changes, sent messages, and other external actions remain. Handle them separately through the files or the relevant service.
+    **Edit message** appears only while the task is idle. When you send the edit, the conversation rolls back to before that message and the new text is sent again. File changes, sent messages, and other external actions remain. Handle them separately through the files or the relevant service.
   </Accordion>
   <Accordion title="I can see a topic in the group, but I get no notifications">
     A regular topic inherits the visibility of its source group, but later only notifies participants. Post in the topic, or join the discussion after someone mentions you.
   </Accordion>
   <Accordion title="With more Agents, they only answer when mentioned">
-    Check the group or topic for a system message that switched all Agents to **Passive**. This happens when the number of Agents exceeds the set threshold. You can undo it at that message, or change an Agent's **Listen mode** individually. Mentions still work.
+    When a group has more Agents than its set number, all of them turn passive. Past that line, only an `@` mention wakes them. A system message appears in the group. Click **Undo all** there to restore them, or use **Switch to active** for a single Agent.
+
+    The threshold is set in the group's settings under **Turn agents passive past this many**. Leave it empty to use the product default.
   </Accordion>
   <Accordion title="I closed the App tab. Why is it still working?">
     Closing the tab only hides the page. To stop its background work, use **Quit**. To pause the capabilities it gives Agents, switch it off on the **App** page.
@@ -49,7 +51,12 @@ If you are unsure where each is set up, see the [connection checklist](/en/integ
   <Accordion title="The App is installed, but the Agent still can't use it">
     On the **App** page, check that it is enabled, that this Agent is allowed to use it, and that the app's configuration is complete.
 
-    Controlling the computer also needs Computer Use enabled and system permissions. Accessing external services needs valid account authorization. If a connection just changed, reopen the task and try again.
+    Controlling the computer also needs **Computer control** connected in **Settings → Devices → What this computer can do**, with the system permissions granted. Accessing external services needs valid account authorization. If a connection just changed, reopen the task and try again.
+  </Accordion>
+  <Accordion title="The phone Agent doesn't take tasks">
+    Open **Me → This phone** and check the status. If it failed to start or was interrupted, tap 重新启动 (*Restart*). A phone task interrupted by the system is not redone automatically. Go back to the original task, see how far it got, then continue.
+
+    If the task reads phone data, also check **Me → Permissions** to see whether that item is on.
   </Accordion>
   <Accordion title="I can't open a file from another device">
     Check which machine the file is actually on and whether that device is online. gugu shares projects and conversations. Folder contents do not sync automatically.

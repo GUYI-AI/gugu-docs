@@ -18,21 +18,32 @@ This page covers what to prepare and the overall steps. Step-by-step commands an
 | Email verification code sign-in, contacts, friend requests | Official cloud computer |
 | Direct messages, group chats, Agents in groups, real-time message delivery | gugu models, membership, and credits |
 | Attachments, stored in your own Supabase Storage | Remote tunnel (opening this machine's terminal or browser from another computer) |
-| Local tasks, using the sign-ins of Claude Code, Codex, and similar tools on your computer | Multi-person collaborative file editing, unless you also deploy the file service from the backend repository |
+| Local tasks, using the sign-ins or API keys of Claude Code, Codex, and similar tools on your computer | Multi-person collaborative file editing, unless you also deploy the backend repository's [file service](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/files-service.md) |
 
 ## What to prepare
 
 1. A Supabase account, with a new **empty project** for gugu. Do not share it with other data.
 2. A Supabase personal access token. Generate it on the Access Tokens page and limit its scope to this project. Keep the token on your own computer. Do not commit it to a code repository.
 3. An SMTP email service, such as Resend, Brevo, or AWS SES. gugu signs in with a 6-digit verification code sent by email. Supabase's built-in email sends only 2 emails per hour, and only to organization members, so you **must use your own SMTP**. The code itself comes from the email template, which `pnpm run setup` updates. Free projects cannot edit templates while they use the built-in email, so set up SMTP first.
-4. Git, Node 24, and pnpm 10.28.2 on your computer. On a Mac you also need the Xcode Command Line Tools.
+4. Git, Node 24 (the client repository pins 24.14.0), and pnpm 10.28.2 on your computer. On a Mac you also need the Xcode Command Line Tools.
 
 ## Overall steps
 
 1. In the Supabase dashboard, go to **Authentication → Emails → SMTP Settings**, turn on custom SMTP, and enter the address and account from your email service. Raise the hourly sending limit as needed.
 2. Download [OpenDCAI/gugu-supabase](https://github.com/OpenDCAI/gugu-supabase) and [OpenDCAI/gugu](https://github.com/OpenDCAI/gugu). In the backend repository, run `pnpm run setup --client-dir ../gugu`. It sets up the database, Edge Functions, storage, and real-time updates, and writes the connection details into the client directory. Note that the command is `pnpm run setup`. `pnpm setup` is a different, built-in pnpm command.
 3. In the client repository, run `pnpm install --frozen-lockfile`, then `pnpm rebuild:native`, then start the app with `GUGU_DB_TARGET=local bash scripts/dev-app.sh`.
-4. Enter your email and the 6-digit verification code you receive. Click **New Task**, choose an installed Agent, and start working.
+4. Enter your email and the 6-digit verification code you receive, then finish your profile.
+5. Models use your own account: keep the existing command-line sign-in on this computer, or connect credentials in **Settings → Subscriptions**.
+6. Click **New task**, choose an installed Agent such as Claude Code, and send a message.
+
+If you do not deploy the official cloud computer or gugu models, add these two lines to the client's selected `.envs/<target>.env` before building or starting it. In this guide that is `.envs/local.env`:
+
+```dotenv
+GUGU_CLOUD_COMPUTER_ENABLED=false
+GUGU_PLATFORM_MODELS_ENABLED=false
+```
+
+The client then does not connect to the official cloud computer or fetch the gugu model list.
 
 To check the result: sign in with a second account, add each other as friends, create a group, and send a message and a file. If the other side sees them without refreshing, real-time updates and attachments both work.
 
@@ -42,7 +53,7 @@ To check the result: sign in with a second account, add each other as friends, c
 - 500 MB database, 1 GB file storage, 25 MB maximum per attachment.
 - At most 200 concurrent real-time connections.
 
-The [Supabase pricing page](https://supabase.com/pricing) has the authoritative numbers.
+These numbers come from the backend repository's [free plan notes](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-free-plan.md). The [Supabase pricing page](https://supabase.com/pricing) has the authoritative numbers.
 
 ## FAQ
 

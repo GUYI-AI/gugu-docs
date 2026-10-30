@@ -1,23 +1,18 @@
 ---
-title: "Contribute gugu Apps"
-description: "Build your first App, test it, then submit a pinned version to the market index."
+title: "Your first App"
+description: "Build a notes App from three files, install it in gugu and save a draft."
 ---
 
-An App is a folder holding a manifest, pages, and optional programs. It can add work pages to tasks, let a group edit files together, or give Agents tools and skills. Users choose which regular Apps to install.
-
-This chapter covers getting started, the API, debugging, submission, and maintenance. Start with a notes App that saves a draft, then add shared files or Agent tools as needed. For installation and permissions from the user's side, see [App](/en/apps).
-
-<Note>This chapter reflects the development build as of 2026-10-21. The current App API is 9, and the minimum supported is 3. The stable release and Beta may expose different APIs. Check the target client before installing, and state compatibility requirements when you publish.</Note>
+This page builds a notes App that saves a draft. At the end you have an installable App folder, open it in a task, save some text and see it again after reopening. The whole chapter's roadmap is in [Contribute an App](/en/apps/contribute).
 
 ## Prerequisites
 
-You need a computer with the gugu desktop app and a text editor. This example has no build step and does not need Node. Git, Node.js, and a GitHub account are only needed when you submit to the market.
+- A computer with gugu desktop and a text editor. This example has no build step and does not need Node.
+- When you later publish to the market, you also need Git, Node.js 24 or later, and a public GitHub repository.
 
-If you want an Agent in gugu to write it for you, first have it read the `apps` and `apps-ui` topics with `guide_read`. Then have it read the topics listed in the [API overview](/en/extension-api) for the features you need. You can also build the package in an external editor; a person then installs it in gugu.
+## Write three files
 
-## Build a notes App
-
-Create a `notes-starter` folder and add the three files below. The complete, copyable folder is in the [starter sample in the docs repository](https://github.com/shuxueshuxue/gugu-docs/tree/4ac2879596e275ee2334551808f338904344be54/samples/app-starter). The sample keeps its Chinese interface strings: the tab title 便签 means "Notes", and 保存 is "Save". Replace them with your own wording.
+Create a `notes-starter` folder and add the three files below. The same files are in the [starter sample in the docs repository](https://github.com/GUYI-AI/gugu-docs/tree/main/samples/app-starter). The sample keeps its Chinese interface strings: the tab title 便签 means "Notes", and 保存 is "Save". Replace them with your own wording.
 
 ```text
 notes-starter/
@@ -26,7 +21,7 @@ notes-starter/
   main.js
 ```
 
-`manifest.json` declares the name, version, and page. It requests no extra permissions.
+`manifest.json` declares the identity, supported devices, API version and one page. It requests no permissions.
 
 ```json
 {
@@ -34,7 +29,8 @@ notes-starter/
   "name": "便签起步",
   "description": "在 App 页面里保存一份本机草稿。",
   "version": "1.0.0",
-  "apiVersion": 9,
+  "apiVersion": 12,
+  "platforms": ["desktop"],
   "engines": { "gugu": ">=0.2.57" },
   "entry": "main.html",
   "contributes": {
@@ -43,7 +39,11 @@ notes-starter/
 }
 ```
 
-`main.html` uses the page styles gugu provides. The script lives in a separate file.
+- `platforms` says which kinds of device the human-facing interface supports. Installing and publishing both require it, with `apiVersion` 12 or higher.
+- Set `apiVersion` to the lowest version the APIs you use need. A client refuses Apps above its own version. This starter only calls `getContext`, so 12 installs on both the stable and Beta clients.
+- `engines.gugu` accepts only `>=x.y.z` or `^x.y.z`: the oldest gugu version the App runs on. A local install can omit it. Publishing requires it.
+
+`main.html` holds only structure. The page already has gugu's styles and light and dark themes.
 
 ```html
 <!doctype html>
@@ -62,11 +62,14 @@ notes-starter/
 </html>
 ```
 
-`main.js` saves the draft and shows any read or write failure.
+Scripts must be separate `.js` files loaded with `<script src>`. An inline script inside the HTML is blocked and does not run.
+
+`main.js` reads and saves the draft and shows any failure.
 
 ```js
 const draft = document.getElementById('draft');
 const statusLine = document.getElementById('status');
+const saveButton = document.getElementById('save');
 
 try {
   draft.value = localStorage.getItem('draft') ?? '';
@@ -74,7 +77,7 @@ try {
   statusLine.textContent = `读取失败：${error.message}`;
 }
 
-document.getElementById('save').addEventListener('click', () => {
+saveButton.addEventListener('click', () => {
   try {
     localStorage.setItem('draft', draft.value);
     statusLine.textContent = '已保存到这个 App 的本机存储';
@@ -90,23 +93,46 @@ window.gugu.getContext().then((context) => {
 });
 ```
 
-## Install and check
+Do not write `const gugu = window.gugu` at the top level of a script. It clashes with the platform's global name and the whole script stops running.
 
-1. In gugu's App management, choose to install from a folder and select `notes-starter`.
-2. Open the **便签** (Notes) tab, type "Organize the literature tomorrow", click **保存** (Save), and confirm the save result appears.
-3. Close the App and reopen it. Confirm the same text is still there. The draft is stored on this device and does not sync across devices or group members.
-4. Switch between light and dark themes and narrow the page. Check that the label, text box, and button still work.
+## Install it in gugu
 
-A package that requests permissions shows a confirmation sheet, and the user decides whether to grant them. An Agent in gugu can use `app_create`, `app_install`, and `app_check` to build, install, and check an App. Declaring a permission does not grant it. For detailed steps, see [Development and debugging](/en/apps/development).
+<Steps>
+  <Step title="Install from the folder">
+    Open **Apps** in the left column, click **Install from folder** and choose `notes-starter`. This example requests no permissions, so it installs at once.
+  </Step>
+  <Step title="Put it in a task">
+    A notice says the App is installed and that you can put "便签" into a task from its **+**. Open a task, click **+** and choose **便签**.
+  </Step>
+  <Step title="Save a draft">
+    Type "Organize the literature tomorrow" and click **保存** (Save). The line under the button says the draft was saved to this App's local storage.
+  </Step>
+</Steps>
 
-## Next steps from the sample
+If installation fails, gugu shows **Install failed** with the reason. A common cause is an `apiVersion` higher than this client supports; the message gives the highest it supports. Update the client, or lower `apiVersion` to what the APIs you use need. With `platforms` it cannot go below 12.
 
-| What you want to do | Next step |
+## Reinstall after a change
+
+1. Change the heading in `main.html`, for example from 便签 to 我的便签.
+2. Back on the Apps page, click **Install from folder** again and choose the same folder. The new files replace the App with the same id. With no new permissions it installs at once.
+3. Reopen the page. Check that the heading changed and the saved draft is still there.
+
+An App installed from a folder is on this computer only. To put it on another computer, send it as a card or install it from the market.
+
+## Checkpoint
+
+- The page opens in a task and shows a result after saving.
+- Close and reopen the page: the draft is still there. It stays on this computer and does not sync to other devices or group members.
+- Switch between light and dark themes and narrow the page. Labels, the text box and the button all still work.
+
+## Next steps
+
+| Goal | Where to go |
 | --- | --- |
-| Change the name, entry, permissions, or minimum version | [manifest](/en/apps/manifest) |
-| Read files, give Agents tools, collaborate with others | [API overview](/en/extension-api) |
-| See how real projects are organized | [Paper Club](https://github.com/shuxueshuxue/gugu-apps/tree/main/sources/paper-club), [Kanban](https://github.com/shuxueshuxue/gugu-apps/tree/main/sources/kanban), [Forum](https://github.com/shuxueshuxue/gugu-apps/tree/main/sources/forum) |
-| Publish an installable version | [Submit to the market](/en/apps/publishing) |
-| Ship a new version, withdraw, or stop maintaining | [Maintenance and updates](/en/apps/maintenance) |
+| Change the name, icon, permissions or compatibility | [Manifest reference](/en/apps/manifest) |
+| Read and write shared files, give Agents tools, work with several people | [App API overview](/en/extension-api) |
+| Learn the sandbox rules and write automated tests | [Debug and test locally](/en/apps/development) |
+| See how real Apps are organized | [Teamboard](https://github.com/GUYI-AI/gugu-apps/tree/main/sources/kanban), [Paper Club](https://github.com/GUYI-AI/gugu-apps/tree/main/sources/paper-club), [Forum](https://github.com/GUYI-AI/gugu-apps/tree/main/sources/forum) |
+| Publish to the market | [Submit to the App market](/en/apps/publishing) |
 
-There is currently no separate official App template repository. This page gives a copyable folder, and real Apps are in `sources/` of the market index repository. When copying, keep the licenses required by the code and dependencies you use, and replace the identifiers with your own.
+You may copy and adapt the sample freely. Before publishing, replace the id, name and description with your own. Do not publish under the id `notes-starter`.

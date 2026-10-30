@@ -1,23 +1,42 @@
 ---
-title: "Maintenance, updates, and withdrawal"
-description: "Release a new version and handle new permissions, withdrawal, end of maintenance, and removal from the market."
+title: "Maintenance, updates and withdrawal"
+description: "Ship a new version, handle added permissions, withdraw a bad version, end maintenance or unlist."
 ---
 
-To change a published App, first increase the manifest's `version`, write this version's CHANGELOG, and commit the source. Then use `add-version.mjs` to append the new version to the same index record and open a PR. Every version goes through [submission validation and official review](/en/apps/publishing).
+A published version cannot be changed. Any change, even a new screenshot, needs a new version.
+
+## Ship a new version
+
+<Steps>
+  <Step title="Bump the version and write notes">
+    Raise `version` in the manifest and add a matching `## x.y.z` section to `CHANGELOG.md`. When you start using a newer API, raise `apiVersion` and `engines.gugu` too.
+  </Step>
+  <Step title="Merge into the default branch">
+    Merge the change into the source repository's default branch. For a first-party App, merge the `sources/` source PR first.
+  </Step>
+  <Step title="Append the registration">
+    In the index repository, run `node scripts/add-version.mjs <owner/repo> <merged 40-character commit> <directory>`. The new version is appended to the same `apps/<id>.json`; older rows stay as they are.
+  </Step>
+  <Step title="Open a PR">
+    Run `node scripts/verify.mjs --base origin/main`, then open a PR and pass the checks and review in the [submission flow](/en/apps/publishing).
+  </Step>
+</Steps>
+
+The market hands each client the newest version it can install, so older clients get an older version that still runs. Do not change the version declarations only to silence a message; the implementation has to match.
 
 ## Compatibility and data
 
-When you start using a new API, check both apiVersion and engines.gugu. The market picks the newest compatible version this machine can install. Do not change version declarations just to silence a warning without changing the implementation.
+When you change a data format, read the old format and migrate it. A page that loads does not prove old users' data was adapted. The App's private data is kept across upgrades and removed on uninstall. Shared files follow their own lifecycle.
 
-When you change a data structure, read the old structure and run any needed migration. A manifest or page that loads does not mean existing users' data has been adapted. App private data is kept on upgrade and cleaned up on uninstall. Shared files follow their own lifecycle.
+Test a new version both as a fresh install and as an upgrade from the previous one, including old data, revoked permissions and program settings. Settings survive upgrades; after a change, new calls use the new values.
 
-## How users receive updates
+## How people receive updates
 
-Installed market Apps update automatically to compatible new versions by default. A version that adds permissions or network destinations waits for the user to click **Update**, and the user confirms only the new items. Revoked permissions are not restored automatically. If a user turns off automatic updates or chooses to stay on an older version, that choice is kept.
+- Installed market Apps update automatically to compatible new versions, with no click needed.
+- A version that requests more capabilities or network hosts does not install automatically. The person clicks **Update** and confirms only the additions. Revoked permissions are not restored.
+- If the person turned off **Auto update** for the App, or chose to stay on an older version, that choice is kept.
 
-Test a new version for both a fresh install and an upgrade from the previous version, including old data, revoked permissions, and program configuration. After program settings are saved, calls already running finish first, and later calls use the new values.
-
-## A problematic version
+## Withdraw a bad version
 
 Add `yanked` to that version's row:
 
@@ -25,15 +44,17 @@ Add `yanked` to that version's row:
 "yanked": { "reason": "This version saves data incorrectly. Please update to the fixed version." }
 ```
 
-After withdrawal, that version can no longer be installed and its version number cannot be reused. Copies already installed keep running, and users see the reason and a way to update. Withdrawal does not remotely stop the App.
+- A withdrawn version can no longer be installed, and its version number cannot be reused.
+- A withdrawal cannot be undone. CI refuses a change that removes `yanked`.
+- People who already have that version keep running it. They see "This version was withdrawn" with your reason, and a way to update.
 
-## End maintenance or remove from the market
+## End maintenance or unlist
 
-| Action | Index change | What users see |
+| Action | Registry change | What people see |
 | --- | --- | --- |
-| End maintenance | Set deprecated with a note and replacedBy (null if there is no replacement) | An end-of-maintenance notice and an optional replacement suggestion. Nothing is uninstalled or migrated automatically |
-| Remove from the market | Set unlisted to true | Disappears from the catalog. Installed versions keep working but no longer get market updates |
+| End maintenance | `deprecated` set to `{ "note": "...", "replacedBy": "<another App's id>" }`, or `replacedBy: null` with no replacement | **No longer maintained**, with a suggestion to use the replacement if there is one; nothing is uninstalled or migrated automatically |
+| Unlist | `unlisted` set to `true` | Gone from the market list; installed copies keep working, and their row says "No longer in the market. No further updates." |
 
-Records for published versions cannot be edited or deleted, except to add withdrawal information. A withdrawal cannot be undone. Removing an App from the market also keeps the original index file and the published version data. Test Apps should be set to unlisted once testing is done; Apps listed normally in the market should be ones ready for users.
+Unlisting keeps the registry file and all published versions; `apps/<id>.json` cannot be deleted. Test Apps should be set to `unlisted` once testing ends, so that every listed App is meant for people to use.
 
-There is currently no mechanism to move user data to a replacement App automatically, and no public commitment about a takeover process after a maintainer ends maintenance. If migration is needed, first provide a clear method in the source and documentation, and explain the impact in the PR.
+There is no automatic migration of people's data to a replacement App, and no published process for handing over maintenance. If migration is needed, provide a method in the source and description, and explain the impact in the PR.

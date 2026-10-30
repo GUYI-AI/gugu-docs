@@ -36,7 +36,8 @@
             "pages": [
               "index",
               "quickstart",
-              "concepts"
+              "concepts",
+              "interface"
             ]
           },
           {
@@ -48,14 +49,18 @@
             ]
           },
           {
-            "group": "把事情做完",
+            "group": "任务与项目",
             "pages": [
-              "assistant",
               "tasks",
               "projects",
-              "agents",
-              "apps",
-              "schedules"
+              "schedules",
+              "assistant"
+            ]
+          },
+          {
+            "group": "Agent",
+            "pages": [
+              "agents"
             ]
           },
           {
@@ -63,13 +68,22 @@
             "pages": [
               "chat",
               "groups",
+              "topics",
+              "folder",
               "contacts",
               "forum"
             ]
           },
           {
-            "group": "贡献咕咕 Apps",
+            "group": "使用 App",
             "pages": [
+              "apps"
+            ]
+          },
+          {
+            "group": "贡献 App",
+            "pages": [
+              "apps/contribute",
               "extensions",
               "apps/manifest",
               "extension-api",
@@ -80,13 +94,18 @@
             ]
           },
           {
-            "group": "配置与帮助",
+            "group": "设备与手机",
             "pages": [
               "devices",
               "mobile",
-              "resource-monitor",
-              "integrations",
+              "resource-monitor"
+            ]
+          },
+          {
+            "group": "配置与帮助",
+            "pages": [
               "models",
+              "integrations",
               "settings",
               "self-hosting",
               "troubleshooting"
@@ -115,7 +134,8 @@
             "pages": [
               "en/index",
               "en/quickstart",
-              "en/concepts"
+              "en/concepts",
+              "en/interface"
             ]
           },
           {
@@ -127,14 +147,18 @@
             ]
           },
           {
-            "group": "Get things done",
+            "group": "Tasks and projects",
             "pages": [
-              "en/assistant",
               "en/tasks",
               "en/projects",
-              "en/agents",
-              "en/apps",
-              "en/schedules"
+              "en/schedules",
+              "en/assistant"
+            ]
+          },
+          {
+            "group": "Agents",
+            "pages": [
+              "en/agents"
             ]
           },
           {
@@ -142,13 +166,22 @@
             "pages": [
               "en/chat",
               "en/groups",
+              "en/topics",
+              "en/folder",
               "en/contacts",
               "en/forum"
             ]
           },
           {
-            "group": "Build gugu Apps",
+            "group": "Use Apps",
             "pages": [
+              "en/apps"
+            ]
+          },
+          {
+            "group": "Contribute an App",
+            "pages": [
+              "en/apps/contribute",
               "en/extensions",
               "en/apps/manifest",
               "en/extension-api",
@@ -159,13 +192,18 @@
             ]
           },
           {
-            "group": "Setup and help",
+            "group": "Devices and phone",
             "pages": [
               "en/devices",
               "en/mobile",
-              "en/resource-monitor",
-              "en/integrations",
+              "en/resource-monitor"
+            ]
+          },
+          {
+            "group": "Setup and help",
+            "pages": [
               "en/models",
+              "en/integrations",
               "en/settings",
               "en/self-hosting",
               "en/troubleshooting"

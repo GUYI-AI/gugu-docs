@@ -1,31 +1,36 @@
 ---
 title: "Developer policies and permissions"
-description: "Develop under the rules that exist today, explain data and program behavior, and wait for official code review."
+description: "The rules enforced today, what to explain when you submit, and maintainer review on the PR."
 ---
 
-There is currently no separately published, complete developer policy for gugu Apps, and no separate CONTRIBUTING guide, review time limit, or appeal process. The existing requirements are spread across product API constraints, the market repository's README, the validation scripts, and official code review. Below, rules enforced today are separated from what you are advised to explain when submitting.
+There is no separately published, complete developer policy for gugu Apps yet, and no separate CONTRIBUTING file, review time limit or appeal process. Current requirements come from product API limits, the index repository's README and check scripts, and maintainer code review on each PR. Below, enforced rules are kept apart from recommendations.
 
 ## Rules enforced today
 
-- Market records are packaged from a pinned source commit. The source must be available for review; you cannot submit only an archive of unknown origin.
-- Published versions cannot be changed, deleted, or reused. Withdrawals, end of maintenance, and removal from the market are handled through index fields.
-- Pages are bound by isolation and network rules. Request extra capabilities in the manifest; the user agrees on gugu's confirmation sheet and can later revoke them one by one.
-- An App that ships a local program or skill needs `agents:tools`. The program runs with the user's local permissions, and the install details show the actual command.
-- firstRun is only allowed for Apps in the official index repository itself. Ordinary Apps cannot ask to be silently installed on first launch.
-- The official team reviews and merges every version's record. Passing CI does not automatically qualify an App for listing.
+- The market only accepts packages built from a pinned source commit. The source must be public and reviewable; an archive of unknown origin is not accepted.
+- Published versions cannot be changed or deleted, and their version numbers are never reused. Withdrawal, end of maintenance and unlisting go through registry fields.
+- Pages are bound by the sandbox and network rules. Request extra capabilities in the manifest; the person agrees on gugu's confirmation sheet and can later revoke them one by one.
+- Apps that provide local programs, skills or standing instructions must request `agents:tools`. Programs run with the person's local rights, and the install sheet shows the actual command.
+- `firstRun` is only allowed on Apps whose code is in the first-party index repository. Other Apps are never installed silently.
+- Maintainers review and merge every registration on its PR. Passing CI does not publish an App by itself.
 
-## What to explain when submitting
+## What to explain when you submit
 
-To help users decide and maintainers review, the README should cover: the main purpose, the reason for each requested permission, the services accessed, what data is stored and where, what uninstalling cleans up, and the supported devices and client versions. If the App connects to accounts, explain where users configure them, and do not build account secrets into the package.
+So people can judge your App and maintainers can review it, state in the README and the PR description:
 
-When using third-party libraries or copying examples, check and keep the corresponding licenses. The license in the current manifest is text; it does not mean the platform has verified the author's rights.
+- The main purpose, and the reason for each permission and network host.
+- Which outside services it contacts, what data it keeps, where, and what uninstalling clears.
+- Supported devices and client versions.
+- Where the person sets up any account connection. Never put keys inside the package.
 
-Agent control consumes the user's quota. Explain clearly when the App starts or contacts an Agent, and avoid endless mutual wake-ups. Read multi-user data only within what the calling identity can access; the interface should not guess at hidden content.
+When you use third-party libraries or copy sample code, check and keep their licenses. The manifest's `license` is plain text; the platform does not verify it.
+
+Starting and contacting Agents spends the person's quota. Explain when the App starts or contacts Agents, and never let Agents wake each other endlessly. Read shared data only within what the caller may access.
 
 ## Data and interaction boundaries
 
-All participants in a shared file may be able to read its contents. Identity documents, secrets, or content meant for one person cannot rely on the page hiding them; design data boundaries following the `apps-together` guide.
+Everyone in a shared file may read its content. Identity cards, keys or anything meant for one person cannot be protected just by hiding them in the page; design the data boundary following the in-product `apps-together` guide.
 
-When displaying text written by others, use textContent or a rendering method that escapes it. When a file call fails, show the reason; a failed read must not be shown as having no data. Revoked permissions and being offline also need actionable explanations.
+Show text written by others with `textContent` or a rendering method that escapes it. When a file call fails, show the reason; a failed read must never look like no data. Revoked permissions and offline states also need an explanation the person can act on.
 
-These implementation suggestions come from the in-product App guide and help you build usable Apps. There is currently no separate content policy, commercial terms, or review commitment, and none should be carried over from other plugin platforms.
+These implementation recommendations come from the in-product App guides. There is currently no separate content policy, commercial terms or review commitment.

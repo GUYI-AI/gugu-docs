@@ -1,42 +1,66 @@
 ---
 title: "Manage tasks from your phone"
-description: "Check tasks, answer questions after you leave your computer, and connect this phone's capabilities when needed."
+description: "Check tasks and answer questions after you leave your computer, or let this phone run tasks itself."
 ---
 
-The mobile app is for Android. Get the installer from the [website](https://gugu.nextmind.space). Sign in with the same account. The phone is for checking progress and sending requests; Agents still run on the original computer or server.
+The mobile app is for Android. Get the installer from the [website](https://gugu.nextmind.space). After you sign in with the same account, you can check and reply to tasks on your computers or servers. Once you enable the phone Agent, the phone can also run tasks itself.
 
-This page describes the mobile interface in the current Beta. What the stable release offers depends on the version you have installed.
+<Note>This page describes the mobile interface in the current Beta. What the stable release offers depends on the version you have installed.</Note>
 
-## Find work in progress
+## Find your way around
 
-The bottom tab **Gugu** is the personal assistant. **Projects** shows projects and tasks. **Chats** and **Contacts** are for communication, and **Me** manages your account and phone settings.
+The bottom bar has two tabs: **Messages** and **Partners**.
 
-**Projects** lists tasks from every machine, grouped by project, and each group names its device. Open the one you want to continue. When a machine is offline, you can see its status and last activity. Reading the timeline, replying, and approving require it to be online. The phone never moves a task to run locally on the phone.
+- If you have set up a personal assistant, gugu is the first row in **Messages**.
+- The **Projects · N** section in **Partners** lists your projects. Open one to see its tasks on each machine.
+- Your avatar at the top left of **Messages** or **Partners** opens **Me**, where you manage your account and phone settings.
+
+When a machine is offline, you can see its status and when it was last online. Reading the timeline, replying, and approving require that machine to be online.
 
 ## View, reply, and approve
 
-For an online task, you can view messages, tool steps, and results, plus questions and permission cards waiting for your answer. Supported engines show their own task records; unsupported ones show a notice. The phone does not show the computer's terminal.
+For an online task, you can view messages, tool steps, and results, plus questions and permission cards waiting for your answer. Supported engines show their own task records; unsupported ones show "Can't view here".
 
-Add a request directly and the original task continues. When the same question or permission card is open on both desktop and phone, the first answer counts. The other side shows it as already handled.
-
-Use the mode menu in the page header to switch between the task page and a private chat with the Agent. This only changes what the phone shows, not how the computer displays it. A new task reuses the most recent choices on the target machine. Still check the engine, model, project, and permissions before sending.
+Add a request directly and the original task continues.
 
 ## See results the Agent opened
 
-Files or web pages the Agent opened in a task show up as attachment cards. Files are read from the original machine. Supported documents and images can be previewed, with a current limit of 20 MB per file.
+Files or web pages the Agent opened in a task show up as attachment cards. Files are read from the original machine. Supported documents and images can be previewed, up to 20 MB per file.
 
-Web pages open in the phone's browser. Addresses reachable only on that computer or its local network show a note that they can only be opened on the original machine. Files are not synced to the phone or other computers as a result.
+Web pages open in the phone's browser. Addresses reachable only on that computer or its local network show "Opens only on that computer". Files are not synced to the phone or other computers as a result.
 
-## Give phone capabilities to the assistant
+## Let the phone run tasks
 
-In **Me → This phone**, turn on the main switch, then connect categories one by one. Each item shows what is supported and the system permission status, for example calendar, contacts, location, notifications, SMS, recordings, and photos.
+<Note>The phone task and permission screens below show Chinese labels only for now. The English in parentheses is a translation.</Note>
 
-Nothing is connected by default. Turning off the main switch or disconnecting a category stops that capability immediately. Data is read only when actually used. For actions that need confirmation, such as changing calendar events, the assistant asks for your consent in chat first. If system permission is not granted, or only some photos are allowed, the assistant gets access within that scope.
+1. Open **Me → This phone**. Under 手机任务 (*Phone tasks*), tap 启用手机 Agent (*Enable phone Agent*).
+2. When the status reads 可处理任务 (*Ready for tasks*), pick **Phone Agent** in the options when creating a task. If the projects page has no machine available, **Set up this phone** does the same setup.
+3. Phone tasks use models provided by gugu.
+4. When you no longer need it, tap 停止手机 Agent (*Stop phone Agent*). If it fails to start, tap 重新启动 (*Restart*).
+
+Phone task records are stored on this phone. A task can keep going while the app is in the background. If the system force-stops the app, the running turn is marked as interrupted and is not redone automatically.
+
+### Configure Skills for a task
+
+A phone task page has a 配置 Skill (*Configure Skills*) button. Each task can have its own Skills that describe how to do the work, and you can import a `SKILL.md` file. A task holds up to 20 Skills, each of which can be switched on or off.
+
+You cannot edit them while the task is running or waiting for your confirmation. Changes apply from the next turn. Skills only describe how to use existing tools and never add phone permissions.
+
+## Phone permissions
+
+Open **Me → Permissions**, or tap 权限 (*Permissions*) in **This phone**. The page has two groups:
+
+- 咕咕 (*gugu*): system permissions the app itself needs, such as notifications and background running.
+- 这台手机上的任务 Agent 能用 (*Available to task Agents on this phone*): calendar, contacts, location, notification access, Do Not Disturb, alarms, health, SMS, recordings, and photos.
+
+Only task Agents on this phone can use the second group. Tap an item and grant it as prompted. Its status reads 已开启 (*On*) or 未开启 (*Off*). If the system allows only some photos, access stays within that scope.
+
+The Agent asks you before changing calendar events, switching Do Not Disturb, or getting your location. Health data is read only, from Health Connect. Setting alarms needs gugu in the foreground.
 
 ## Offline and notifications
 
-The timeline needs the original machine to be online. The phone does not keep a full record you can continue from offline. Missing content loads after reconnecting. If the connection fails, follow the prompt.
+For tasks on a computer, the timeline is read live from the original machine. While that machine is offline it cannot be read; missing content loads after reconnecting.
 
-When a task finishes or needs you, the phone app can show a system banner while it is running, including when it stays in the background with permission. Notifications depend on notification and background permissions. Once the system kills the app, there is currently no separate push channel to wake it. For permission details, see [Connected apps and device capabilities](/en/integrations).
+When a task finishes or needs you, the phone app can show a system banner while it is running, including when it stays in the background with permission. Notifications depend on notification and background permissions, which you can check in **Me → Permissions**.
 
 To connect another machine or server, see [Devices and remote work](/en/devices).

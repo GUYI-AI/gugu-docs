@@ -18,21 +18,32 @@ description: "用自己的 Supabase 项目当后端，从源码运行客户端�
 | 邮箱验证码登录、通讯录、好友申请 | 官方云电脑 |
 | 私聊、群聊、群里的 Agent，消息实时到达 | 咕咕模型、会员和积分 |
 | 附件，存在你自己的 Supabase Storage | 远程隧道（从别的电脑打开这台机器的终端、浏览器） |
-| 本机任务，使用你电脑上 Claude Code、Codex 等工具自己的登录 | 多人协同编辑文件，除非另外部署后端仓库里的文件服务 |
+| 本机任务，使用你电脑上 Claude Code、Codex 等工具自己的登录或 API Key | 多人协同编辑文件，除非另外部署后端仓库里的[文件服务](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/files-service.md) |
 
 ## 要准备的
 
 1. 一个 Supabase 账号，并为咕咕新建一个**空项目**。不要和其他数据共用。
 2. 一个 Supabase 个人访问令牌。在 Access Tokens 页面生成，范围只选这个项目。令牌只放在自己电脑上，不要提交到代码仓库。
 3. 一个 SMTP 发信服务，例如 Resend、Brevo、AWS SES。咕咕用邮件里的 6 位验证码登录。Supabase 自带的发信每小时只发 2 封，只发给组织成员，所以**必须使用自己的 SMTP**。邮件里的验证码由 `pnpm run setup` 写进邮件模板；免费版用自带发信时不允许改模板，所以这一步也要先配好 SMTP。
-4. 电脑上的 Git、Node 24 和 pnpm 10.28.2。Mac 还需要 Xcode 命令行工具。
+4. 电脑上的 Git、Node 24（客户端仓库指定 24.14.0）和 pnpm 10.28.2。Mac 还需要 Xcode 命令行工具。
 
 ## 大致步骤
 
 1. 在 Supabase 后台的 **Authentication → Emails → SMTP Settings** 打开自定义 SMTP，填入发信服务提供的地址和账号，再按需要调高每小时发信上限。
 2. 下载 [OpenDCAI/gugu-supabase](https://github.com/OpenDCAI/gugu-supabase) 和 [OpenDCAI/gugu](https://github.com/OpenDCAI/gugu)。在后端仓库运行 `pnpm run setup --client-dir ../gugu`。它会装好数据库、云函数、存储和实时推送，并把连接信息写进客户端目录。注意命令是 `pnpm run setup`，`pnpm setup` 是 pnpm 自带的另一个命令。
 3. 在客户端仓库依次运行 `pnpm install --frozen-lockfile`、`pnpm rebuild:native`，再运行 `GUGU_DB_TARGET=local bash scripts/dev-app.sh` 启动。
-4. 输入邮箱，填写收到的 6 位验证码。点「新建会话」，选一个已安装的 Agent，就可以开始使用。
+4. 输入邮箱，填写收到的 6 位验证码，完成资料设置。
+5. 模型用你自己的账号：沿用本机命令行工具已有的登录，或在「设置 → 订阅」连接凭据。
+6. 点「新建任务」，选一个已安装的 Agent，例如 Claude Code，发一条消息。
+
+不部署官方云电脑和咕咕模型时，在构建或启动前把下面两行写进客户端所选的 `.envs/<target>.env`，本例是 `.envs/local.env`：
+
+```dotenv
+GUGU_CLOUD_COMPUTER_ENABLED=false
+GUGU_PLATFORM_MODELS_ENABLED=false
+```
+
+这样客户端不会去连官方云电脑，也不会读取咕咕模型列表。
 
 完成后可以这样检查：第二个账号登录，互加好友、建群，发一条消息和一个文件。对方不刷新就能看到，说明实时推送和附件都已接通。
 
@@ -42,7 +53,7 @@ description: "用自己的 Supabase 项目当后端，从源码运行客户端�
 - 数据库 500 MB，文件存储 1 GB，单个附件最大 25 MB。
 - 同时在线的实时连接最多 200 个。
 
-数字以 [Supabase 定价页](https://supabase.com/pricing) 为准。
+以上数字取自后端仓库的[免费版说明](https://github.com/OpenDCAI/gugu-supabase/blob/dev/docs/self-hosting-free-plan.md)，最终以 [Supabase 定价页](https://supabase.com/pricing) 为准。
 
 ## 常见问题
 

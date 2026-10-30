@@ -1,79 +1,138 @@
 ---
 title: "Manifest reference"
-description: "Declare an App's pages, programs, permissions, and compatibility requirements."
+description: "manifest.json fields, limits, permissions, and the API version each field needs."
 ---
 
-`manifest.json` sits at the package root. Fields are validated strictly, and unknown fields cause an error. Valid fields only mean the manifest is well formed; install-time authorization is handled separately.
+`manifest.json` sits at the root of the App folder. Validation is strict: a misspelled or unknown field makes installation fail. A valid manifest only means the App can be installed; the person still has to agree to the permissions it declares.
 
 ## Identity and compatibility
 
-| Field | Requirement |
+| Field | Required | Rule |
+| --- | --- | --- |
+| `id` | Yes | Matches `^[a-z0-9][a-z0-9-]{1,63}$`: 2 to 64 lowercase letters, digits or hyphens, starting with a letter or digit, no dots |
+| `name` | Yes | 1 to 64 characters |
+| `version` | Yes | `x.y.z`, digits only; a published version number is never reused |
+| `apiVersion` | Yes | Integer from 3 to 22. Above what the client supports, it says gugu needs updating; below 3, it says to rewrite for the current API |
+| `platforms` | To install and publish | `["desktop"]`, `["phone"]` or both; not empty, no duplicates; needs `apiVersion` 12 or higher |
+| `engines.gugu` | To publish | Only `>=x.y.z` or `^x.y.z`: the oldest gugu version |
+| `description` | No | 1 to 280 characters; its first sentence appears in the App list Agents read |
+| `subtitle` | No | 1 to 30 characters, the line under the name in the market; needs API 8 |
+| `examples` | No | 1 to 3 things a person might say to an Agent, up to 80 characters each; clicking one on the market page starts a task with it |
+| `author` | No | 1 to 64 characters; shown, not verified |
+| `icon` | No | Path to a raster image in the bundle, no SVG; the market requires PNG, at most 32 KiB and 512px per side |
+| `homepage` / `repository` | No | `https://` links, up to 200 characters |
+| `license` | No | SPDX identifier or a short license name, up to 64 characters; not verified |
+| `categories` | No | 1 to 4 distinct category slugs matching `^[a-z0-9][a-z0-9-]{0,31}$` |
+| `localized` | No | Per language tag (`en`, `zh-CN`): `name`, `description`, `subtitle`, `examples`, same limits |
+
+The market has three sections: `research` (Research), `productivity` (Productivity) and `developer` (Developer). Other slugs go under **Other**.
+
+The market check joins `- name (id): first sentence of description` into one line. That line may be at most 120 characters, or the version is refused. Write the first sentence for Agents, saying what the App does. Put the full description for people in the README.
+
+### Platforms
+
+`platforms` describes where the human-facing interface works. It says nothing about where Agent programs run.
+
+- Phones do not run Agent features. An App declaring `phone` may still request `agents:*` capabilities; those features work only on computers.
+- Phones do not support `notifications`. Declaring both `phone` and `notifications` is refused at publication and installation.
+- Package installs on the phone refuse gugu's settings page (`hostPage`). Tool Apps run and are configured on gugu desktop.
+- Whether the App really fits a phone screen is the author's responsibility. Installed older Apps keep running without this field.
+
+## Pages, background and Agent features
+
+| Field | Rule |
 | --- | --- |
-| `id` | Required. 2–64 lowercase letters, digits, or hyphens. Must start with a letter or digit and cannot contain dots |
-| `name` | Required. 1–64 characters; the human-readable name |
-| `version` | Required. Three numeric parts, `x.y.z`. Never reuse after publishing |
-| `apiVersion` | Required. An integer. Current clients support 3–9. Declare what your API usage actually needs |
-| `engines.gugu` | Required for the market. Only `>=x.y.z` or `^x.y.z` is accepted, meaning the minimum version |
-| `description` | Optional. Up to 280 characters. The first sentence states the purpose. The market check limits the one-line description given to Agents to 120 characters |
-| `subtitle` | Optional. Up to 30 characters. Requires API 8 or later |
-| `author` | Optional. Up to 64 characters. Author text is not treated as identity verification |
-| `icon` | Optional. Path to a bitmap in the package. Market icons must be PNG, at most 32 KiB and at most 512px wide and tall |
-| `homepage` / `repository` | Optional. HTTPS links |
-| `license` | Optional. A license identifier or short name, up to 64 characters |
-| `categories` | Optional. 1–4 category identifiers |
-| `localized` | Optional. Provides name, description, subtitle, and examples per language tag |
-| `examples` | Optional. 1–3 example requests, each up to 80 characters |
+| `entry` | Bundle-relative HTML path |
+| `background.entry` | Optional background page; one per App, started when the App is enabled, running even when no page is open |
+| `contributes.tabs` | 1 to 8 pages |
+| `contributes.mcpServers` | 1 to 4 programs, in the forms below |
+| `contributes.skills` | Bundle folder with one `<name>/SKILL.md` per skill |
+| `contributes.agentInstructions` | 1 to 8000 characters of standing instructions for Agents; needs at least one program and `agents:tools` |
+| `contributes.toolsListed` | Only `true`; at first install, suggests listing the tools directly to Agents (the person can switch back); needs a program |
+| `settings` | 1 to 32 fields drawn by gugu as a settings page; needs API 5 |
 
-Both `apiVersion` and `engines.gugu` are used for market compatibility selection. A gugu Beta with the same version number may support a different API, so `0.2.57` alone is not enough. Using `chat:read` requires at least API 6, file location links use API 7, `subtitle` uses API 8, and `gugu.forum` uses API 9.
+Every path must stay inside the bundle: no leading `/`, no backslashes, no `.` or `..` segments, at most 256 characters.
 
-## Pages, background, and tools
+Each `mcpServers` entry takes one of three forms:
 
-| Field | Purpose |
+| Form | Example | Notes |
+| --- | --- | --- |
+| JavaScript tools module | `{ "tools": "tools.js" }` | Each export is one tool; at most one per App |
+| Local program | `{ "name": "rows", "command": "node", "args": ["server.mjs"] }` | `command` is `node`, a bundle `./path` or a program name on PATH; up to 32 `args`; optional `env` |
+| Capability provided by gugu | `{ "name": "browser-use", "host": "browser-use" }` | `host` is `browser-use` or `computer-use`; needs API 5; desktop only |
+
+A program `name` matches `^[a-z][a-z0-9-]{0,31}$` and is unique within the App.
+
+An App without HTML pages must provide programs or skills. From API 5, tool Apps may omit `entry` and `tabs`; opening them shows gugu's settings and status page.
+
+Each `settings` field has a `key` (matching `^[a-z][a-zA-Z0-9_]{0,63}$`, unique), a `title` (up to 80 characters), a `type`, and optional `description` and `default`. `type` is `string`, `boolean` or `select`. A `select` has 1 to 32 `options`, and its `default` must be one of them. Programs read the JSON from the `GUGU_APP_SETTINGS` environment variable.
+
+### Each page
+
+| Field | Rule |
 | --- | --- |
-| `entry` | Relative HTML path in the package. Apps with pages need an entry |
-| `background.entry` | Optional. A background page started when the App is enabled; one per App |
-| `contributes.tabs` | List of pages; 1–8 items when present |
-| `contributes.mcpServers` | Optional. 1–4 programs: `{"tools":"tools.js"}` or `{"name":"server","command":"node","args":["server.mjs"]}` |
-| `contributes.skills` | Optional. A skills directory containing each `SKILL.md` |
-| `contributes.toolsListed` | Optional. On first install, suggests listing the program's tools directly to Agents; users can switch back to calling them from the directory |
-| `settings` | Optional. Up to 32 settings of type string, boolean, or select. gugu draws the settings page |
+| `name` | Matches `^[a-z0-9][a-z0-9-]{0,31}$`, unique within the App |
+| `title` | 1 to 48 characters |
+| `entry` | Optional; defaults to the top-level `entry` |
+| `icon` | Optional raster image in the bundle |
+| `opensFiles` | Optional `{ "session": [...], "chat": [...] }`, at least one side, 1 to 16 claims each; a suffix such as `.csv`, or a file name such as `TODO.md` or `todo-*.md` |
+| `fileIcons` | Optional; each key must be one of this page's `opensFiles` claims |
+| `chatFile` | Optional top-level file name shown when the App opens in a chat; must match this page's `opensFiles.chat`; at most one page per App; needs API 14 |
+| `sideWidth` | Optional integer from 280 to 960: the page's width in pixels beside a chat or a task's conversation; needs API 16 |
+| `menu` / `toolbar` | Optional, up to 8 / 6 entries of `{ "id", "title" }`, `title` up to 32 characters; a click fires `onCommand` |
+| `perSession` | Optional, only `true`: one page per task; cannot combine with `opensFiles` or the settings page |
+| `hostPage` | Optional, only `"settings"`: use gugu's settings page; then no `entry`, `opensFiles` or page commands |
 
-Paths must stay inside the package: no absolute paths, backslashes, or `.` or `..` segments. From API 5, tool-only Apps can omit HTML and tabs; clicking one opens gugu's settings and status page. Declaring programs or skills requires requesting `agents:tools`.
-
-Each regular page has these fields:
-
-| Field | Requirement |
-| --- | --- |
-| `name` | 1–32 lowercase letters, digits, or hyphens. Unique within the App; must start with a letter or digit |
-| `title` | 1–48 characters |
-| `entry` | Optional. Defaults to the top-level entry. For hand-written multi-page Apps, give each page its own entry |
-| `icon` | Optional. A bitmap in the package |
-| `opensFiles` | Optional. Declares file extensions or file names under `session` and `chat`, e.g. `{"chat":[".json"],"session":["TODO.md"]}` |
-| `fileIcons` | Optional. Keys must come from this page's opensFiles declaration |
-| `menu` / `toolbar` | Optional. Up to 8 / 6 items respectively. Each item has id and title; clicking triggers onCommand |
-| `perSession` | Optional. Keeps a separate page for each task. Cannot be combined with opensFiles or hostPage |
-| `hostPage` | Optional. `"settings"` uses gugu's settings page; you then cannot provide a regular HTML entry or page commands |
-
-`opensFiles` makes the App a candidate way to open those files. The user's choice takes priority. When several Apps declare the same file, the person chooses.
+`opensFiles` offers an App as a way to open a file. The person's own choice wins. When several Apps claim the same file, the person picks.
 
 ## Permissions
 
-`permissions.capabilities` allows up to 12 items. `permissions.network` allows up to 16 bare host names.
+`permissions.capabilities` holds up to 12 entries and `permissions.network` up to 16 hostnames.
 
-| Capability | What it allows |
+| Capability | Allows |
 | --- | --- |
-| `files:read` / `files:read:all-machines` | Read files. The latter extends to task files on other devices |
-| `files:write` | Modify files. Does not include read permission |
-| `chat:relay` | Send private notifications as the operator, labeled as coming from the App |
-| `chat:read` | Read chats, members, and messages the caller can access |
-| `agents:read` / `agents:read:all` / `agents:read:all-machines` | See Agents the App started, all Agents on this device, or Agents on other devices |
-| `agents:history` / `agents:history:all` | Read conversation history of Agents the App started, or of all Agents on this device |
-| `agents:control` / `agents:control:all` / `agents:control:all-machines` | Start, contact, or stop Agents in the matching scope. See the API docs for cross-device support |
-| `agents:tools` | Provide the App's programs and skills to Agents |
-| `notifications` | Send system notifications |
+| `files:read` | Reading files of the person's chats and of this computer's tasks |
+| `files:read:all-machines` | The same, plus read-only access to tasks' files on other computers |
+| `files:write` | Creating, changing and deleting files; does not include reading, so declare `files:read` too if you read |
+| `chat:relay` | Private messages to chat members in the person's name, marked as from the App |
+| `chat:read` | The person's chats, members and messages; needs API 6 |
+| `agents:read` / `:all` / `:all-machines` | See Agents this App started / all on this computer / plus other computers |
+| `agents:history` / `:all` | Read conversations of Agents this App started / of all on this computer |
+| `agents:control` / `:all` / `:all-machines` | Start, contact or stop Agents in that scope; spends the person's quota |
+| `agents:tools` | Give the App's programs, skills and standing instructions to Agents on this computer |
+| `notifications` | System notifications; not on phones |
 
-Declare only one scope per family. For example, do not declare both `agents:read` and `agents:read:all`. Permissions can be revoked individually, so read `getContext().capabilities` at runtime.
+Declare only one level per family. For example, do not declare both `agents:read` and `agents:read:all`.
 
-`network` takes host names only, such as `api.example.com` or `*.example.com`, without protocol, port, or path. Only HTTPS/WSS work. IP literals, localhost, and internal network names are rejected. Declaring a domain does not allow remote scripts. For detailed limits, see [Development and debugging](/en/apps/development).
+Declaring programs, skills or `agentInstructions` requires `agents:tools`. Declaring `agents:tools` without any of the three is also refused.
 
-`firstRun`, `featured`, and `unlisted` are index fields of the [market listing](/en/apps/publishing) and cannot go in the manifest.
+`network` lists bare hostnames such as `api.example.com` or `*.example.com`, with at least two labels and no scheme, port or path. IP addresses, `localhost`, `.local` and `.internal` are refused. Pages reach these hosts over HTTPS and WSS only.
+
+`firstRun`, `featured` and `unlisted` are fields of the [market registry](/en/apps/publishing). They cannot go in the manifest.
+
+## API versions
+
+Set `apiVersion` to what the newest API you use needs. The market uses this number to hand each client the newest version it can install. Betas with the same version number may support different APIs, so `engines.gugu` cannot replace it.
+
+| API | Added or changed |
+| --- | --- |
+| 3 | Oldest version still supported |
+| 4 | `refs` to name files; the old `about` parameter removed |
+| 5 | Tool Apps may omit HTML; gugu's settings page, `settings`; `host` programs |
+| 6 | `chat:read`, `gugu.chats`, `gugu.messages` |
+| 7 | Working-copy file links with a place in a task's chat reach `onLink` |
+| 8 | `subtitle` |
+| 9 | `gugu.forum` |
+| 10 | Sending without naming a place, the person picks (handled by `dispatch` from 15) |
+| 11 | `gugu.modal` dialogs |
+| 12 | `platforms` |
+| 13 | `linkTo`, `openLink` |
+| 14 | A page's `chatFile` |
+| 15 | `gugu.dispatch`; `compose`, `send`, `messageAgent`, `spawnAgent` removed |
+| 16 | A page's `sideWidth` |
+| 17 | Running programs on a chosen computer; `gugu.sessions` for external session history; `dispatch`'s `spawn.device` |
+| 18 | App data file markers (`appData`), file `metadata`, chat folder view preference, `showContextMenu` |
+| 19 | `files.keep` and the `keep` field of file entries |
+| 20 | `files.download` and `files.keep` accept several files |
+| 21 | A tools module's `run` receives an abort `signal` |
+| 22 | `gugu.projection`: local picture and input resources |

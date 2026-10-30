@@ -10,19 +10,25 @@ Before connecting an app, decide where the material is, which account to use, an
 | Situation | Where to fix it |
 |---|---|
 | A model needs a provider account or API connection | **Settings → Subscriptions** |
-| The Agent needs to read a service such as a calendar or documents | **Connected apps** in the assistant's profile, or **Library → Integrations** |
+| The Agent needs an account service such as a calendar, documents, or maps | **Settings → Gugu → Connected apps**, or **Library → Integrations** |
 | An App is not enabled, or not allowed for this Agent | **App → Installed** |
-| The system has not allowed notifications or file access | **Settings → Permissions**; for computer control, use Computer Use's own settings |
+| You want this computer's calendar, mail, or computer control | **Settings → Devices → What this computer can do** |
+| You want calendar, SMS, or photos on your phone | **Me → Permissions** on the phone |
+| The system has not allowed notifications or file access | **Settings → Permissions** |
 
 ## Connect a service
 
-Find **Connected apps** in the personal assistant's profile. You can also get there from the **Library** and from the relevant App's settings. Choose a service, then authorize it in the browser or finish setup as the page asks.
+Open **Settings → Gugu → Connected apps**. You can also get there from the **Library** and from the relevant App's settings. Choose a service, then authorize it in the browser or fill in the setup as the page asks.
 
 > From my connected calendar, put together this week's schedule and mark time conflicts. Don't change any events yet.
 
 The connection status should show **Connected**. If the authorization expires, authorize again and retry the work. After an external service connection changes, a regular task that is already running may need to be reopened. Disabling an App or revoking its permission takes effect on the next call.
 
-The services you can connect are those in the current list. Different apps may need browser authorization, an account sign-in, or API setup. Follow the prompts you see.
+The services you can connect are those in the current list. Different apps may need browser authorization, an account sign-in, or a key. Follow the prompts you see.
+
+### Connect with your own key
+
+Some services need a key you apply for yourself, such as **AMap**. On the AMap open platform, create an app and add a free key with the service type "Web 服务" (Web service), then paste it into **AMap Web service key**. The gugu platform keeps the key for you, so all your devices can use the connection.
 
 ## Let an Agent use it
 
@@ -32,7 +38,9 @@ Connect only the capabilities you need. Calendar connections, model subscription
 
 ## Actions on your computer
 
-After enabling Computer Use, grant the system permissions it asks for in its settings. While the Agent works, you can open the **Computer** page next to the task.
+In **Settings → Devices → What this computer can do**, connect **Computer control**. On a Mac, also turn on Accessibility and Screen Recording in System Settings when prompted.
+
+While the Agent works, a tag on the top edge of the target window names who is in control. Click **Stop** at any time.
 
 If something must be confirmed before it is sent or submitted, say so in the task:
 
@@ -40,6 +48,6 @@ If something must be confirmed before it is sent or submitted, say so in the tas
 
 ## Capabilities on your phone
 
-On Android, once the matching system permissions are granted, gugu can read SMS, recordings, photos, and similar data. Available items appear in the device capabilities. Grant only what this job needs.
+On Android, once the matching system permissions are granted, the phone can provide SMS, recordings, photos, and similar data. These permissions are only for task Agents on that phone; see [Mobile](/en/mobile#phone-permissions) to set them up. Grant only what this job needs.
 
-The device must stay connected. If something fails, check the target device, whether the app is enabled, and the system permissions, then continue the original task.
+If something fails, check that the target device is online, the app is enabled, and the system permission is granted, then continue the original task.

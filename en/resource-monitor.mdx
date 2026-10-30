@@ -3,26 +3,34 @@ title: "Resource monitor"
 description: "See CPU and memory use by gugu and running tasks, and find the work that needs attention."
 ---
 
-When your computer slows down, check which tasks and programs are using resources first. **Resource monitor** shows readings for this computer. Model credits and provider quotas are in [Usage and models](/en/models).
+When your computer slows down, check which tasks and programs are using resources first. **Resource monitor** only shows readings for this computer. Model credits and provider quotas are in [Usage and models](/en/models).
 
 ## Open it
 
-1. On desktop, open **Settings → Interface** and turn on **Resource monitor**.
-2. Open the command palette, search for **Resource monitor**, and open it. You can view or change the command palette shortcut under keyboard shortcuts in settings.
-3. Wait for readings to load, then check CPU and Mem at the top, and the app processes, projects, and task groups below.
+1. On desktop, open **Settings → Resource monitor**, in the **Preferences** group. You can also search the command palette for **Resource Monitor** to open the same page.
+2. Turn on **Enable monitoring**. It is off by default. Once enabled, it records locally in the background until you switch it off.
+3. Wait for the readings to load, then check the charts and the process list below them.
+
+To keep an eye on it while you work, click **Floating window** to show the readings in a small window.
 
 ## Read the numbers
 
-CPU is processor use at the time of sampling. Mem is memory use. Both change with what programs are currently doing. Right after opening, before there is a baseline, some values are not shown yet.
+The CPU chart counts per core: 100% means one full core. Memory is the sum of each process's RSS. Readings change with what programs are doing. High usage does not mean a task failed, and low usage does not mean it has been delivered.
 
-The list groups running items by project and task, and also shows gugu's own processes. Find the work first, then judge whether it is still running and whether it should continue. High resource use does not mean a task failed, and low use does not mean it was delivered.
+The list groups running items under local tasks and also shows gugu's own processes. Find the matching work first, then decide whether it is still running and whether it should continue.
 
-Remote tasks run on another machine. Do not read this computer's numbers as the server's usage. To check the original machine, use the tools on that machine.
+Remote tasks run on another machine. This computer's readings do not include a server's usage. To check the original machine, look on that machine.
 
-## Manage running processes and report problems
+## Look back at history
 
-You can go back to the task to check progress first. To stop a running item in the list, click **Stop** and confirm again. Files already written and external actions already completed are not undone.
+The timeline switches between **15 min**, **1 hour**, and **All**. Click a moment on a chart to see a snapshot of its processes, then click **Back to live** to return.
 
-Resource monitor can copy a report. When reporting a problem, attach the report, your gugu version, and the steps to reproduce. Before sharing, check whether project names, paths, and similar details are fine to make public.
+History keeps up to 24 hours, 10,000 samples, or 64 MiB, replacing the oldest first. **Export JSON** saves a copy. **Clear history** deletes the recorded samples.
 
-If the interface is still loading or the report is missing a reading, refresh or reopen it later. No reading does not mean zero usage.
+## Handle usage and feedback
+
+Check the task's progress first. To stop a running item in the list, click stop, then confirm once more. Files already written and external actions already completed are not undone.
+
+When reporting a problem, use **Copy report** to attach the readings, and add your gugu version and steps to reproduce. Before sharing, check whether project names, paths, and similar details are fine to make public.
+
+If recording fails, the page asks you to check that the disk is writable and to switch monitoring off and on again. Existing history is kept. No reading does not mean zero usage.
