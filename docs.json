@@ -4,9 +4,9 @@
   "name": "咕咕",
   "description": "咕咕使用指南：个人助理、任务、项目、App 与多人协作。短教程、可改用的示例和演示视频。",
   "colors": {
-    "primary": "#40434A",
-    "light": "#737780",
-    "dark": "#24262B"
+    "primary": "#1D1A1A",
+    "light": "#EFEBE7",
+    "dark": "#1D1A1A"
   },
   "favicon": "/logo/gugu.png",
   "logo": {
@@ -111,7 +111,10 @@
               "troubleshooting"
             ]
           }
-        ]
+        ],
+        "banner": {
+          "content": "`咕咕文档` 跟随最新 Beta 更新，[下载咕咕 ↗](https://gugu.nextmind.space/zh/)"
+        }
       },
       {
         "language": "en",
@@ -209,7 +212,10 @@
               "en/troubleshooting"
             ]
           }
-        ]
+        ],
+        "banner": {
+          "content": "`gugu docs` track the latest Beta. [Download gugu ↗](https://gugu.nextmind.space/)"
+        }
       }
     ]
   },
@@ -221,7 +227,13 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/shuxueshuxue/gugu-docs"
+      "github": "https://github.com/GUYI-AI/gugu-docs"
+    }
+  },
+  "background": {
+    "color": {
+      "light": "#FCFAFA",
+      "dark": "#151313"
     }
   }
 }
