@@ -10,7 +10,97 @@
 
 实测修正：桌面入口为「项目 → 新建会话」、项目空选为「未选择项目」、添加项目有三个入口；Git 仓库中的子目录可能升为仓库根目录，已写明发送前查路径及独立练习目录。服务不可用、积分不足、文件写出后容量不足均真实遇到，恢复条目以这些可观察情况编写。
 
-## 按用户问题查证
+## 2026-10-30 全面翻新（当前依据）
+
+本轮按 OpenDCAI/gugu dev `837d8ec`（10-30）与 GUYI-AI/gugu-apps `e22d540` 逐页重核并改写全部正文，新增 interface、topics、folder、apps/contribute。证据是源码与界面文案核对，没有新做产品实测；与下方旧小节冲突时以本节为准。下方旧小节的路径出自已冻结的旧私仓 `nmhjklnm/gugu` 与其 `behavior/`，只作历史出处。
+
+界面结构变化：最左栏的「项目」「对话」合进「消息」（内分「项目 | 对话」页签）；手机底栏只剩「消息 · 伙伴」。App API 当前为 22；`platforms` 安装与上架必填。
+
+### 入门、任务与项目
+
+| 页面 | 用户问题 | 代码查证入口（OpenDCAI/gugu dev 837d8ec，仓库相对路径） |
+|---|---|---|
+| interface | 最左栏有哪些入口、各去哪里 | apps/desktop/src/components/Sidebar.tsx（Sidebar、AssistantRailTop、AppsOnRail、DockItem、HelpOnRail）；apps/desktop/src/i18n/locales/zh-CN/main.ts、en-US/main.ts（shell.messages / contacts / library / apps / settings、appOpen / appOpenInWindow / appUnpin / appQuit）；zh-CN/assistant.ts railEntry |
+| interface | 项目和对话去哪了、怎么合在一起 | apps/desktop/src/session/renderer/features/sidebar/left-sidebar.tsx；sidebar-list-switch.tsx；sidebar-chats-section.tsx；sidebar-sessions-section.tsx；apps/desktop/src/session/renderer/localization/messages.ts（sidebar.projects / chats / listLayout / listMerged / listSplit / newTask / sessionHistory / scheduled / pinned / tasks / addProject / newGroupChat / addContact） |
+| interface | 怎么快速搜索、切到命令 | apps/desktop/src/session/renderer/features/sidebar/sidebar-search-trigger.tsx；apps/desktop/src/session/shared/commands.ts（app.quickSwitcher Mod+O、app.commandPalette）；apps/desktop/src/session/renderer/lib/components/app-keyboard-shortcuts.tsx；messages.ts palette.prefixHint |
+| interface | ⌘1 / ⌘2 快捷键 | apps/desktop/src/layouts/MainLayout.tsx（metaKey 1/2 handler） |
+| interface | 在哪新建 Agent | apps/desktop/src/components/WindowTitleBar.tsx（文件 → 新建 Agent）；apps/desktop/src/lib/window-chrome.ts hasWindowTitlebarRow（仅 Windows）；apps/desktop/src/components/contacts/ContactsCreateAgentButton.tsx；zh-CN/messaging.ts memberList.createAgent |
+| interface | 群聊顶部按钮 | apps/desktop/src/components/chat/ChatHeaderActions.tsx；chatFolderName.ts；PinnedTopicTabs.tsx；GroupTopicsMenuItem.tsx；zh-CN/messaging.ts header.*、topic.pins |
+| interface | 手机布局、我的、助理入口 | apps/desktop/src/layouts/MainLayout.tsx（MOBILE_TABS、PhoneAssistantRow、PhoneMeButton）；apps/desktop/src/mobile/PhoneMeButton.tsx；apps/desktop/src/mobile/assistant/PhoneAssistantRow.tsx；apps/desktop/src/mobile/assistant/MobileAssistantApp.tsx |
+| interface、quickstart | 导览怎么看、怎么重看 | apps/desktop/src/lib/productTour.ts；apps/desktop/src/components/productTour/tourTargets.ts；apps/desktop/src/components/firstRun/FirstRunGate.tsx（tourChoice）；zh-CN/productTour.ts help.*；zh-CN/main.ts firstRun.tourChoice* |
+| quickstart、interface | 示例项目是什么 | apps/desktop/src/session/renderer/features/sidebar/sample-project-row.tsx；features/sample-project/use-sample-project.ts；localization/messages-projects.ts projects.sample.* |
+| quickstart、tasks | 新建任务从哪开始、设备和项目怎么选 | apps/desktop/src/session/renderer/features/sessions/new-session-page.tsx；composer-context-tray.tsx；localization/messages-session-workflows.ts（task.newTask、task.deviceLocal、task.projectNone）；zh-CN/main.ts firstRun.harnessTitle |
+| index、concepts、projects、research | 项目群能不能拉别人 | zh-CN/messaging.ts、en-US/messaging.ts group.projectGroupNoInvite |
+| research、projects | 怎么添加项目、给项目加文件夹 | apps/desktop/src/session/renderer/features/sidebar/add-project-menu-items.tsx；projects-group-label.tsx；remote-project-menu-items.tsx；project-item.tsx（行上「+」= sidebar.newSession）；features/projects/components/main-panel/project-folder-card.tsx、project-folder-stage.tsx、project-folder-menu.tsx；localization/messages-projects.ts projects.create.*、projects.folders.* |
+| tasks、research | Fork、侧边聊天的位置和条件 | apps/desktop/src/session/renderer/features/sidebar/sidebar-session-item.tsx（sidebar.forkSession 右键菜单）；features/sessions/tab-bar-actions.tsx（workspace.sideTask、sideTaskUnavailable） |
+| tasks | 归档后从哪恢复 | localization/messages.ts sidebar.sessionHistory；messages-session-workflows.ts sessionHistory.restore；features/session-history/session-history-view.tsx |
+| tasks | 并排页签菜单、App 退出 | localization/messages.ts tabs.splitRight / splitDown / separatePair；components/Sidebar.tsx DockItem（拖动只排序） |
+| assistant、guides/assistant-follow-up | 助理面板各页签、手机怎么进 | zh-CN/assistant.ts nav.*、routines.title；features/assistant/assistant-view.tsx；mobile/assistant/MobileAssistantApp.tsx；layouts/MainLayout.tsx PhoneAssistantRow |
+| schedules | 定时在哪看、怎么改、错过了怎么办 | left-sidebar.tsx（已安排 → automations）；features/automations/automations-view.tsx、components/AutomationsHeader.tsx、AutomationDetailView.tsx；features/sessions/session-schedule-chip.tsx；features/sidebar/sidebar-schedule-badge.tsx；localization/messages-session-schedules.ts；zh-CN/agents.ts settings.nav.tasks、tasks.*；components/agentsettings/AgentSettingsModal.tsx |
+| examples | 话题短片链接到哪 | 指向 /topics（话题页由另一位作者维护） |
+
+### Agent、协作与 App 使用
+
+| 页面 | 用户问题 | 代码查证入口（OpenDCAI/gugu dev 837d8ec） |
+|---|---|---|
+| agents | 怎么新建一位 Agent | apps/desktop/src/components/ChatListPanel.tsx（chatList.createAgent，仅桌面）；components/contacts/ContactsCreateAgentButton.tsx、ContactsDeviceSections.tsx、ContactsSectionState.tsx（panel.createAgent）；components/WindowTitleBar.tsx:120 与 lib/window-chrome.ts hasWindowTitlebarRow（仅 Windows）；components/chat/GroupMemberPanelControls.tsx:162（group.memberList.createAgent） |
+| agents | Agent 设置有哪些页、怎么暂停 | components/agentsettings/AgentSettingsModal.tsx（形象仅个人助理；无「设置」页签）；components/agentsettings/AgentPauseRow.tsx；i18n zh-CN/agents.ts settings.nav、settings.profile.pause |
+| apps | 怎么在群里打开、固定 App | components/chat/ChatHeaderActions.tsx:99；components/chat/GroupAppsPicker.tsx（header.personalPins）；components/appSlot/ChatTabHosts.tsx ChatPlusMenu（header.openInGroup） |
+| apps | 左栏 App 右键菜单 | components/Sidebar.tsx:236-247（shell.appOpenInWindow / appUnpin / appQuit） |
+| apps | 远程 server 能否用 Browser Use | apps/desktop/electron/capability-bundle.ts browserUseOf |
+| chat | 搜索聊天、标注图片 | components/chat/ChatHeaderActions.tsx（header.searchConversation / searchChat）；components/ImagePreviewProvider.tsx:312；components/imageAnnotate/AnnotateSendBar.tsx、useAnnotateSend.ts；i18n zh-CN/main.ts imageAnnotate |
+| chat | 悄悄话从哪里进 | components/MemberProfileCard.tsx:339；zh-CN/messaging.ts message.whisperBoth |
+| topics | 开话题、改名、分栏 | components/chat/messageActionItems.ts:57；hooks/useTopicSurface.ts（topicNameFromMessage）；components/chat/MemberListPanel.tsx:422；messaging topic.pane / topic.anchor |
+| topics | 话题列表、置顶成页签 | components/chat/GroupTopicsMenuItem.tsx；components/chat/PinnedTopicTabs.tsx、useChatPinSettings.ts（按账号）；mobile/chat/PhoneChatTabs.tsx；components/ChatAreaPanel.tsx:812 |
+| topics | 话题的 Agent 数量阈值 | components/chat/GroupAgentFloodSettings.tsx；components/chat/ChatSettingsPanel.tsx:139（私聊） |
+| folder | 群文件夹能做什么 | apps/desktop/preinstalled-apps/workspace/app.js（STRINGS、rowMenu、fileMenu、blockMenu、cite、pickedActions）；workspace/manifest.json |
+| folder | 文件保留多久、存在哪 | workspace/app.js keepTip / storedOn*；zh-CN/settings.ts fileStorage |
+| groups | 谁能改倾听模式 | components/chat/useListenModeEditControls.ts:52；components/chat/MemberListPanel.tsx ListenModeToggle；messaging group.memberList.listen |
+| groups | 群设置与群管理有哪些项 | components/chat/GroupMembersSection.tsx:285-310；components/chat/GroupSettingsManagePage.tsx；components/chat/groupSettingsUi.tsx MemberInviteLink / GroupInviteLinkBlock；components/chat/ChatDetailsMenuItems.tsx |
+| groups | Agent 太多时怎么处理 | components/chat/AgentFloodThresholdSetting.tsx；components/chat/AgentFloodSystemNotice.tsx |
+| groups | 项目群和群聊的区别 | messaging group.projectGroupNoInvite；components/chat/GroupSettingsManagePage.tsx:56 |
+| contacts | 联系人与伙伴入口 | components/Sidebar.tsx；mobile/PhoneTabBar.tsx；mobile/partners/PhonePartnersPage.tsx、PhoneProjectContacts.tsx |
+| contacts | 怎么分享或公开 Agent | components/contacts/ContactDetail.tsx（inviteToAgent、setPublic、requestJoin）；components/agentsettings/AgentSharePane.tsx；components/sessionpage/AgentSharePopover.tsx；layouts/MainLayout.tsx:1376-1400 |
+| forum | 安装要求、悬赏上限、指派 | gugu-apps sources/forum/manifest.json（0.1.5，engines gugu >=0.2.57）、forum.js、forum.html；zh-CN/messaging.ts forum.consent.error.activeLimit |
+
+### 设备、手机与设置
+
+| page | user question | code source entries (OpenDCAI/gugu dev 837d8ec) |
+|---|---|---|
+| devices | How do I add another machine, and which method fits? | apps/desktop/src/i18n/locales/zh-CN/settings.ts devices.addServer.{open,method,oneLine,reasons}; apps/desktop/src/components/settings/AddServerPanel.tsx; apps/desktop/electron/server/server-download.ts; apps/desktop/electron/server/ssh-install/logic.ts oneLineInstallCommand |
+| devices | Why was my machine not added? | settings.ts devices.addServer.machineLimit.*; apps/desktop/src/components/settings/addServer/MachineLimitNotice.tsx |
+| devices | What happens when a server is out of date? | settings.ts devices.link.{updating,waitingIdle,updateNow,updateNowConfirm,reinstall} |
+| devices, integrations | What can tasks on this computer use, and how do I pause it? | settings.ts devices.deviceActions.*; apps/desktop/src/components/settings/DevicesSection.tsx; apps/desktop/src/components/settings/DeviceActionsPage.tsx; apps/desktop/electron/device-actions/families/*.ts (platforms per group); computer-control-window.ts |
+| devices, mobile | Can my Android phone run tasks? | commit 067c2c899; apps/mobile/runtime/README.md; settings.ts devices.kind.phone, devices.connectMore.steps.android3, devices.phoneActions.localAgentOnly |
+| mobile | Where are messages, projects and Me on the phone? | packages/core/src/shared/enums/sidebarTabModels.ts MOBILE_TABS; apps/desktop/src/layouts/MainLayout.tsx (PhoneAssistantRow, PhoneMeButton); apps/desktop/src/mobile/PhoneMeButton.tsx; apps/desktop/src/mobile/partners/PhonePartnersPage.tsx; zh-CN/main.ts shell.{messagesMobile,partnersMobile}, partners.projects |
+| mobile | How do I enable phone tasks and Skills? | apps/desktop/src/mobile/local-agent/PhoneAgentHostControl.tsx; PhoneTaskSkillsButton.tsx; apps/desktop/src/mobile/agent-watch/task-flow-catalog.ts; CreateOptionsPill.tsx; PhoneHostSetupEntry.tsx |
+| mobile, integrations | Which phone data can tasks read? | apps/desktop/src/mobile/phone-device/PhoneDeviceActionsPage.tsx; PhonePermissionsList.tsx; phonePermissionRows.ts; settings.ts devices.phoneActions.groupDescription |
+| mobile | What can I open from a task on the phone? | zh-CN/main.ts agentWatch.output.*, agentWatch.offline.*; packages/session-core/src/session-record/contract.ts OPENED_FILE_MAX_BYTES |
+| resource-monitor | How do I turn on and read the monitor? | packages/core/src/shared/enums/settingsSectionModels.ts; apps/desktop/src/session/renderer/features/settings/components/ResourceMonitorSettingsPage.tsx; resource-timeline.tsx; apps/desktop/src/session/renderer/localization/messages-capabilities.ts resourceMonitor.*; session/renderer/lib/commands/app-commands.ts app.resourceMonitor |
+| resource-monitor | How do I stop an item or copy a report? | apps/desktop/src/session/renderer/features/command-palette/resource-monitor-view.tsx; localization/messages.ts palette.{stop,stopQuestion,copyReport} |
+| integrations | Where do I connect a service, and with my own key? | zh-CN/main.ts settings.nav.connectors; zh-CN/assistant.ts connectors.*; packages/session-plugins/src/integrations/impl/amap/index.ts, summary.ts; commits 9b281b812, 08efdd32f |
+| models | How do I manage and switch provider connections? | apps/desktop/src/session/renderer/localization/messages-subscriptions.ts subscriptions.connections.*; features/settings/subscriptions/SubscriptionsSettingsPage.tsx (manageable = claude, codex); SubscriptionConnections.tsx; commit d068c2f80 (Beta) |
+| models | Which picker group is billed in credits? | localization/messages.ts composer.platformModelGroupHeading |
+| settings | Where is each setting? | packages/core/src/shared/enums/settingsSectionModels.ts SETTINGS_GROUPS; apps/desktop/src/components/SettingsPanel.tsx section filter; zh-CN/main.ts settings.{group,nav,general}; session/renderer/features/settings/components/SettingsPage.tsx; zh-CN/settings.ts model, files, about |
+| self-hosting | How do I run gugu on my own backend? | README.md (self-hosting steps); .node-version; package.json packageManager; docs/optional-cloud-services.md; gugu-supabase docs/self-hosting.md, self-hosting-free-plan.md, self-hosting-smtp.md, files-service.md (HEAD bf594a0, 2026-10-26) |
+| troubleshooting | What does archiving do? | localization/messages-session-workflows.ts task.archive*, sessionHistory.title |
+| troubleshooting | What does editing an old message undo? | features/sessions/acp/acp-chat-store.ts canRevertHistory, canRevertMessage, sendMessageEdit |
+| troubleshooting | Why did all Agents turn passive? | zh-CN/messaging.ts agentFlood.*, agentFloodThreshold*; components/chat/AgentFloodSystemNotice.tsx; AgentFloodThresholdSetting.tsx |
+
+### 贡献 App
+
+| 页面 | 用户问题 | 来源 |
+|---|---|---|
+| apps/contribute | 从零到上架要走哪几步；代码放自己的仓还是索引仓；官方 App 为什么要两个 PR、登记里 repo 写什么 | GUYI-AI/gugu-apps: README.md、scripts/lib.mjs（fetchSource 默认分支检查 132-138、INDEX_REPO）、scripts/add-version.mjs、apps/studio.json、apps/spexcode.json；OpenDCAI/gugu: apps/desktop/src/session/shared/extensions/first-run.ts（GUGU_APPS_REPO）、authoring-guide.ts（EXTENSION_GUIDE_FORK「Push or contribute」） |
+| extensions | 第一个 App 最少写什么、怎么装进咕咕、改完怎么重装 | OpenDCAI/gugu: apps/desktop/src/session/shared/extensions/manifest.ts、app-platforms.ts、bridge-protocol.ts（EXTENSION_API_VERSION）、authoring-guide.ts（EXTENSION_GUIDE_START 沙箱段）；apps/desktop/electron/session/main/core/extensions/extensions-service.ts（installFromDirectory 替换、requireAppPlatform）；apps/desktop/src/session/renderer/localization/messages.ts（extensions.installLocal、installed、installedNext、installFailed、alsoOnFolderOnly）；features/settings/components/ExtensionsSettingsCard.tsx；GUYI-AI/gugu-docs: samples/app-starter |
+| apps/manifest | 每个字段的格式、上限，哪个字段要哪个 API 版本，权限怎么写 | OpenDCAI/gugu: apps/desktop/src/session/shared/extensions/manifest.ts（schema 与 superRefine）、app-platforms.ts、bridge-protocol.ts 54-73、catalog.ts（MARKET_CATEGORIES）、authoring-guide.ts（EXTENSION_GUIDE_SETTINGS、apps-ui 市场卡片段）；GUYI-AI/gugu-apps: scripts/lib.mjs（GUGU_APPS_LINE_MAX_CHARS） |
+| extension-api | window.gugu 有哪些方法、要什么权限和 API；旧的 compose/send/spawnAgent/messageAgent 怎么迁移 | OpenDCAI/gugu: apps/desktop/src/session/shared/extensions/bridge-protocol.ts（BRIDGE_VERBS）、app-dispatch-core.ts（DISPATCH_GONE）、apps/desktop/src/session/app-runtime/create-gugu.ts:177、authoring-guide.ts（PAGE、AGENTS、SESSIONS、PROJECTION、PROGRAMS、FILES 与 EXTENSION_GUIDE_TOPICS） |
+| apps/development | 怎么反复调试；页面沙箱能做什么；人会看到哪些错误；索引仓 CI 测什么、自己的测试怎么写 | OpenDCAI/gugu: apps/desktop/src/session/shared/extensions/app-csp.ts、manifest.ts（apiVersion 报错文案）、authoring-guide.ts（沙箱、app_check、页面存活）、components/extensionBundle/installedHere.ts、messages.ts（installedHereFolder、publisherLocal）；GUYI-AI/gugu-apps: package.json、.github/workflows/verify.yml、scripts/app-tests.mjs、sources/kanban/package.json 与 test/ |
+| apps/publishing | 登记文件长什么样、命令怎么跑、CI 查什么、市场图片怎么准备、合并后怎么到用户手里 | GUYI-AI/gugu-apps: README.md、scripts/lib.mjs（validateApp 58-95、packDir、inspectAppDir、上限常量）、scripts/add-version.mjs、scripts/verify.mjs、scripts/app-platforms.mjs、.github/gugu-app-contract.json、.github/workflows/verify.yml、scripts/promo/README.md、sources/*/screenshots/SOURCE.md；OpenDCAI/gugu: docs/publishing-an-extension.md |
+| apps/policies | 哪些规则是强制的，提交时该说明什么，谁来审 | GUYI-AI/gugu-apps: README.md、scripts/verify.mjs；OpenDCAI/gugu: docs/publishing-an-extension.md、manifest.ts（agents:tools 规则）、authoring-guide.ts（apps-together、apps-agents） |
+| apps/maintenance | 怎么发新版；撤回、停维、下架各有什么后果；用户怎么收到更新 | GUYI-AI/gugu-apps: README.md、scripts/verify.mjs（不可变、撤回不可收回、文件不可删）；OpenDCAI/gugu: docs/publishing-an-extension.md、messages.ts（rowYanked、deprecated、deprecatedRow、rowGone、autoUpdate）、authoring-guide.ts（EXTENSION_GUIDE_SETTINGS 配置值保留） |
+
+## 按用户问题查证（2026-10-20 旧依据）
 
 下表路径来自 `nmhjklnm/gugu`。`behavior/` 为产品预期，`.spec/project/` 为模块合同。实现列的 `features/`、`localization/` 相对 `apps/desktop/src/session/renderer/`，`components/`、`hooks/`、`store/` 相对 `apps/desktop/src/`，`electron/` 相对 `apps/desktop/`。其他只写文件名的入口可先用仓库搜索定位。
 
@@ -92,4 +182,4 @@ PR #2 的有效结构并入 extensions 和 extension-api：外置脚本、完整
 
 ## 英文版（en/）
 
-`en/` 逐页对照中文正文（31 篇），`docs.json` 用 `navigation.languages`：中文 `zh` 为默认、地址不变，英文页在 `/en/...`。中文页改动后同步改对应英文页。界面名称取客户端英文文案（`i18n/locales/en-US/` 与 `localization/`），术语见 [glossary-en.md](glossary-en.md)。截图与视频沿用中文素材，英文页注明界面为中文。英文稿上线前由 owner 或 shuxue 审阅。
+`en/` 逐页对照中文正文（35 篇），`docs.json` 用 `navigation.languages`：中文 `zh` 为默认、地址不变，英文页在 `/en/...`。中文页改动后同步改对应英文页。界面名称取客户端英文文案（`i18n/locales/en-US/` 与 `localization/`），术语见 [glossary-en.md](glossary-en.md)。截图与视频沿用中文素材，英文页注明界面为中文。英文稿上线前由 owner 或 shuxue 审阅。

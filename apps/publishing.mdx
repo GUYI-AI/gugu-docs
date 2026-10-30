@@ -1,76 +1,123 @@
 ---
 title: "提交到 App 市场"
-description: "准备固定源码提交，生成登记记录，通过 CI 后由官方审阅合并。"
+description: "把固定提交登记到索引仓，通过 CI 检查，由维护者审阅合并后上架。"
 ---
 
-市场索引是公开仓库 [shuxueshuxue/gugu-apps](https://github.com/shuxueshuxue/gugu-apps)。每个 App 一份 `apps/<id>.json`。App 源码保存在自己的仓库，索引记录仓库、提交、目录和包的校验值。
-
-现有提交流程是向索引仓提 PR，官方逐版审阅代码并决定合并。客户端从下载站取已登记的包；发布依据是源码提交，不要求采用 GitHub Release 附件。
+市场索引是公开仓库 [GUYI-AI/gugu-apps](https://github.com/GUYI-AI/gugu-apps)。每个 App 一份 `apps/<id>.json`，记录每一版的源码仓库、提交、目录，以及包的 sha256 和字节数。上架一版就是向索引仓提一个 PR，由维护者审阅代码后合并。发布依据源码提交，不需要 GitHub Release 附件。
 
 ## 准备一版
 
-发布前完成以下检查：
-
-- App 可安装并完成主要工作，错误与权限拒绝可见。
-- manifest 的 id、version 与登记版本一致；写好 `engines.gugu` 和实际需要的 `apiVersion`。
-- 源码放在公开 GitHub 仓，选定的完整 40 位提交必须在该仓默认分支历史中。
-- 包含 `CHANGELOG.md`，有 `## 1.0.0` 这样的本版标题和非空说明。
-- 建议包含用途、操作、权限和数据说明的 README，标明源码和依赖许可证。
-- 如有图标，使用 PNG，最多 32 KiB、宽高最多 512px；README 中的包内截图每张最多 1 MiB。
-- 包不超过 25 MiB、2000 个文件，不含符号链接。把构建后的文件提交到登记目录；发布脚本打包该目录，不替作者运行构建。
-
-给 Agent 的介绍行由名字、id 和 description 的第一句组成，整行不超过 120 字符。把完整说明放 README。
+- 源码在公开的 GitHub 仓库，要发布的提交已经在该仓库默认分支的历史里。
+- manifest 的 `id`、`version` 与要登记的一致，写好 `platforms`、`apiVersion`（至少 12）和 `engines.gugu`。
+- App 目录里有 `CHANGELOG.md`，包含本版的 `## 1.0.0` 小节，内容不为空，不超过 4000 字符。首版写「首次发布」即可。
+- 构建产物已经提交进 App 目录。打包脚本只打包这个目录，不会替你运行构建。
+- 建议写 README，说明用途、操作、权限理由和数据去向，并标明源码与依赖的许可证。
 
 ## 生成登记
 
-Fork 并克隆索引仓，在自己的工作分支执行。将示例中的仓库、完整提交和目录换成已发布到默认分支的真实值。
+在你 fork 的索引仓里，用 Node.js 24 或更高版本运行：
 
 ```sh
 npm ci
-node scripts/add-version.mjs your-name/your-app FULL_40_CHARACTER_COMMIT app
+node scripts/add-version.mjs your-name/your-app 0123456789abcdef0123456789abcdef01234567 app
 node scripts/verify.mjs --base origin/main
 ```
 
-仓根就是整个包时，最后一个参数写 `.`。脚本按指定提交取源码，打包并计算 sha256、字节数，追加 `apps/<id>.json`。不要手填猜测的校验值。
+- 三个参数依次是源码仓库、完整 40 位提交、App 在仓库里的目录。App 在仓库根目录时写 `.`。
+- add-version 按这个提交取源码，检查清单和平台声明，打包并计算 sha256 和字节数，把新的一行追加到 `apps/<id>.json`。第一次登记时会新建这个文件。
+- verify 用 `--base` 和目标分支比较，只重新打包并检查新增的版本。不带 `--base` 时会把全部历史版本重打一遍。
+- 不要手填校验值。
 
-登记结构如下，尖括号处由真实值替换：
+提交 PR，在说明里写用途、源码位置、所申请权限的理由、兼容版本和你做过的检查。
+
+### 官方 App 的两步
+
+代码在索引仓 `sources/<id>/` 的官方 App 需要两个 PR。先提源码 PR，以 squash 方式合并进 `main`。再用 `main` 上合并后的提交 sha 运行 add-version，提登记 PR。分支上原来的 sha 会失败，因为 squash 合并生成了新提交，它不在默认分支历史里。
+
+## 登记文件的结构
+
+外部 App 的登记，`repo` 写作者自己的仓库：
 
 ```json
 {
   "id": "notes-starter",
   "unlisted": false,
   "deprecated": null,
-  "versions": [{
-    "version": "1.0.0",
-    "repo": "your-name/your-app",
-    "path": "app",
-    "commit": "<完整40位提交>",
-    "sha256": "<64位小写十六进制>",
-    "bytes": 12345,
-    "yanked": null
-  }]
+  "versions": [
+    {
+      "version": "1.0.0",
+      "repo": "your-name/your-app",
+      "path": "app",
+      "commit": "<完整40位提交>",
+      "sha256": "<64位小写十六进制>",
+      "bytes": 12345,
+      "yanked": null
+    }
+  ]
 }
 ```
 
-提交 PR，说明用途、源码位置、权限原因、兼容版本和做过的检查。这个提交说明清单帮助审阅，不是目前不存在的专用提交表单。
+官方 App 的版本行，`repo` 必须写 `shuxueshuxue/gugu-apps`，`path` 指向 `sources/<id>` 或 `sources/<id>/app`。客户端按这串文字识别官方 App。
 
-## CI 和人工审阅
-
-[verify.mjs](https://github.com/shuxueshuxue/gugu-apps/blob/main/scripts/verify.mjs) 会检查登记格式、旧版本不可变、新版本重新打包后的 sha256 和字节数、清单身份和版本、最低客户端要求、更新说明与媒体限制。仓库有自身测试；放在 `sources/` 下且声明测试脚本的 App 也按仓库流程运行测试。
-
-官方审阅后合并到 `main`，同步流程把包、说明和图片发布到下载站，最后更新 `market/index.json`。客户端安装前再次比对 sha256。包和版本资料写入后不覆盖，同版本修改必须发新版本。
-
-目前没有独立公开的审核评分表、处理时限或申诉流程。CI 通过不代表自动上架；以 PR 中的官方审阅结果为准。现有政策边界见[开发者政策](/apps/policies)。
-
-## 哪些 App 会出现
-
-| 索引字段 | 含义 |
+| 键 | 要求 |
 | --- | --- |
-| `unlisted: false` | 在市场目录中列出，普通正式 App 使用这一状态 |
-| `unlisted: true` | 从目录移走；已装版本仍可用，但不再收到市场更新 |
-| `featured: true` | 官方精选标记，由市场配置决定 |
-| `firstRun: true` | 新用户首启静默安装组，仅允许源码就在官方索引仓自己的 App |
+| `id` | 小写字母、数字、连字符；文件名必须是 `<id>.json` |
+| `unlisted` | `true` 或 `false` |
+| `deprecated` | `null`，或 `{ "note": 字符串或 null, "replacedBy": 字符串或 null }` |
+| `versions` | 至少一行；版本号不能重复 |
+| `featured` | 可选，`true` 或 `false`；官方精选，由维护者决定 |
+| `firstRun` | 可选，`true` 或 `false`；新用户首次启动时静默安装；只有所有版本都在索引仓 `shuxueshuxue/gugu-apps` 的 App 才能标 |
 
-普通第三方 App 不预装，也不能借 firstRun 静默安装。firstRun App 安装后仍可停用、卸载；老用户不追装，卸载后不自动装回。唯一随产品预装的是群文件夹。
+每个版本行恰好有这七个键：
 
-这些规则来自索引仓 [README](https://github.com/shuxueshuxue/gugu-apps#readme)、[add-version.mjs](https://github.com/shuxueshuxue/gugu-apps/blob/main/scripts/add-version.mjs) 和 verify，更新提交流程前应重新核对。
+| 键 | 要求 |
+| --- | --- |
+| `version` | `x.y.z` |
+| `repo` | GitHub 的 `owner/name` |
+| `path` | 仓库内的相对目录，根目录写 `.`；不能以 `/` 开头或含 `..` |
+| `commit` | 完整 40 位小写十六进制 |
+| `sha256` | 64 位小写十六进制 |
+| `bytes` | 正整数 |
+| `yanked` | `null`，或 `{ "reason": 非空字符串 }` |
+
+多出或缺少键都会被拒绝。manifest、更新说明、README 和图标不写进登记文件，CI 从包里读取。
+
+## CI 检查清单
+
+PR 上的检查依次运行 `npm test`、各官方 App 的测试（见[本地调试与测试](/apps/development#自动测试)），然后对每个新增版本：
+
+| 检查 | 规则 |
+| --- | --- |
+| 来源 | 仓库可公开读取；提交在默认分支历史里 |
+| 重新打包 | 按 `repo@commit` 的 `path` 重新打包，sha256 和字节数逐字节一致 |
+| 包的大小 | 最大 25 MiB、最多 2000 个文件；不能有符号链接；`.git`、`node_modules`、`.DS_Store` 不进包 |
+| 清单 | 有 `manifest.json`；`id`、`version` 与登记一致；`apiVersion` 为整数；有 `engines.gugu` |
+| 平台 | 用索引仓固定的客户端版本里的规则检查 `platforms`；手机与不支持的能力冲突时拒绝 |
+| Agent 列表行 | `- 名字 (id): description 第一句` 不超过 120 字符 |
+| `subtitle` | 1 到 30 字符，需要 `apiVersion` 8 |
+| 入口 | `entry` 和每个页面的入口文件存在 |
+| 更新说明 | `CHANGELOG.md` 有本版 `## x.y.z` 小节，非空，不超过 4000 字符 |
+| 图标 | PNG，最大 32 KiB，宽高最多 512px |
+| README | 不超过 40000 字符；引用的包内图片只能是 png、jpg、webp、gif，每张最大 1 MiB |
+| 不可变 | 已上线的版本行只能新增 `yanked`；不能删除版本行；撤回不能取消；不能删除 `apps/` 下的文件 |
+| firstRun | 只能标在所有版本都在官方索引仓的 App 上 |
+
+CI 通过不等于上架。维护者在 PR 上审阅代码和说明，决定是否合并。
+
+## 市场图片
+
+README 里的图片就是市场页的预览，其余文字是详情说明。
+
+- **宣传图**：`screenshots/promo.png`，1600 × 900，最大 1 MiB，放在 README 的第一张图。官方模板和截图流程见索引仓的 [scripts/promo](https://github.com/GUYI-AI/gugu-apps/tree/main/scripts/promo)。
+- **截图**：放在 `screenshots/1.jpg`、`screenshots/2.jpg` 等文件，用真实产品界面，不要重画控件或虚构功能。
+- **截图来源**：建议在 `screenshots/SOURCE.md` 写明截图对应的 App 和咕咕版本、拍摄日期和处理方式。
+- 截图里不要出现他人姓名、私有路径或账号信息。
+- 图片是包的一部分。换图或加图要升版本号，重新登记。
+
+## 合并之后
+
+1. 合并到 `main` 后，同步流程把包、说明、图片和总目录发布到 `https://download.gugu.nextmind.space/market/`。除总目录外，每个文件只写一次。
+2. 客户端从下载站读取市场，安装前比对 sha256，不一致就不安装。
+3. 已安装这个 App 的使用者默认自动更新到兼容的新版。新版申请了更多能力或网络主机时不会自动安装，等使用者点更新并确认新增项。
+
+更新、撤回和下架见[维护、更新与撤回](/apps/maintenance)。

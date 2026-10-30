@@ -9,13 +9,11 @@ The task workspace is for work that needs doing. Each task is run by one Agent. 
 
 ## Start and continue
 
-On desktop, go to **Projects** to create a task. Choose the engine, model and device, and send it with your first request. For a one-off task you can leave **No project selected**. To work on existing material, go to the matching [project](/en/projects) and start from a specific folder.
+On desktop, click **Messages** on the left rail, then **New task** on the **Projects** tab. Choose the engine, model and device, and send it with your first request. For a one-off task you can leave **No project selected**; it is listed in the sidebar's **Tasks** section. To work on existing material, click **+** on a project row to start a task in that [project](/en/projects), or start from a specific folder in the project.
 
 > Turn these experiment results into a table and mark missing items. Don't modify the raw data yet. Save the result separately as Markdown.
 
-To add to an existing task, go back to it in the sidebar and send more requests. A new task starts working as soon as you send the first message. A forked task inherits the context and continues only after you give it a new request.
-
-Among the modes for a new task, **Work** communicates through chat and process summaries, and **Code** shows the Agent's terminal interface. Both can do the work. Which modes are available depends on the current engine and device.
+To add to an existing task, go back to it in the sidebar and send more requests. You can also press ⌘O (Ctrl+O on Windows and Linux) and search for the task name. A new task starts working as soon as you send the first message. A forked task inherits the context and continues only after you give it a new request.
 
 ## Watch the process, open the results
 
@@ -23,14 +21,14 @@ Reasoning and tool use are collapsed into a one-line summary. Click it to see ea
 
 While the Agent is working, you can add your next message. Queued messages appear near the input box. Edit, delete or reorder them with the actions the interface offers.
 
-## Revise requests, fork, and side tasks
+## Revise requests, fork, and side chats
 
 | Action | When to use it, and what happens |
 |---|---|
 | Send in the original task | Continue or add requirements, keeping the current context |
-| Edit an earlier request | Click **Edit** under a supported message and send again. The conversation goes back to just before that message, and later messages leave the active context. Files and external actions are not undone |
-| Fork task | Keep the original approach and try another path. The fork inherits the context, and each task continues independently; they may still share a working directory |
-| + → Side task | Branch off briefly to look something up. It branches from the current context and disappears when you quit the app |
+| Edit an earlier request | Click **Edit message** under a supported message and send again. The conversation goes back to just before that message, and later messages leave the active context. Files and external actions are not undone |
+| Right-click a task in the sidebar → **Fork task** | Keep the original approach and try another path. The fork inherits the context, and each task continues independently; they may still share a working directory |
+| **+** on the tab bar → **Side chat** | Branch off briefly to look something up. It branches from the current context and disappears when you quit the app. It needs a project on this computer and an engine that supports forking |
 
 Message editing is available only when the current Agent and its history support it. It may be unavailable while the Agent is working or messages are queued. Save any result you need to keep first. Forking the context does not copy a running terminal.
 
@@ -48,12 +46,12 @@ Side-by-side view within a task always shows two pages. When you open another pa
 
 ## Several workspaces on one screen
 
-Drag another task, or an App from the left column, to the edge of the main area to create a separate workspace. Each block has its own task or App, and you view and operate them separately. Drag the divider to give your current work enough room.
+Drag another task from the sidebar to the edge of the main area to create a separate workspace. Each block has its own task, and you view and operate them separately. Drag the divider to give your current work enough room.
 
-A layout made of several tasks is kept as a group, so you can switch to another task and come back. The two-page view inside a task is still managed by its own tab bar, separately from the independent workspaces. Closing an App tab only hides the page. To turn off a capability, use [App management](/en/apps).
+A layout made of several tasks is kept as a group, so you can switch to another task and come back. The two-page view inside a task is still managed by its own tab bar, separately from the independent workspaces. Closing an App tab only hides the page. To end it, right-click its icon on the left rail and choose **Quit**. To turn off a capability, use [App management](/en/apps).
 
 ## Finish and archive
 
-When done, you can archive the task. It is hidden from the list, a running Agent stops, and nothing is deleted. You can undo right after, and later restore it from task **History**.
+When done, you can archive the task. It is hidden from the list, a running Agent stops, and nothing is deleted. You can undo right after. Later, find it under **Task history** on the **Projects** tab and click **Restore** to put it back in the list.
 
 To interrupt only the current turn, use **Stop**. If you want it to keep working later, keep the task.

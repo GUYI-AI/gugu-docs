@@ -1,0 +1,72 @@
+---
+title: "Contribute an App: from zero to the market"
+description: "Start from a folder, install and test it on your computer, then register it in the App market."
+---
+
+An App is a folder: a `manifest.json` plus pages, scripts and optional Agent tools. It can add work pages to tasks, let a group edit files together, or give Agents tools and skills. People choose what to install from the market.
+
+This chapter is for developers who want to build an App and publish it to the market. Read it in the order below. Each step ends with a result you can check.
+
+<Note>This chapter was checked against the development build of 2026-10-30: the current App API is 22 and the minimum supported is 3. The stable release and Beta may support a lower API. Install once on your target client to confirm it accepts the version you declare.</Note>
+
+## Roadmap
+
+<Steps>
+  <Step title="Build your first App">
+    [Your first App](/en/extensions): three files make a notes App. Install it with **Install from folder** on the Apps page, open it in a task and save a draft.
+  </Step>
+  <Step title="Look up the manifest and API">
+    [Manifest reference](/en/apps/manifest) lists every field, limit and required API version. The [App API overview](/en/extension-api) lists `window.gugu` methods by feature.
+  </Step>
+  <Step title="Debug and test locally">
+    [Debug and test locally](/en/apps/development): sandbox rules, reinstalling after a change, the errors a person sees, and how to write automated tests.
+  </Step>
+  <Step title="Submit to the market">
+    [Submit to the App market](/en/apps/publishing): push the source to a public repository, generate the registry entry with a script, open a PR to the index repository, pass the checks and wait for maintainer review.
+  </Step>
+  <Step title="Ship updates and maintain">
+    [Maintenance, updates and withdrawal](/en/apps/maintenance): bump the version, withdraw a bad version, end maintenance or unlist. Rules are in [Developer policies](/en/apps/policies).
+  </Step>
+</Steps>
+
+## Where the source lives
+
+The market index is the public repository [GUYI-AI/gugu-apps](https://github.com/GUYI-AI/gugu-apps). Each App has one registry file, `apps/<id>.json`, recording each version's source repository, commit, directory and package checksum. The client installs only those exact bytes.
+
+### External developers: code in your own repository
+
+This is the path for most contributors.
+
+1. Keep the source in your own public GitHub repository. The App can be the whole repository or one directory in it.
+2. Merge the commit you want to publish into that repository's default branch. The index scripts check this and refuse a commit that exists only on another branch or in a fork.
+3. Fork the index repository, generate the registry entry with one command and open one PR:
+
+```sh
+npm ci
+node scripts/add-version.mjs <owner/repo> <full-40-character-commit> <App-directory>
+```
+
+If the App is at the repository root, pass `.` as the last argument. The full steps are in [Submit to the App market](/en/apps/publishing).
+
+The market already has Apps whose code lives elsewhere. `studio` is registered from the root of `shuxueshuxue/promo-skills`, and `spexcode` from the `distribution/gugu/spexcode` directory of `shuxueshuxue/Spexcode`.
+
+### First-party Apps: code in the index repository's sources/
+
+Apps by the gugu team live in `sources/<id>/` of the index repository. Publishing a version takes two PRs:
+
+1. **Source PR**: change `sources/<id>/` and squash-merge it into `main`.
+2. **Registration PR**: run add-version with the full 40-character sha of the merge commit on `main`. The branch head sha fails, because a squash merge creates a new commit.
+
+The `repo` of these version rows must be exactly `shuxueshuxue/gugu-apps`. The client compares this string to recognize first-party Apps, and only they may be marked `firstRun`. An external App's `repo` is the author's own repository.
+
+To improve a first-party App, open a PR to the index repository that changes only `sources/<that App's id>`, targeting `main`.
+
+## What you need
+
+| Stage | You need |
+| --- | --- |
+| Build and debug | gugu desktop and a text editor |
+| Automated tests | Node.js; tests live in your own repository |
+| Submit to the market | Git, Node.js 24 or later, a GitHub account and a public repository |
+
+You can also ask an Agent in gugu to write the App. It reads the in-product App guides first, then builds, installs and checks the App. You confirm any permissions it needs on this computer.

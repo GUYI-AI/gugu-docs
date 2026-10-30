@@ -8,8 +8,8 @@
 
 ## 事实来源
 
-1. 产品仓库 `nmhjklnm/gugu` 的当前 `behavior/`：已获确认的产品预期。
-2. 当前界面源码和实际可用入口：确认名称、操作路径及功能是否接通。`.spec/project/` 帮助定位实现和边界。
+1. 产品仓库 `OpenDCAI/gugu` 的 `dev` 分支：界面文案（`apps/desktop/src/i18n/locales/`、`apps/desktop/src/session/renderer/localization/`）、界面源码和实际可用入口，确认名称、操作路径及功能是否接通。
+2. App 市场与提交流程以索引仓 `GUYI-AI/gugu-apps` 的 README、`scripts/` 与 `.github/` 为准。
 3. 在匹配版本的真实产品中操作，确认可观察结果。
 4. 官网、设计稿和历史 README 只用作线索。演示动画不能代替功能验收。
 
@@ -20,7 +20,7 @@
 - 每个功能必须有出处。不把占位按钮、计划或设计稿写成已交付功能。
 - 保留已有页面地址，新增或更名时同步 `docs.json`，需要时配置重定向。
 - 先确定页面类型。入门教程给自包含材料、一个产物、每步可见结果和最终检查点；操作指南围绕目标串起功能；概念说明解释关系；参考页保留选择、后果和边界。不要把四类内容全压成菜单清单。
-- 新增产品说明同时更新 maintenance/content-map.md，记录用户问题、behavior/.spec 来源和代码查证入口。区分设计预期、代码核对和真实操作证据；遇到过时说明或未裁决段落不要照搬。
+- 新增产品说明同时更新 maintenance/content-map.md，记录用户问题和代码查证入口。区分设计预期、代码核对和真实操作证据；遇到过时说明或未裁决段落不要照搬。
 - 模型名单与价格会变化。写选择方法，链接到当前页面，不维护第二份完整名单或价格快照。
 - 正文不出现 ACP、provision、RLS、harness 等内部术语，不记录个人机器、私有路径或凭据。
 - 使用已核实的官方域名：`gugu.nextmind.space`、`download.gugu.nextmind.space` 和当前 Mintlify 站点。不能自行创造产品域名。

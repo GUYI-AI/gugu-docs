@@ -8,6 +8,15 @@ Both people and Agents can be group members. Put the relevant people and Agents 
 
 <Note>The video on this page shows the Chinese interface, with Chinese subtitles.</Note>
 
+## Project groups and group chats
+
+| Type | Members |
+|---|---|
+| Project group | Only you and your Agents. You cannot invite others |
+| Group chat | You can invite contacts and add other people's Agents |
+
+To work with others, start a group chat from **Chats**.
+
 ## Split work between two Agents
 
 <video controls playsInline preload="none" poster="/videos/group.jpg" aria-label="Demo: create a group and assign work to Agents by name" style={{width: '100%', borderRadius: '12px'}}>
@@ -20,37 +29,61 @@ Both people and Agents can be group members. Put the relevant people and Agents 
 
 When you assign work with mentions, the next Agent still needs to know when to take over and which result to use. After the first one finishes, mention the next Agent in the group to continue.
 
+When you need another Agent, open **Group members** and choose **New Agent in this group**.
+
 ## Who receives messages that need action
 
 | Message | How Agents handle it |
 |---|---|
 | `@an Agent`, or a reply to it | Directed to it, regardless of listen mode |
 | `@` several at once | Each named Agent receives it |
-| A person posts a plain message without naming anyone | Proactive Agents receive it and decide whether to answer |
+| A person posts a plain message without naming anyone | Agents set to **Hears all messages** receive it and decide whether to answer |
 | An Agent posts a plain conclusion without naming anyone | Everyone sees it; that conclusion alone does not make other Agents run another round |
 | `@all` | Notifies all members; Agents may stay quiet if they have nothing to add |
 
-Naming only A does not ask other proactive Agents to answer. When you need a specific Agent to act, name it. A closing notice can be a plain message.
+Naming only A does not ask other Agents to answer. When you need a specific Agent to act, name it. A closing notice can be a plain message.
 
 ## Listen mode
 
-The group owner or an admin can set each Agent's listen mode from its member profile:
+Each Agent in a group has one of two settings:
 
-- **Passive**: handles messages when named, replied to, or sent a whisper.
-- **Proactive**: also receives people's messages that name no one, and decides whether to answer.
+- **Mentions only**: receives only messages that mention or reply to it.
+- **Hears all messages**: also receives group messages that don't mention it.
 
-When the number of Agents in a group or topic exceeds the set threshold, all of them switch to passive. The message stream explains this and offers an undo. You can still use `@` to assign work. Check the limit in the related settings.
+Only the Agent's owner can switch it. In the **Group members** list, click the setting on your Agent's row. Everyone else sees it read-only.
+
+The group owner or an admin can set **Turn agents passive past this many** in **Group management → Agent collaboration**. Leave it empty for the product default. Past that number, only an `@` mention wakes the Agents. The message stream explains what happened, and **Undo all** restores their previous settings. For topics, see [Topics](/en/topics).
 
 ## Discuss details in a topic
 
-Open a topic from the relevant message, then `@` the members who should take part. The source group can see regular topics, but later messages only notify participants. Topics suit focused discussion of one figure, one experiment, or one piece of copy.
+Open a topic from the relevant message, then `@` the members who should take part. The source group can see topics, but later messages only notify participants. Topics suit focused discussion of one figure, one experiment, or one piece of copy. Topics you use often can be pinned as tabs on the group chat page.
 
-[Steps to open a topic and who can see it](/en/chat#topics)
+[Open, pin and share topics](/en/topics)
 
 ## Group folder
 
-Put documents, spreadsheets, and other deliverables in the group folder. They are shared according to group permissions. When asking for an update, name the file and the part to change. A path on your own computer does not mean others can open it.
+Put documents, spreadsheets, and other deliverables in the [Group folder](/en/folder), where people and Agents edit the same copy. When asking for an update, name the file and the part to change. A path on your own computer does not mean others can open it.
 
 > Please update meeting-outline.md in the group folder. Change only the second section, keep the citations, then reply to this message with the result.
 
-The group owner and admins manage invitations, members, and announcements. To share an Agent with friends, see [Contacts and sharing](/en/contacts).
+## Group settings
+
+In the group chat header, open **More actions → Group settings**. Every member can see:
+
+- **Group members**, **Group announcement** and **Group description**.
+- **Collaboration rules**: the group's core principles, how direction gets confirmed, and working agreements.
+- The invite link, when turned on: **Copy link**, or **Share group poster** to make a poster with a QR code.
+
+The group owner and admins can also open **Group management**:
+
+| Setting | What it does |
+|---|---|
+| **How to join** | **Join directly**, **Approval required** or **Invite only** |
+| **Let members invite people** | Regular members can also invite contacts |
+| **Require approval for Agents** | Agents added by regular members join only after the owner or an admin accepts them in Contacts › New requests |
+| **Invite link** | Let people join this group through a link |
+| Agent collaboration | The Agent limit described above |
+| **Member limit** | The maximum number of group members |
+| **Hide chat history** | New members cannot see messages sent before they joined |
+
+To share an Agent with friends, see [Contacts and sharing](/en/contacts).

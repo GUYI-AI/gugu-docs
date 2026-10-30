@@ -1,79 +1,138 @@
 ---
 title: "manifest 参考"
-description: "声明 App 的页面、程序、权限和兼容要求。"
+description: "manifest.json 的字段、上限、权限和各字段需要的 API 版本。"
 ---
 
-`manifest.json` 放在包根目录。清单使用严格字段校验，不认识的字段会报错。字段合法只说明清单成立，安装授权另行处理。
+`manifest.json` 放在 App 文件夹的根目录。校验是严格的：拼错或不认识的字段会让安装失败。清单合法只说明能装；声明的权限仍要使用者同意。
 
 ## 身份与兼容
 
-| 字段 | 要求 |
-| --- | --- |
-| `id` | 必填，2–64 个小写字母、数字或连字符；首位为字母或数字，不能含点 |
-| `name` | 必填，1–64 字符，显示给人看的名字 |
-| `version` | 必填，`x.y.z` 三段纯数字；发布后不复用 |
-| `apiVersion` | 必填，整数；当前客户端支持 3–9，按实际接口需求声明 |
-| `engines.gugu` | 市场必填；只接受 `>=x.y.z` 或 `^x.y.z`，表示最低版本要求 |
-| `description` | 可选，最多 280 字符；第一句说明用途，市场检查给 Agent 的整行描述不超过 120 字符 |
-| `subtitle` | 可选，最多 30 字符；使用时要求 API 8 或以上 |
-| `author` | 可选，最多 64 字符；作者文本不会被当作身份验证 |
-| `icon` | 可选，包内位图路径；市场图标须 PNG，最多 32 KiB、宽高最多 512px |
-| `homepage` / `repository` | 可选，HTTPS 链接 |
-| `license` | 可选，许可证标识或简短名字，最多 64 字符 |
-| `categories` | 可选，1–4 个分类标识 |
-| `localized` | 可选，按语言标记提供 name、description、subtitle、examples |
-| `examples` | 可选，1–3 句示例要求，每句最多 80 字符 |
+| 字段 | 必填 | 要求 |
+| --- | --- | --- |
+| `id` | 是 | 匹配 `^[a-z0-9][a-z0-9-]{1,63}$`：2 到 64 个小写字母、数字或连字符，首位是字母或数字，不能有点 |
+| `name` | 是 | 1 到 64 字符 |
+| `version` | 是 | `x.y.z` 三段纯数字；发布过的版本号不能复用 |
+| `apiVersion` | 是 | 整数，范围 3 到 22；高于客户端支持的版本会提示需要更新咕咕，低于 3 会提示改写为当前接口 |
+| `platforms` | 安装和上架时必填 | `["desktop"]`、`["phone"]` 或两者；不能为空或重复；需要 `apiVersion` 至少 12 |
+| `engines.gugu` | 上架时必填 | 只接受 `>=x.y.z` 或 `^x.y.z`，表示最低咕咕版本 |
+| `description` | 否 | 1 到 280 字符；第一句会出现在 Agent 读到的 App 列表里 |
+| `subtitle` | 否 | 1 到 30 字符，市场上名字下面那一行；需要 API 8 |
+| `examples` | 否 | 1 到 3 句别人可以对 Agent 说的话，每句最多 80 字符；市场页点一句就以它开一个任务 |
+| `author` | 否 | 1 到 64 字符；显示用，不做身份验证 |
+| `icon` | 否 | 包内位图路径，不支持 SVG；上架要求 PNG，最大 32 KiB、宽高最多 512px |
+| `homepage` / `repository` | 否 | `https://` 链接，最多 200 字符 |
+| `license` | 否 | SPDX 标识或简短许可证名，最多 64 字符；不做验证 |
+| `categories` | 否 | 1 到 4 个不重复的分类标识，匹配 `^[a-z0-9][a-z0-9-]{0,31}$` |
+| `localized` | 否 | 按语言标签（如 `en`、`zh-CN`）提供 `name`、`description`、`subtitle`、`examples`，上限同上 |
 
-`apiVersion` 与 `engines.gugu` 都参与市场兼容选择。同一版本号的咕咕 Beta 也可能支持不同 API，不能只看 `0.2.57`。使用 `chat:read` 至少声明 API 6，文件定位链接使用 API 7，`subtitle` 使用 API 8，`gugu.forum` 使用 API 9。
+市场有三个分区：`research`（研究）、`productivity`（效率）、`developer`（开发）。其他分类标识归入「其他」。
 
-## 页面、后台和工具
+市场检查会把 `- 名字 (id): description 第一句` 拼成一行，这一行最多 120 字符，超过会被拒绝。第一句写给 Agent，说明这个 App 做什么；给人看的详细说明放 README。
 
-| 字段 | 用途 |
-| --- | --- |
-| `entry` | 包内相对 HTML 路径；有页面的 App 需要入口 |
-| `background.entry` | 可选，启用时启动的后台页面，每个 App 一份 |
-| `contributes.tabs` | 页面清单，存在时 1–8 项 |
-| `contributes.mcpServers` | 可选，1–4 个程序；`{"tools":"tools.js"}` 或 `{"name":"server","command":"node","args":["server.mjs"]}` |
-| `contributes.skills` | 可选，包含各个 `SKILL.md` 的技能目录 |
-| `contributes.toolsListed` | 可选，首次安装时建议将程序工具直接列给 Agent；用户可以改回目录调用 |
-| `settings` | 可选，最多 32 个配置项，类型为 string、boolean 或 select；由咕咕绘制配置页 |
+### 平台
 
-路径必须在包内，不能有绝对路径、反斜杠、`.` 或 `..` 路径段。工具类 App 从 API 5 起可省略 HTML 和 tabs，点击后打开咕咕的配置与状态页。声明程序或技能时必须申请 `agents:tools`。
+`platforms` 说的是人用的界面能在哪类设备上用，与 Agent 程序在哪里运行无关。
 
-每个普通页面有以下字段：
+- 手机不运行 Agent 相关功能。声明 `phone` 时仍可以申请 `agents:*` 能力，这些功能只在电脑上生效。
+- 手机不支持 `notifications`。同时声明 `phone` 和 `notifications` 会在上架和安装时被拒绝。
+- 手机安装包时不接受咕咕的配置页（`hostPage`）。工具类 App 在桌面版上运行和配置。
+- 是否真正适配手机屏幕由作者负责。已经装上的旧 App 不会因为缺这个字段而停止运行。
+
+## 页面、后台和 Agent 能力
 
 | 字段 | 要求 |
 | --- | --- |
-| `name` | 1–32 个小写字母、数字或连字符，App 内唯一，首位为字母或数字 |
-| `title` | 1–48 字符 |
-| `entry` | 可选，省略时使用顶层 entry；手写多页面时各写自己的入口 |
+| `entry` | 包内相对 HTML 路径 |
+| `background.entry` | 可选，后台页面；每个 App 一份，启用 App 时启动，没人打开页面也在运行 |
+| `contributes.tabs` | 1 到 8 个页面 |
+| `contributes.mcpServers` | 1 到 4 个程序，形式见下表 |
+| `contributes.skills` | 包内目录，里面每个技能一个 `<名字>/SKILL.md` |
+| `contributes.agentInstructions` | 1 到 8000 字符，作为常驻说明交给 Agent；要求至少一个程序和 `agents:tools` |
+| `contributes.toolsListed` | 只能是 `true`；首次安装时建议把工具直接列给 Agent，使用者可以改回；要求有程序 |
+| `settings` | 1 到 32 个配置项，由咕咕绘制配置页；需要 API 5 |
+
+所有路径都必须在包内：不能以 `/` 开头，不能有反斜杠，不能有 `.` 或 `..` 段，最长 256 字符。
+
+`mcpServers` 每一项是下面三种之一：
+
+| 形式 | 写法 | 说明 |
+| --- | --- | --- |
+| JavaScript 工具模块 | `{ "tools": "tools.js" }` | 每个导出是一个工具；每个 App 最多一个 |
+| 本机程序 | `{ "name": "rows", "command": "node", "args": ["server.mjs"] }` | `command` 是 `node`、包内的 `./路径` 或 PATH 上的程序名；`args` 最多 32 个；可选 `env` |
+| 咕咕提供的能力 | `{ "name": "browser-use", "host": "browser-use" }` | `host` 为 `browser-use` 或 `computer-use`；需要 API 5，仅桌面版 |
+
+程序 `name` 匹配 `^[a-z][a-z0-9-]{0,31}$`，同一 App 内不能重复。
+
+没有 HTML 页面的 App 必须提供程序或技能。工具类 App 从 API 5 起可以省略 `entry` 和 `tabs`，点开时显示咕咕的配置与状态页。
+
+`settings` 每项有 `key`（匹配 `^[a-z][a-zA-Z0-9_]{0,63}$`，不能重复）、`title`（最多 80 字符）、`type` 和可选的 `description`、`default`。`type` 是 `string`、`boolean` 或 `select`；`select` 有 1 到 32 个 `options`，`default` 必须是其中一个。程序从环境变量 `GUGU_APP_SETTINGS` 读取 JSON。
+
+### 每个页面
+
+| 字段 | 要求 |
+| --- | --- |
+| `name` | 匹配 `^[a-z0-9][a-z0-9-]{0,31}$`，App 内唯一 |
+| `title` | 1 到 48 字符 |
+| `entry` | 可选；省略时用顶层 `entry` |
 | `icon` | 可选，包内位图 |
-| `opensFiles` | 可选，按 `session` 和 `chat` 声明文件后缀或文件名，如 `{"chat":[".json"],"session":["TODO.md"]}` |
-| `fileIcons` | 可选，键必须来自本页 opensFiles 的声明 |
-| `menu` / `toolbar` | 可选，分别最多 8 项 / 6 项，每项包含 id、title；点击触发 onCommand |
-| `perSession` | 可选，为每条任务各留一份页面；不能同时用 opensFiles 或 hostPage |
-| `hostPage` | 可选，`"settings"` 使用咕咕配置页，不能再提供普通 HTML 入口或页面命令 |
+| `opensFiles` | 可选，`{ "session": [...], "chat": [...] }`，至少写一边，每边 1 到 16 项；后缀如 `.csv`，或文件名如 `TODO.md`、`todo-*.md` |
+| `fileIcons` | 可选，键必须是本页 `opensFiles` 中的一项 |
+| `chatFile` | 可选，在群里打开 App 时显示的那个顶层文件名；必须匹配本页的 `opensFiles.chat`；整个 App 最多一个页面写它；需要 API 14 |
+| `sideWidth` | 可选，整数 280 到 960，页面放在聊天或任务对话旁时的宽度（像素）；需要 API 16 |
+| `menu` / `toolbar` | 可选，最多 8 / 6 项，每项 `{ "id", "title" }`，`title` 最多 32 字符；点击触发 `onCommand` |
+| `perSession` | 可选，只能是 `true`；每个任务各一份页面；不能同时用 `opensFiles` 或配置页 |
+| `hostPage` | 可选，只能是 `"settings"`，使用咕咕的配置页；不能再有 `entry`、`opensFiles` 或页面命令 |
 
-`opensFiles` 是候选打开方式。用户选择优先；多个 App 声明同一文件时由人选择。
+`opensFiles` 是候选打开方式。使用者的选择优先；多个 App 认领同一文件时由人挑选。
 
 ## 权限
 
-`permissions.capabilities` 最多 12 项，`permissions.network` 最多 16 个裸主机名。
+`permissions.capabilities` 最多 12 项，`permissions.network` 最多 16 个主机名。
 
-| 能力 | 允许的工作 |
+| 能力 | 允许做什么 |
 | --- | --- |
-| `files:read` / `files:read:all-machines` | 读取文件，后者扩至其他设备的任务文件 |
-| `files:write` | 修改文件；不自动包含读取权限 |
-| `chat:relay` | 以操作者身份、标明 App 来源发送私下通知 |
-| `chat:read` | 读取有权访问的聊天、成员和消息 |
-| `agents:read` / `agents:read:all` / `agents:read:all-machines` | 查看自己启动的 Agent、本机全部 Agent 或其他设备的 Agent |
-| `agents:history` / `agents:history:all` | 读取自己启动的或本机全部 Agent 的对话记录 |
-| `agents:control` / `agents:control:all` / `agents:control:all-machines` | 启动、联系或停止相应范围的 Agent，跨设备支持范围见接口说明 |
-| `agents:tools` | 向 Agent 提供 App 的程序和技能 |
-| `notifications` | 发送系统通知 |
+| `files:read` | 读取所在聊天的文件和本机任务的文件 |
+| `files:read:all-machines` | 同上，并只读其他电脑上任务的文件 |
+| `files:write` | 创建、修改、删除文件；不包含读取，需要读就再声明 `files:read` |
+| `chat:relay` | 以使用者身份、标明 App 来源给聊天成员发私下消息 |
+| `chat:read` | 读取使用者所在的聊天、成员和消息；需要 API 6 |
+| `agents:read` / `:all` / `:all-machines` | 查看这个 App 启动的 Agent / 本机全部 / 加上其他电脑 |
+| `agents:history` / `:all` | 读取这个 App 启动的 / 本机全部 Agent 的对话记录 |
+| `agents:control` / `:all` / `:all-machines` | 启动、联系或停止相应范围的 Agent；会消耗使用者的额度 |
+| `agents:tools` | 把 App 的程序、技能和常驻说明交给这台电脑上的 Agent |
+| `notifications` | 发系统通知；手机不支持 |
 
-同一家族只能声明一个范围，例如不要同时写 `agents:read` 和 `agents:read:all`。权限可单独撤销，运行时读 `getContext().capabilities`。
+同一类能力只能写一档，例如不能同时写 `agents:read` 和 `agents:read:all`。
 
-`network` 只写主机名，如 `api.example.com`、`*.example.com`，不带协议、端口或路径。仅 HTTPS/WSS 可用；IP 字面量、本机和内网名称被拒绝。声明域名不会放开远程脚本，详细限制见[开发与调试](/apps/development)。
+声明了程序、技能或 `agentInstructions` 就必须声明 `agents:tools`。反过来，声明了 `agents:tools` 却没有这三样也会被拒绝。
 
-`firstRun`、`featured`、`unlisted` 属于[市场登记](/apps/publishing)的索引字段，不能写进 manifest。
+`network` 只写主机名，例如 `api.example.com` 或 `*.example.com`。不带协议、端口或路径，至少两段。IP 地址、`localhost`、`.local`、`.internal` 会被拒绝。页面只能用 HTTPS 和 WSS 访问这些主机。
+
+`firstRun`、`featured`、`unlisted` 是[市场登记](/apps/publishing)里的字段，不能写进 manifest。
+
+## API 版本对照
+
+`apiVersion` 写你用到的最新接口所需的版本。市场按这个数字给每台客户端挑它能装的最新一版。版本号相同的 Beta 可能支持不同的 API，所以 `engines.gugu` 无法代替它。
+
+| API | 加入或变化 |
+| --- | --- |
+| 3 | 目前支持的最低版本 |
+| 4 | `refs` 引用文件；旧的 `about` 参数移除 |
+| 5 | 工具类 App 可省略 HTML；咕咕配置页、`settings`；`host` 形式的程序 |
+| 6 | `chat:read`、`gugu.chats`、`gugu.messages` |
+| 7 | 任务聊天里带位置的工作区文件链接交给 `onLink` |
+| 8 | `subtitle` |
+| 9 | `gugu.forum` |
+| 10 | 发送时可不指定位置，由人选择（15 起由 `dispatch` 承担） |
+| 11 | `gugu.modal` 对话框 |
+| 12 | `platforms` |
+| 13 | `linkTo`、`openLink` |
+| 14 | 页面的 `chatFile` |
+| 15 | `gugu.dispatch`；`compose`、`send`、`messageAgent`、`spawnAgent` 移除 |
+| 16 | 页面的 `sideWidth` |
+| 17 | 指定电脑运行程序；`gugu.sessions` 读取外部会话记录；`dispatch` 的 `spawn.device` |
+| 18 | App 数据文件标记（`appData`）、文件 `metadata`、群文件夹显示偏好、`showContextMenu` |
+| 19 | `files.keep` 与文件条目的 `keep` |
+| 20 | `files.download` 和 `files.keep` 接受多个文件 |
+| 21 | 工具模块的 `run` 收到可取消信号 `signal` |
+| 22 | `gugu.projection`：本机画面与输入资源 |

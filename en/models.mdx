@@ -24,9 +24,15 @@ When a sign-in is required, first check which source you are using. Some Agents 
 
 ## Manage existing subscriptions
 
-**Settings → Subscriptions** shows your gugu membership and the engine connections on the selected device. Claude Code and Codex can manage several accounts or API connections.
+**Settings → Subscriptions** shows your gugu membership and the Agent connections on the selected device. "Credentials stay on the selected device", so on another machine, check that machine's actual setup.
 
-After you switch the active connection, new Agents use that choice. Existing tasks keep their original connection. Credentials belong to each device, so on another machine, check that machine's actual setup. Switching the subscription connection and picking a model in the current task are two separate actions. Switching a connection does not move an existing task to another account.
+Claude Code and Codex can keep several connections. Click **Add connection** and choose **Account sign-in** or **API Key** as the connection method. With an API key, you can tick **Use a third-party API** and fill in the **API address**. An account already signed in through the command line shows as **Existing CLI configuration**. A key without an API address shows as **Official API**.
+
+All sessions use the current connection. Switching closes running sessions; their next message continues on the new connection. If sessions are still working, the page says how many, and switches only after you confirm **Close and switch**.
+
+<Note>From Beta. In the stable release, follow what the page in your installed version says.</Note>
+
+Switching the subscription connection and picking a model in the current task are two separate actions. The first decides which account this Agent uses on this device. The second decides which model this request uses.
 
 Quota readings show when they were read. When the provider does not supply a reading, or it cannot be read right now, the page explains why. "Could not read" does not mean the quota is zero.
 

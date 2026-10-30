@@ -1,0 +1,72 @@
+---
+title: "贡献 App：从零到上架"
+description: "从一个文件夹开始，在本机装好、测好，再登记到 App 市场。"
+---
+
+App 是一个文件夹：一份 `manifest.json`，加上页面、脚本和可选的 Agent 工具。它可以在任务里加工作页面，让群成员一起编辑文件，也可以给 Agent 提供工具和技能。使用者从市场选择安装。
+
+本章写给想做 App 并上架市场的开发者。按下面的顺序读，每一步都有可检查的结果。
+
+<Note>本章按 2026-10-30 的开发版本核对：App API 当前为 22，最低支持 3。正式版与 Beta 支持的 API 可能更低；在目标客户端上装一次，确认它接受你声明的版本。</Note>
+
+## 路线
+
+<Steps>
+  <Step title="做第一个 App">
+    [第一个 App](/extensions)：三份文件做一个便签，从 App 页「装本地文件夹」装上，在任务里打开并保存一条草稿。
+  </Step>
+  <Step title="查清单和接口">
+    [manifest 参考](/apps/manifest) 列出每个字段、上限和所需 API 版本。[App API 导览](/extension-api) 按功能列出 `window.gugu` 的方法。
+  </Step>
+  <Step title="本地调试与测试">
+    [本地调试与测试](/apps/development)：沙箱限制、改完重装、人会看到的错误，以及怎样给 App 写自动测试。
+  </Step>
+  <Step title="提交到市场">
+    [提交到 App 市场](/apps/publishing)：把源码推到公开仓库，用脚本生成登记记录，向索引仓提 PR，通过检查并由维护者审阅合并。
+  </Step>
+  <Step title="发新版与维护">
+    [维护、更新与撤回](/apps/maintenance)：升版本号、撤回有问题的一版、停止维护或下架。规则边界见[开发者政策](/apps/policies)。
+  </Step>
+</Steps>
+
+## 源码放在哪
+
+市场索引是公开仓库 [GUYI-AI/gugu-apps](https://github.com/GUYI-AI/gugu-apps)。每个 App 在 `apps/<id>.json` 有一份登记，记下每一版的源码仓库、提交、目录和包的校验值。客户端只安装登记过的那一份字节。
+
+### 外部开发者：代码在自己的仓库
+
+这是普通贡献者的路径。
+
+1. 源码放在你自己的公开 GitHub 仓库。App 可以占整个仓库，也可以只占其中一个目录。
+2. 要发布的提交合并进该仓库的默认分支。索引仓的脚本会检查这一点，只在其他分支或 fork 上的提交会被拒绝。
+3. Fork 索引仓，运行一条命令生成登记，提一个 PR：
+
+```sh
+npm ci
+node scripts/add-version.mjs <owner/repo> <完整40位提交> <App所在目录>
+```
+
+App 在仓库根目录时，最后一个参数写 `.`。完整步骤见[提交到 App 市场](/apps/publishing)。
+
+市场上已有代码在其他仓库的 App。例如 `studio` 登记的是 `shuxueshuxue/promo-skills` 仓库根目录，`spexcode` 登记的是 `shuxueshuxue/Spexcode` 的 `distribution/gugu/spexcode` 目录。
+
+### 官方 App：代码在索引仓的 sources/
+
+咕咕团队自己的 App 放在索引仓的 `sources/<id>/`。发布一版要两个 PR：
+
+1. **源码 PR**：修改 `sources/<id>/`，按 squash 方式合并进 `main`。
+2. **登记 PR**：用合并后 `main` 上那个提交的完整 40 位 sha 运行 add-version。分支上的提交 sha 会失败，因为 squash 合并会生成新的提交。
+
+这类 App 登记行的 `repo` 必须写 `shuxueshuxue/gugu-apps`。客户端按这串文字判断官方 App，只有它们可以标 `firstRun`。外部 App 的 `repo` 写作者自己的仓库。
+
+想改进某个官方 App 时，向索引仓提 PR，只修改 `sources/<该 App 的 id>`，目标分支是 `main`。
+
+## 需要准备什么
+
+| 阶段 | 需要 |
+| --- | --- |
+| 做和调试 | 咕咕桌面版、一个文本编辑器 |
+| 写自动测试 | Node.js；测试放在自己的仓库 |
+| 提交市场 | Git、Node.js 24 或更高、GitHub 账号和一个公开仓库 |
+
+也可以请咕咕里的 Agent 写 App。它会先读产品内的 App 指南，再制作、安装和检查。装到这台电脑上需要你确认权限。

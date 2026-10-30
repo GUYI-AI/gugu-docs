@@ -1,9 +1,9 @@
 ---
 title: "App API 导览"
-description: "按功能查 window.gugu、共享文件、Agent 工具和产品内的接口指南。"
+description: "按功能查 window.gugu：页面环境、交给别人、共享文件、Agent 与程序，以及产品内的接口指南。"
 ---
 
-页面通过 `window.gugu` 调用咕咕。先读环境，再调用所需能力；不要在脚本顶层声明 `const gugu = window.gugu`，它可能与平台提供的全局名称冲突。
+页面通过 `window.gugu` 调用咕咕。先读环境，再调用所需能力。不要在脚本顶层写 `const gugu = window.gugu`，它与平台的全局名称冲突，整个脚本不会运行。
 
 ```js
 window.gugu.getContext().then((context) => {
@@ -13,97 +13,146 @@ window.gugu.getContext().then((context) => {
 });
 ```
 
-本页提供查找入口和常用契约。完整签名、参数和返回值由产品内 `guide_read` 的专题说明维护，可请咕咕里的 Agent 逐篇阅读。清单字段见 [manifest](/apps/manifest)。
+本页列出方法、所需权限和最低 API 版本。完整签名和返回值写在产品内的 App 指南里，可请咕咕里的 Agent 用 `guide_read` 按专题阅读，专题名见文末。清单字段见 [manifest 参考](/apps/manifest)。
 
-## 环境与页面
+## 不同宿主有不同的方法
 
-`getContext()` 返回 `apiVersion`、`tabId`、`chat`、`session`、`file`、`operator`、`locale`、`themeMode`、`capabilities` 和 `layout` 等。可选字段取决于页面在哪打开。
+同一个 App 可能在桌面页面、手机页面、后台页或工具程序里运行。宿主没有的方法不会出现在 `gugu` 上，用 `typeof window.gugu.someMethod` 检查。
 
-| 字段 | 何时使用 |
+| 宿主 | 主要差别 |
 | --- | --- |
-| `chat` | 群、话题或私聊的侧面板；含 id、name、kind、groupId、members |
-| `session` | 任务页面；含 id、agentId、projectId、root、deviceId、deviceLabel 等 |
-| `file` | 为某个文件打开的页面；传给 files.open |
-| `operator` | 当前是人操作还是 Agent 操作 |
-| `capabilities` | 当前有效权限，已经扣除撤销项 |
-| `layout` | 当前页面的显示和大小信息，含 visible |
+| 桌面页面 | 方法最全，可以有页签、手势、文件选择器 |
+| 手机页面 | 没有后台页、`notify`、本机程序、本机工作区；可以联系电脑上的 Agent |
+| 后台页 | 没有页签和手势：不能 `setTabTitle`、`clipboard`、文件选择器；`dispatch` 必须写明 `to` |
+| 工具程序 | 有页面的大部分方法，没有手势相关方法；`linkTo` 只生成链接，不能打开 |
 
-切换页面、主题、语言或成员后，用 `onContextChanged` 更新画面。订阅方法返回取消函数，页面离开时释放不用的订阅和文件句柄。
+每次调用都可能因撤权、离线或文件变化而失败。把失败显示出来，或调用 `reportError`。不要用空的 `.catch(() => {})` 把失败画成空列表。
 
-| 方法 | 作用与条件 |
+## 页面环境
+
+`getContext()` 返回 `apiVersion`、`tabId`、`chat`、`session`、`file`、`modal`、`operator`、`locale`、`themeMode`、`capabilities`、`layout`。可选字段取决于页面在哪里打开。
+
+| 字段 | 何时出现 |
 | --- | --- |
-| `getContext` / `onContextChanged` | 当前页面环境及变更 |
-| `setTabTitle` / `setTabBadge` | 自己的页签标题与角标 |
-| `onCommand` | 接收 manifest 中 menu / toolbar 的命令 |
-| `reportError` | 向人显示错误并记入 App 错误记录 |
-| `openBrowserTab` | 打开 HTTP(S) 页面 |
-| `sendToBackground` / `onBackgroundMessage` | 页面与自己的后台通信 |
-| `broadcastToViews` / `onViewMessage` | 后台广播与接收页面消息 |
-| `linkTo` / `onLink` | 生成并接收 App 定位链接，不手写应用协议 |
-| `showMessage` / `showSession` | 用户点击后打开消息或任务 |
-| `compose` | 用户点击后把内容放进指定聊天或任务输入框，由人发送 |
-| `clipboard.writeText` | 用户点击或按键后复制文字 |
-| `send` | 需要 chat:relay，向指定成员发来源明确的私下通知 |
-| `notify` / `onNotificationClicked` | 需要 notifications，发系统通知并处理点击 |
+| `chat` | 群或私聊的侧面板：`id`、`name`、`kind`、`groupId`、`members` |
+| `session` | 任务页面：`id`、`agentId`、`projectId`；有文件权限时有 `root`；在其他电脑上时有 `deviceId`、`deviceLabel` |
+| `file` | 为某个文件打开的页面；直接传给 `files.open` |
+| `operator` | 人在操作（`{ kind: 'person' }`）还是 Agent 在操作 |
+| `capabilities` | 当前实际有效的权限，已扣除撤销的 |
+| `layout` | 显示与大小；`visible` 表示这个页面是否在屏幕上 |
+
+| 方法 | 作用 | 条件 |
+| --- | --- | --- |
+| `getContext` / `onContextChanged` | 当前环境及其变化（主题、语言、可见性、大小、成员） | 免费 |
+| `setTabTitle` / `setTabBadge` | 自己页签的标题和角标 | 免费 |
+| `onCommand` | 收到 manifest 中 menu / toolbar 的点击 | 免费 |
+| `showContextMenu` | 在页面内弹出咕咕样式的右键菜单 | API 18 |
+| `reportError` | 显示错误给人，并记入 App 错误记录 | 免费 |
+| `openBrowserTab` | 打开 http(s) 页面 | 免费 |
+| `modal.open` / `modal.close` | 用自己包内的 HTML 打开咕咕的对话框，返回结果；取消时为 null | API 11 |
+| `sendToBackground` / `onBackgroundMessage` | 页面与自己的后台页通信 | 免费 |
+| `broadcastToViews` / `onViewMessage` | 后台页向页面广播与接收 | 免费 |
+| `linkTo` | 生成聊天、文件、任务、项目或 App 的链接 | API 13 |
+| `openLink` | 打开这样的链接；页面中需要人的点击或按键 | API 13 |
+| `onLink` | 收到指向自己的链接 | 免费 |
+| `showMessage` / `showSession` | 人点击后跳到某条消息或某个任务 | 点击或按键 |
+| `clipboard.writeText` | 复制文字 | 点击或按键 |
+| `notify` / `onNotificationClicked` | 系统通知及其点击 | `notifications` |
+
+页面里不能用 `alert`、`confirm`、`prompt`，改用 `gugu.modal`。订阅类方法返回取消函数，页面离开时释放。
+
+## 把东西交给人或 Agent
+
+API 15 起，`gugu.dispatch(text, options)` 是唯一的交付方式。
+
+| 写法 | 效果 | 条件 |
+| --- | --- | --- |
+| 不写 `to`，由点击触发 | 咕咕弹出发送面板，人可以改文字、选收件人；人按下发送就是同意 | 无需权限 |
+| `to: { chat, member }` | 以使用者身份给某个成员发私下消息；`visible: true` 时全群可见 | `chat:relay` |
+| `to: { agent }` | 联系一个 Agent | `agents:control` 一类 |
+| `to: { new: true }` + `spawn` | 新建一个 Agent 任务；`spawn.device` 指定电脑需要 API 17 | `agents:control` 一类 |
+| `draft: true` | 只放进聊天或 Agent 的输入框，由人决定是否发送 | 同上 |
+
+可附带 `refs`（指向文件位置的引用）和 `images`。失败时错误码为 `not-found`、`failed`、`denied`、`rate-limited`（每个聊天每分钟 30 条）或 `invalid`。
+
+<Note>
+**从旧接口迁移。** `compose`、`send`、`messageAgent`、`spawnAgent` 在 API 15 移除。现在调用它们会直接失败，错误信息写明替代写法：
+
+| 旧方法 | 改为 |
+| --- | --- |
+| `compose(...)` | `dispatch(text, { draft: true, to })` 或 `dispatch(text, { draft: true, refs })` |
+| `send(...)` | `dispatch(text, { to: { chat, member } })` |
+| `messageAgent(...)` | `dispatch(text, { to: { agent } })` |
+| `spawnAgent(...)` | `dispatch(prompt, { to: { new: true }, spawn })` |
+
+改完后把 `apiVersion` 升到 15 或更高。
+</Note>
 
 ## 文件和协同编辑
 
-文件统一用 `gugu.files` 打开，不要另做一套群数据副本。
+文件统一用 `gugu.files` 打开。不要另存一份群数据的副本。
 
-| 方法 | 用途 |
-| --- | --- |
-| `files.open(ref)` | 取得文件的实时句柄 |
-| `files.list` / `search` / `recent` | 按位置、名字或最近使用查找 |
-| `files.create` / `rename` / `remove` | 创建、改名、删除 |
-| `files.mkdir` / `move` | 群文件夹目录与移动 |
-| `files.upload` / `download` | 上传与下载；选择器要求用户动作 |
-| `files.openWith` | 以用户选定或声明的 App 打开文件 |
-| `files.replace` / `versions` / `readVersion` | 二进制文件换版与历史 |
-| `files.onChanged` | 文件列表变化 |
+| 方法 | 用途 | 条件 |
+| --- | --- | --- |
+| `files.open(ref)` | 取得文件的实时句柄 | 为该文件打开的页面免费；其他文件需 `files:read` 或 `files:write` |
+| `files.list` / `search` / `recent` | 按位置、名字、最近使用查找 | `files:read` |
+| `files.create` / `rename` / `remove` | 创建、改名、删除 | `files:write` |
+| `files.mkdir` / `move` | 群文件夹的目录与移动 | `files:write` |
+| `files.upload` / `download` | 上传和下载；打开选择器需要点击 | `upload` 需 `files:write`；`download` 多个文件需 API 20 |
+| `files.openWith` | 用使用者选定或声明的 App 打开 | 点击或按键 |
+| `files.replace` / `versions` / `readVersion` | 二进制文件换新版本与历史 | 按文件权限 |
+| `files.onChanged` | 文件列表变化 | `files:read` |
+| `files.keep` | 群文件的云端副本保留一段时间或一直保留 | `files:write`，API 19；多个文件需 API 20 |
+| `files.viewPreferences` | 群文件夹是否显示 App 数据文件 | `files:read`，API 18 |
 
-页面因文件而打开时，环境中的那个文件可以直接打开。其他文件按 `files:read` / `files:write` 检查；远程任务的文件读取需要 `files:read:all-machines`，目前只读。
+API 18 起，App 内部状态文件可以用 `files.create(..., { appData: true })` 创建，或用 `files.open(ref, { appData: true })` 标记。群文件夹视图默认隐藏这些文件；接口、Agent 和链接仍能访问。不要标记使用者自己的文档。
 
-文本句柄提供 `text`、`edit`、`insert`、`delete`、`onChange`、`snapshot`、`applyFrom`。协同输入优先用 `gugu.bind.text`；CodeMirror 使用 `gugu.codemirror()` 提供的同一份库，再用 `gugu.bind.codemirror` 绑定。
+文本句柄提供 `text`、`edit`、`insert`、`delete`、`onChange`、`snapshot`、`applyFrom`。输入框或编辑器用 `gugu.bind.text` 绑定，多人同时输入不会丢字；CodeMirror 用 `gugu.codemirror()` 提供的库，再用 `gugu.bind.codemirror`。
 
-JSON 文件通过 `f.data` 按字段修改，`f.transact` 合并一次操作；`f.toJSON()` 得到普通副本。多人同时输入的文本用 `gugu.text` 和 `f.textAt`。游标、拖动和游戏帧放 `f.presence`，只把需要保留的结果写进文件。
+JSON 文件通过 `f.data` 按字段读写，`f.transact` 合并一次操作，`f.toJSON()` 得到普通副本。多人一起输入的文字字段用 `gugu.text('')` 创建，用 `f.textAt([...])` 编辑。光标、拖动和游戏帧放 `f.presence`，只把需要保留的结果写进文件。
 
-用 `f.status`、`f.saved`、`f.onStatus` 和 `f.onRefused` 显示连接、保存或拒绝结果，用 `f.close()` 释放句柄。详情读 `apps-files`、`apps-editors`、`apps-together`。
+用 `f.status`、`f.saved`、`f.onStatus`、`f.onRefused` 显示连接、保存和拒绝结果，用 `f.close()` 释放。
 
-## Agent 与自己的程序
+## Agent、程序和数据
 
-| 方法 | 权限与后果 |
-| --- | --- |
-| `getAppState` / `onAppStateChanged` | 读取窗口和面板状态；panes 是列表，按 focused 判断焦点 |
-| `listAgents` / `onAgentsChanged` | agents:read 家族，按安装时的范围返回 |
-| `readAgentHistory(agentId, before)` | agents:history 家族，nextCursor 为 null 才到开头 |
-| `spawnAgent` | agents:control 家族，新建独立任务，会消耗用户额度 |
-| `messageAgent` | agents:control 家族，联系或唤醒 Agent，会产生模型调用 |
-| `stopAgent` | agents:control 家族，停止本机 Agent；已经完成的外部操作保留 |
-| `callProgram` / `onProgramNotification` | 调用 App 自己的程序和接收其通知，agents:tools 有效时可用 |
-| `readData` / `writeData` / `listData` | App 私有数据目录，卸载清除 |
+| 方法 | 作用 | 条件 |
+| --- | --- | --- |
+| `getAppState` / `onAppStateChanged` | 窗口焦点、当前任务、各个窗格的标签 | 免费；部分字段需对应权限 |
+| `listAgents` / `onAgentsChanged` | 列出可见的 Agent 及状态 | `agents:read` 一类 |
+| `readAgentHistory(agentId, before)` | 分页读取对话记录；`nextCursor` 为 null 才到开头 | `agents:history` 一类，仅本机 |
+| `stopAgent` | 停止本机的 Agent；已完成的操作不会撤销 | `agents:control` 一类 |
+| `sessions.index` / `sessions.read` | 读取外部命令行会话的列表、对话和加载过的上下文 | `agents:history:all`，API 17 |
+| `callProgram` / `onProgramNotification` | 调用自己的程序、接收它的通知；`device` 参数需 API 17 | `agents:tools` 有效时 |
+| `readData` / `writeData` / `listData` | App 私有数据目录，每个文件最多 8 MB；卸载时删除 | 免费 |
+| `projection.mount` | 在任务页面里显示自己程序发布的画面并接收输入 | `agents:tools`，API 22，桌面版 |
 
-`agents:read` 只包括这个 App 启动的 Agent，`:all` 扩到本机，`:all-machines` 扩到其他在线机器。历史读取只支持本机；跨设备的控制主要用于联系 Agent，本机停止与新建的限制仍然有效。不要把读、历史和控制权限当成彼此包含。
+`listAgents` 里不可读的实时计数是 `null`，不要当成零。`readAgentHistory` 的空页也可能还有 `nextCursor`，继续翻页。启动和联系 Agent 会消耗使用者的额度，不要循环唤醒。
 
-`listAgents` 中不可读的实时计数可能是 `null`，不能当成零。`readAgentHistory` 的空页也可能还有 `nextCursor`，继续按游标翻页。
+给 Agent 提供工具有两种方式：`tools.js` 的每个导出是一个工具，或者在清单里声明本机程序。Agent 看到的工具名是 `<App id>__<工具名>`。程序以使用者的本机权限运行，页面的沙箱限制不适用于程序。API 21 起，工具的 `run` 会收到可取消信号 `signal`，请把它传给耗时操作。
 
-向 Agent 提供工具可以用 `tools.js` 的导出对象，或清单声明的本机程序。工具名称由平台组合为 `App-id__tool`，通常从目录调用。程序具有本机用户权限；页面的隔离限制不代表程序也被限制在页面里。实现前读 `apps-programs` 和 `apps-settings`。
+API 22 起，工具程序可以用 `gugu.projection.create(driver)` 发布本机画面（PNG、JPEG 或 WebP，每张解码后最多 512 KiB），同一 App 的任务页面用 `gugu.projection.mount` 显示并转交输入。画面只在本机传递。
 
 ## 聊天与论坛
 
-`chat:read` 允许 `gugu.chats.list`、`chats.members`、`messages.history` 和 `messages.search`。消息结果为 `messages` 与 `next`，把 `next` 作为 `before` 翻页，直到 `null`。只返回调用身份有权看到的内容。
+`chat:read`（API 6）提供 `gugu.chats.list`、`chats.members`、`messages.history`、`messages.search`。结果为 `messages` 与 `next`，把 `next` 作为 `before` 继续翻页，直到 `null`。只返回调用者有权看到的内容。
 
-API 9 的 `gugu.forum` 提供 list、read、post、reply、react、remove、block、assign、award 和 onChanged。读取无需额外 capability，写入需要用户动作；动社区积分和指派 Agent 由咕咕自己的确认框处理。返回 `confirming: true` 表示确认仍在进行，订阅事件后重新读结果。详见 `apps-forum`。
+`gugu.forum`（API 9）提供 list、read、post、reply、react、remove、block、assign、award 和 onChanged。读取不需要权限，写入需要人的点击。涉及积分和指派 Agent 时由咕咕弹出确认；返回 `confirming: true` 表示确认还没结束，订阅事件后再读结果。
 
-## 按需阅读产品内指南
+## 产品内指南
 
-| guide_read 专题 | 内容 |
+| `guide_read` 专题 | 内容 |
 | --- | --- |
-| `apps` / `apps-ui` | 起步、清单、页面风格与基本流程 |
-| `apps-page` | 环境、页签、引用、后台、通知 |
-| `apps-agents` | Agent 状态、历史、启动和联系 |
-| `apps-programs` / `apps-settings` | tools.js、程序、技能、配置 |
-| `apps-files` / `apps-editors` / `apps-together` | 共享文件、编辑器、多人协作 |
-| `apps-messages` | 聊天、成员、消息与引用检索 |
-| `apps-forum` | 论坛、悬赏、指派和事件 |
-
-手机、后台页和程序拥有的方法不同。用 `typeof window.gugu.someMethod` 检查可用性；手机没有本机 Agent 控制、后台页或本机工作目录。每次调用都可能因撤权、离线或文件变化失败，必须给出可见结果。不要把失败画成空列表。
+| `apps` | 起步、清单、沙箱、制作流程 |
+| `apps-ui` | 页面外观、内置组件、市场卡片上的信息 |
+| `apps-page` | `window.gugu` 页面接口、各宿主差别、`dispatch`、链接、通知 |
+| `apps-agents` | 应用状态，查看和驱动 Agent |
+| `apps-sessions` | 外部命令行会话记录和上下文（API 17） |
+| `apps-settings` | 工具类 App、配置页、`platforms`、常驻说明 |
+| `apps-programs` | `tools.js`、本机程序、技能、`callProgram`、私有数据 |
+| `apps-projection` | 本机画面与输入资源（API 22） |
+| `apps-files` | 共享文件、App 数据文件、错误码 |
+| `apps-editors` | 文本框、可编辑区域或 CodeMirror 编辑器 |
+| `apps-together` | 多人同时使用：在线状态、游戏循环、秘密信息放哪里 |
+| `apps-messages` | 聊天、成员、消息检索 |
+| `apps-forum` | 论坛、悬赏、指派与事件 |
+| `apps-fork` | 修改已有 App：派生版本、切换、合并上游更新、回馈贡献 |
